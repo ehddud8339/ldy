@@ -2,36 +2,30 @@
 ioengine=psync
 direct=0
 iodepth=1
-size=1G
-bs=4k
-time_based=1
-runtime=30
+#time_based=1
+#runtime=30
+norandommap
 group_reporting=1
-randrepeat=0
+end_fsync=1
 
-directory=/mnt/cpu_affi_test
+#directory=/mnt/cpu_affi_test
 #filename=/mnt/RFUSE_EXT4/evaluationfile
 #filename=/mnt/test/evaluationfile
-#directory=/mnt/test/
+directory=/mnt/test/
 
 [seqread]
 rw=read
-invalidate=1
+#invalidate=1
 
 [seqwrite]
 rw=write
-fsync=1
 
 [randread]
 rw=randread
-invalidate=1
 
 [randwrite]
 rw=randwrite
-fsync=1
 
 [randrw]
 rw=randrw
-invalidate=1
 rwmixread=50
-fsync=1

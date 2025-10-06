@@ -1,40 +1,28 @@
 [global]
-ioengine=io_uring
+directory=/mnt/test
+#ioengine=psync
+ioengine=libaio
 direct=0
-size=1G
-bs=4K
-time_based=1
-runtime=30
-ramp_time=10
+norandommap
+iodepth=32
+#numjobs=1
+#time_based=1
+#runtime=60
 group_reporting=1
-iodepth=16
-numjobs=3
-
-directory=/mnt/cpu_affi_test
-nrfiles=3
-filename_format=job$jobnum.$filenum
-
-cpus_allowed=0-15
-cpus_allowed_policy=split
+end_fsync=1
 
 [seqread]
 rw=read
-invalidate=1
 
 [seqwrite]
 rw=write
-fsync=1024
 
 [randread]
 rw=randread
-invalidate=1
 
 [randwrite]
 rw=randwrite
-fsync=1024
 
 [randrw]
 rw=rw
-invalidate=1
 rwmixread=50
-fsync=1024
