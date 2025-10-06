@@ -12,7 +12,7 @@ NUMJOBS=(1 2 4 8 16 32)
 JOBS=("seqread" "seqwrite" "randread" "randwrite")
 
 # 선작성 크기 (작은 값 권장; 환경변수로 조정 가능)
-: ${PRE_SIZE:="4G"}        # export PRE_SIZE=256M
+: ${PRE_SIZE:="1G"}        # export PRE_SIZE=256M
 : ${RUN_SIZE:="$PRE_SIZE"} # 실험 size도 동일/작게
 
 DROP_CACHES='sync; echo 3 > /proc/sys/vm/drop_caches'
@@ -49,7 +49,7 @@ mkdir -p "$LOGDIR"
 for job in "${JOBS[@]}"; do
   echo "========== SECTION BEGIN: ${job} ========="
   # 이전 잔재 제거(안전)
-  delete_files "$job"
+  # delete_files "$job"
 
   # 1) 섹션 파일 선작성 (레이아웃 고정)
   precreate_layout "$job"
@@ -79,7 +79,7 @@ for job in "${JOBS[@]}"; do
   done
 
   # 3) 섹션 완료 후 파일 삭제 + 30초 대기
-  delete_files "$job"
+  # delete_files "$job"
   echo "[wait] 30 sec cool-down..."
   sleep 30
 done
