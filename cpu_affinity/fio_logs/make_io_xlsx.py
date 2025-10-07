@@ -88,10 +88,9 @@ def normalize_cpu_percent(x: Optional[float]) -> Optional[float]:
     if x is None:
         return None
     try:
-        x = float(x)
+        return float(x)
     except Exception:
         return None
-    return x * 100.0 if x <= 1.0 else x
 
 
 def read_fio_json(path: str) -> Dict[str, Any]:
