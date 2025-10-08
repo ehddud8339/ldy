@@ -1,22 +1,30 @@
 ## 실험 설정
 ---
-### cgroup을 통한 CPU list 제한
-**cgroup v2**의 `cpuset`을 이용하여 특정 프로세스가 사용할 수 있는 CPU 노드를 지정
+**P-core vs E-core IO 성능 비교**를 위해 환경을 설정해야 한다.
+
+### 1. 변동성 최소화
+- 장치/큐 설정
 ```
-``` 
-`mkdir -p /sys/fs/cgroup/<user_group>`
-`echo 0-n > /sys/fs/cgroup/<user_group>/cpuset.cpus`
-`echo <pid> > /sys/fs/cgroup/<user_group>/cgroup.procs`
-
-### CPU 전원/주파수 고정 방법
-**CPUFreq governor**를 이용하여CPU의 주파수를 고정
-
-현재 governor 확인
-`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
-
-모든 코어를 performance 모드로 고정
-`for c in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
-  echo performance | sudo tee $c
-done`
+DEV=/dev/nvme1n1
+echo 2 | sudo tee /sys/block/$(basename $DEV)/queue/rq_affinity
+sudo sh -c 'for f in /sys/block/nvme*/queue/io_poll*; do echo 0 > $f; done'
 ```
+- CPU 상태 고정
+``` bash
+sudo cpupower frequency-set -g performance
+```
+- P/E 코어 지정
+``` bash
+PSET="0,2,4,6,8,10,12,14"
+ESET="16-23"
+```
+### 2. IRQ 경로 고정
+NVMe 큐 완료가 다른 코어로 튀면 비교가 흐려질 수 있음.
+``` bash
+grep -iE 'nvme|pcie' /proc/interrupts
+# P-core 실험 전
+IRQS="$(grep -nE 'nvme|pcie' /proc/interrupts | awk -F: '{print $1}')"
+for i in $IRQS; do echo $PSET | sudo tee /proc/irq/$i/smp_affinity_list; done
+# E-core 실험 전
+for i in $IRQS; do echo $ESET | sudo tee /proc/irq/$i/smp_affinity_list; done
 ```
