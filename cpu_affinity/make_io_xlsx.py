@@ -22,7 +22,7 @@ import pandas as pd
 FILENAME_RE = re.compile(r'^(?P<section>[A-Za-z0-9]+)_(?P<bs>[^_]+)_(?P<numjobs>\d+)\.json$')
 
 # 추출할 퍼센타일 키들
-PCTS = ["95.000000", "99.000000", "99.500000", "99.900000", "99.950000", "99.990000"]
+PCTS = ["99.950000", "99.990000"]
 
 def _norm_cpu_percent(v: Optional[float]) -> Optional[float]:
     if v is None:
