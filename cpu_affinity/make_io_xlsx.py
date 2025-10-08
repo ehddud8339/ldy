@@ -115,19 +115,11 @@ def _agg_jobs(j: Dict[str, Any]) -> Dict[str, Any]:
         "IOPS_total": (r_iops + w_iops),
         "BW_total_MBps": (r_bw + w_bw),
         # read
-        "avg_read_us": r_avg if r_ios > 0 else math.nan,
-        "p95_read_us":   r_pcts.get("95.000000"),
-        "p99_read_us":   r_pcts.get("99.000000"),
-        "p999_read_us":  r_pcts.get("99.500000"),
-        "p9990_read_us": r_pcts.get("99.900000"),
+        "avg_read_us": r_avg if r_ios > 0 else math.nan, 
         "p9995_read_us": r_pcts.get("99.950000"),
         "p9999_read_us": r_pcts.get("99.990000"),
         # write
         "avg_write_us": w_avg if w_ios > 0 else math.nan,
-        "p95_write_us":   w_pcts.get("95.000000"),
-        "p99_write_us":   w_pcts.get("99.000000"),
-        "p999_write_us":  w_pcts.get("99.500000"),
-        "p9990_write_us": w_pcts.get("99.900000"),
         "p9995_write_us": w_pcts.get("99.950000"),
         "p9999_write_us": w_pcts.get("99.990000"),
         # CPU
