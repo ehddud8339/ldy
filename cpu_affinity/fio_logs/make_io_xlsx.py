@@ -1,260 +1,220 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-make_io_xlsx.py
-- Reads fio JSON files named: [mode]_[bs]_[numjobs].json
-- Writes an Excel with columns:
-  Mode | Block Size | numjobs | IOPS (K) | BW (MB/s) | Avg Lat | p95 Lat | p99 Lat | sys_cpu % | usr_cpu %
-  * All Lat columns are unified to microseconds (µs).
-  * CPU % uses values as-is by default (no scaling).
-
-Examples:
-  python make_io_xlsx.py "./rfuse_base/*.json" -o rfuse_results.xlsx
-  python make_io_xlsx.py "/path/*.json" -o out.xlsx --engine openpyxl
+fio JSON 결과(파일명: [section]_[bs]_[numjobs].json)를 읽어
+엑셀로 내보냅니다. 시트=section-bs, 행=numjobs.
 """
 
 import argparse
-import glob
 import json
-import os
+import math
 import re
-from typing import Tuple, Optional, Dict, Any, List
+from pathlib import Path
+from typing import Dict, Any, Optional, Tuple, List
 
 import pandas as pd
 
 
-# ----------------------------
-# Parsing helpers
-# ----------------------------
+FILENAME_RE = re.compile(r'^(?P<section>[A-Za-z0-9]+)_(?P<bs>[^_]+)_(?P<numjobs>\d+)\.json$')
 
-def parse_filename(fname: str) -> Tuple[str, str, int]:
-    """Parse [mode]_[bs]_[numjobs].json → (mode, bs, numjobs)."""
-    base = os.path.basename(fname)
-    if not base.endswith(".json"):
-        raise ValueError(f"Not a JSON file: {base}")
-    stem = base[:-5]
-    parts = stem.split("_")
-    if len(parts) < 3:
-        raise ValueError(f"Filename not in [mode]_[bs]_[numjobs].json format: {base}")
-    mode = parts[0]
-    bs = parts[1]
-    try:
-        numjobs = int(parts[2])
-    except ValueError:
-        m = re.match(r"(\d+)", parts[2])
-        if not m:
-            raise
-        numjobs = int(m.group(1))
-    return mode, bs, numjobs
-
-
-def to_mb_per_s(bw_bytes: float) -> float:
-    """fio’s bw_bytes is bytes/sec → MB/s (MiB/s)."""
-    return float(bw_bytes) / (1024.0 * 1024.0)
-
-
-# ----------------------------
-# Latency unification to µs
-# ----------------------------
-
-def _extract_mean_us_from(section: Dict[str, Any], key_base: str) -> Optional[float]:
-    """
-    Try mean from {key_base}_ns or {key_base}_us (fio has lat_ns, clat_ns).
-    Returns microseconds (µs).
-    """
-    ns_key = f"{key_base}_ns"
-    us_key = f"{key_base}_us"
-    # ns preferred (most common)
-    if ns_key in section and isinstance(section[ns_key].get("mean", None), (int, float)):
-        return section[ns_key]["mean"] / 1_000.0
-    # fallback: us (rare but possible)
-    if us_key in section and isinstance(section[us_key].get("mean", None), (int, float)):
-        return float(section[us_key]["mean"])
-    # some fio dumps might have just "lat_ns": {"mean": ...} directly (no base prefix)
-    if key_base == "lat" and "lat_ns" in section and isinstance(section["lat_ns"].get("mean", None), (int, float)):
-        return section["lat_ns"]["mean"] / 1_000.0
-    if key_base == "lat" and "lat_us" in section and isinstance(section["lat_us"].get("mean", None), (int, float)):
-        return float(section["lat_us"]["mean"])
-    return None
-
-
-def _extract_pct_us_from(section: Dict[str, Any], key_base: str, percentile: str) -> Optional[float]:
-    """
-    Get percentile from {key_base}_ns.percentile dict (or *_us).
-    Returns microseconds (µs).
-    """
-    ns_key = f"{key_base}_ns"
-    us_key = f"{key_base}_us"
-    if ns_key in section and "percentile" in section[ns_key]:
-        val = section[ns_key]["percentile"].get(percentile)
-        if isinstance(val, (int, float)):
-            return val / 1_000.0
-    if us_key in section and "percentile" in section[us_key]:
-        val = section[us_key]["percentile"].get(percentile)
-        if isinstance(val, (int, float)):
-            return float(val)
-    # clat_ns is the most common place for percentiles; also try direct access
-    if "clat_ns" in section and "percentile" in section["clat_ns"]:
-        val = section["clat_ns"]["percentile"].get(percentile)
-        if isinstance(val, (int, float)):
-            return val / 1_000.0
-    if "clat_us" in section and "percentile" in section["clat_us"]:
-        val = section["clat_us"]["percentile"].get(percentile)
-        if isinstance(val, (int, float)):
-            return float(val)
-    return None
-
-
-def extract_latency_us(section: Dict[str, Any]) -> Tuple[Optional[float], Optional[float], Optional[float]]:
-    """
-    Unified latency (µs):
-      - Avg Lat: prefer lat_ns.mean, fallback clat_ns.mean
-      - p95/p99: from clat_ns.percentile (95.000000, 99.000000) or *_us variants
-    """
-    # average: try lat.*, then clat.*
-    avg_us = _extract_mean_us_from(section, "lat")
-    if avg_us is None:
-        avg_us = _extract_mean_us_from(section, "clat")
-
-    p95_us = _extract_pct_us_from(section, "clat", "95.000000")
-    p99_us = _extract_pct_us_from(section, "clat", "99.000000")
-    return avg_us, p95_us, p99_us
-
-
-# ----------------------------
-# CPU percent handling
-# ----------------------------
-
-def normalize_cpu_percent(x: Optional[float], mode: str = "none") -> Optional[float]:
-    """
-    Normalize fio usr_cpu/sys_cpu to percentage.
-
-    mode:
-      - "none": use value as-is (recommended; fio already gives % on most builds).
-      - "x100": multiply by 100 (use if your JSON stores cpu as fraction).
-      - "auto": if 0.0 <= x <= 1.0 treat as fraction, else as %.
-    """
-    if x is None:
+def _norm_cpu_percent(v: Optional[float]) -> Optional[float]:
+    if v is None:
         return None
     try:
-        x = float(x)
+        f = float(v)
     except Exception:
         return None
-    if mode == "none":
-        return x
-    if mode == "x100":
-        return x * 100.0
-    if mode == "auto":
-        return x * 100.0 if 0.0 <= x <= 1.0 else x
-    return x
+    # fio가 0.12(=12%)처럼 분수로 줄 수 있으므로 보정
+    if 0.0 <= f <= 1.0:
+        f *= 100.0
+    return f
 
+def _agg_jobs(j: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    jobs[*]를 집계하여 read/write 각각에 대해:
+      - iops 합산
+      - bw_bytes 합산 (-> MB/s로 변환)
+      - total_ios 합산
+      - 평균지연(µs) = (Σ(mean_us_i * ios_i)) / (Σ ios_i)
+      - p95/p99_us: group_reporting 퍼센타일이 있으면 사용, 없으면 None
+    또한 usr/sys CPU%는 평균을 취하고, 0~1이면 0~100으로 변환.
+    """
+    jobs = j.get("jobs", []) or []
 
-# ----------------------------
-# FIO I/O section pick
-# ----------------------------
+    def agg_side(side: str) -> Tuple[float, float, float, int, Optional[float], Optional[float]]:
+        iops_sum = 0.0
+        bwB_sum = 0.0
+        ios_sum = 0
+        mean_lat_num = 0.0  # Σ(mean_us_i * ios_i)
+        # p95/p99: group 퍼센타일(가능하면 사용)
+        p95_us = None
+        p99_us = None
 
-def pick_rw_section(job: Dict[str, Any]) -> Dict[str, Any]:
-    """Return the non-empty section among job['read'] or job['write']."""
-    r = job.get("read", {}) or {}
-    w = job.get("write", {}) or {}
-    # choose whichever has non-zero iops/bytes
-    r_ios = r.get("total_ios", 0) or r.get("io_bytes", 0) or r.get("iops", 0)
-    w_ios = w.get("total_ios", 0) or w.get("io_bytes", 0) or w.get("iops", 0)
-    return r if r_ios else w
+        # 우선 그룹 퍼센타일 시도 (group_reporting=1 일 때 흔함)
+        if jobs:
+            sec0 = jobs[0].get(side, {})
+            for key in ("clat_ns", "clat_us"):  # ns/µs 둘 다 대비
+                pct = sec0.get(key, {}).get("percentile")
+                if isinstance(pct, dict):
+                    p95 = pct.get("95.000000")
+                    p99 = pct.get("99.000000")
+                    if p95 is not None:
+                        p95_us = (p95 / 1000.0) if key.endswith("_ns") else float(p95)
+                    if p99 is not None:
+                        p99_us = (p99 / 1000.0) if key.endswith("_ns") else float(p99)
+                    break  # 하나라도 찾으면 종료
 
+        for x in jobs:
+            s = x.get(side, {}) or {}
+            iops_sum += float(s.get("iops", 0.0) or 0.0)
+            bwB_sum += float(s.get("bw_bytes", 0.0) or 0.0)
+            ios = int(s.get("total_ios", 0) or 0)
+            ios_sum += ios
 
-def read_fio_json(path: str) -> Dict[str, Any]:
-    with open(path, "r") as f:
-        return json.load(f)
+            # 평균지연: lat_ns.mean 또는 clat_ns.mean 사용(µs로 변환)
+            mean_us = None
+            if "lat_ns" in s and isinstance(s["lat_ns"], dict) and "mean" in s["lat_ns"]:
+                mean_us = float(s["lat_ns"]["mean"]) / 1000.0
+            elif "clat_ns" in s and isinstance(s["clat_ns"], dict) and "mean" in s["clat_ns"]:
+                mean_us = float(s["clat_ns"]["mean"]) / 1000.0
+            if mean_us is not None and ios > 0:
+                mean_lat_num += mean_us * ios
 
+        avg_us = (mean_lat_num / ios_sum) if ios_sum > 0 else math.nan
+        MBps = bwB_sum / (1024.0 * 1024.0)
+        return iops_sum, MBps, avg_us, ios_sum, p95_us, p99_us
 
-def collect_rows(files: List[str], cpu_scale: str) -> List[Dict[str, Any]]:
-    rows = []
-    for fp in files:
-        mode, bs, numjobs = parse_filename(fp)
+    r_iops, r_bw, r_avg, r_ios, r_p95, r_p99 = agg_side("read")
+    w_iops, w_bw, w_avg, w_ios, w_p95, w_p99 = agg_side("write")
+
+    # CPU%
+    if jobs:
+        usr = sum(float(x.get("usr_cpu", 0.0) or 0.0) for x in jobs) / max(1, len(jobs))
+        sys = sum(float(x.get("sys_cpu", 0.0) or 0.0) for x in jobs) / max(1, len(jobs))
+    else:
+        usr = sys = 0.0
+    usr = _norm_cpu_percent(usr)
+    sys = _norm_cpu_percent(sys)
+
+    return {
+        "IOPS_read": r_iops if r_ios > 0 else 0.0,
+        "BW_read_MBps": r_bw if r_ios > 0 else 0.0,
+        "avg_read_us": r_avg if r_ios > 0 else math.nan,
+        "p95_read_us": r_p95 if r_ios > 0 else math.nan,
+        "p99_read_us": r_p99 if r_ios > 0 else math.nan,
+
+        "IOPS_write": w_iops if w_ios > 0 else 0.0,
+        "BW_write_MBps": w_bw if w_ios > 0 else 0.0,
+        "avg_write_us": w_avg if w_ios > 0 else math.nan,
+        "p95_write_us": w_p95 if w_ios > 0 else math.nan,
+        "p99_write_us": w_p99 if w_ios > 0 else math.nan,
+
+        "usr_cpu_pct": usr,
+        "sys_cpu_pct": sys,
+    }
+
+def parse_filename(p: Path) -> Optional[Tuple[str, str, int]]:
+    m = FILENAME_RE.match(p.name)
+    if not m:
+        return None
+    section = m.group("section")
+    bs = m.group("bs")
+    numjobs = int(m.group("numjobs"))
+    return section, bs, numjobs
+
+def collect_rows(input_dir: Path) -> pd.DataFrame:
+    rows: List[Dict[str, Any]] = []
+    for p in sorted(input_dir.glob("*.json")):
+        meta = parse_filename(p)
+        if not meta:
+            # 패턴 불일치 파일은 무시
+            continue
+        section, bs, numjobs = meta
         try:
-            data = read_fio_json(fp)
-            job = data["jobs"][0]
-            sec = pick_rw_section(job)
-
-            iops = float(sec.get("iops", 0.0))
-            bw_mb = to_mb_per_s(float(sec.get("bw_bytes", 0.0)))
-            avg_us, p95_us, p99_us = extract_latency_us(sec)
-
-            sys_cpu = normalize_cpu_percent(job.get("sys_cpu", None), mode=cpu_scale)
-            usr_cpu = normalize_cpu_percent(job.get("usr_cpu", None), mode=cpu_scale)
-
-            rows.append({
-                "Mode": mode,
-                "Block Size": bs,
-                "numjobs": int(numjobs),
-                "IOPS (K)": round(iops / 1000.0, 3),
-                "BW (MB/s)": round(bw_mb, 2),
-                "Avg Lat": None if avg_us is None else round(avg_us, 2),
-                "p95 Lat": None if p95_us is None else round(p95_us, 2),
-                "p99 Lat": None if p99_us is None else round(p99_us, 2),
-                "sys_cpu %": None if sys_cpu is None else round(sys_cpu, 2),
-                "usr_cpu %": None if usr_cpu is None else round(usr_cpu, 2),
-            })
+            with p.open("r", encoding="utf-8") as f:
+                j = json.load(f)
         except Exception as e:
-            # emit a row at least with filename-derived fields
-            rows.append({
-                "Mode": mode,
-                "Block Size": bs,
-                "numjobs": int(numjobs),
-                "IOPS (K)": None,
-                "BW (MB/s)": None,
-                "Avg Lat": None,
-                "p95 Lat": None,
-                "p99 Lat": None,
-                "sys_cpu %": None,
-                "usr_cpu %": None,
+            print(f"[warn] JSON parse failed: {p.name}: {e}")
+            continue
+
+        agg = _agg_jobs(j)
+        row = {
+            "section": section,
+            "bs": bs,
+            "numjobs": numjobs,
+            **agg,
+            "_file": p.name,
+        }
+        rows.append(row)
+
+    if not rows:
+        return pd.DataFrame()  # 빈 DF
+
+    df = pd.DataFrame(rows)
+    # 정렬: section, bs, numjobs
+    df.sort_values(by=["section", "bs", "numjobs"], inplace=True, ignore_index=True)
+    return df
+
+def write_excel(df: pd.DataFrame, out_path: Path) -> None:
+    if df.empty:
+        print("[info] no rows to write; nothing found.")
+        return
+
+    # 시트별로 분리 (section, bs)
+    with pd.ExcelWriter(out_path, engine="xlsxwriter") as writer:
+        for (section, bs), grp in df.groupby(["section", "bs"], sort=True):
+            sheet_name = f"{section}-{bs}"
+            # Excel 시트 이름 제한(<=31 chars)
+            if len(sheet_name) > 31:
+                sheet_name = sheet_name[:31]
+            # 보여줄 컬럼 순서
+            cols = [
+                "numjobs",
+                "IOPS_read", "BW_read_MBps", "avg_read_us", "p95_read_us", "p99_read_us",
+                "IOPS_write", "BW_write_MBps", "avg_write_us", "p95_write_us", "p99_write_us",
+                "usr_cpu_pct", "sys_cpu_pct",
+                "_file",
+            ]
+            present = [c for c in cols if c in grp.columns]
+            grp.sort_values("numjobs", inplace=True)
+            grp[present].to_excel(writer, index=False, sheet_name=sheet_name)
+
+        # 요약 시트(선택): 각 (section, bs)에서 peak IOPS/BW 등 하이라이트
+        summary_rows = []
+        for (section, bs), grp in df.groupby(["section", "bs"]):
+            # 총 IOPS/BW는 read+write (워크로드가 편향되어 있으면 해당만 의미)
+            grp = grp.copy()
+            grp["IOPS_total"] = grp["IOPS_read"].fillna(0) + grp["IOPS_write"].fillna(0)
+            grp["BW_total_MBps"] = grp["BW_read_MBps"].fillna(0) + grp["BW_write_MBps"].fillna(0)
+            idx_iops = grp["IOPS_total"].idxmax()
+            idx_bw = grp["BW_total_MBps"].idxmax()
+            summary_rows.append({
+                "section": section,
+                "bs": bs,
+                "peak_numjobs_IOPS": int(grp.loc[idx_iops, "numjobs"]),
+                "peak_IOPS_total": float(grp.loc[idx_iops, "IOPS_total"]),
+                "peak_numjobs_BW": int(grp.loc[idx_bw, "numjobs"]),
+                "peak_BW_total_MBps": float(grp.loc[idx_bw, "BW_total_MBps"]),
             })
-            print(f"[error] {fp}: {e}")
-    return rows
-
-
-# ----------------------------
-# Main
-# ----------------------------
+        pd.DataFrame(summary_rows).sort_values(["section", "bs"]).to_excel(
+            writer, index=False, sheet_name="summary"
+        )
+    print(f"[ok] wrote: {out_path}")
 
 def main():
-    p = argparse.ArgumentParser(description="Convert fio JSONs ([mode]_[bs]_[numjobs].json) to Excel.")
-    p.add_argument("glob_pattern", nargs="?", default="*.json",
-                   help="Glob for input files, e.g. './rfuse_base/*.json'")
-    p.add_argument("-o", "--output", default="io_results.xlsx", help="Output xlsx path.")
-    p.add_argument("--engine", choices=["xlsxwriter", "openpyxl"], default="xlsxwriter",
-                   help="Excel writer engine (install package accordingly).")
-    p.add_argument("--cpu-scale", choices=["none", "x100", "auto"], default="none",
-                   help="How to interpret usr_cpu/sys_cpu: none=as-is (default), x100=multiply by 100, auto=if <=1.0 then x100.")
-    args = p.parse_args()
+    ap = argparse.ArgumentParser(description="Convert fio JSON results to XLSX (sheets: section-bs, rows: numjobs)")
+    ap.add_argument("--input-dir", "-i", type=str, default="fio_logs",
+                    help="Directory containing fio JSON files (pattern: [section]_[bs]_[numjobs].json)")
+    ap.add_argument("--output", "-o", type=str, default="fio_results.xlsx",
+                    help="Output XLSX file path")
+    args = ap.parse_args()
 
-    files = sorted(glob.glob(args.glob_pattern))
-    if not files:
-        raise SystemExit(f"No files matched: {args.glob_pattern}")
+    input_dir = Path(args.input_dir).resolve()
+    out_path = Path(args.output).resolve()
+    input_dir.mkdir(parents=True, exist_ok=True)
 
-    rows = collect_rows(files, cpu_scale=args.cpu_scale)
-    df = pd.DataFrame(rows, columns=[
-        "Mode", "Block Size", "numjobs",
-        "IOPS (K)", "BW (MB/s)",
-        "Avg Lat", "p95 Lat", "p99 Lat",
-        "sys_cpu %", "usr_cpu %",
-    ])
-    df.sort_values(by=["Mode", "Block Size", "numjobs"], inplace=True)
-
-    with pd.ExcelWriter(args.output, engine=args.engine) as writer:
-        df.to_excel(writer, index=False, sheet_name="results")
-        # widths
-        ws = writer.sheets["results"]
-        widths = [16, 12, 8, 10, 12, 10, 10, 10, 10, 10]
-        for i, w in enumerate(widths):
-            try:
-                ws.set_column(i, i, w)  # works with xlsxwriter
-            except Exception:
-                pass  # openpyxl: ignore
-
-    print(f"Wrote: {args.output} (rows={len(df)})")
-
+    df = collect_rows(input_dir)
+    write_excel(df, out_path)
 
 if __name__ == "__main__":
     main()

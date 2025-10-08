@@ -7,7 +7,7 @@ LOGDIR="fio_logs"
 JOBFILE="basic.fio"   # [seqread][seqwrite][randread][randwrite] 섹션 존재
 BSLIST=("4k" "128k")
 NUMJOBS=(1 2 4 8 16 32)
-JOBS=("seqread" "seqwrite" "randread" "randwrite")
+JOBS=("read" "write" "randread" "randwrite")
 
 # 선작성 크기 (환경변수로 조정 가능)
 : ${PRE_SIZE:="1G"}
@@ -66,7 +66,7 @@ for job in "${JOBS[@]}"; do
         --numjobs="${nj}" \
         --time_based=1 \
         --runtime="${RUN_TIME}" \
-        --randrepeat=1 --random_generator=lfsr --random_seed=1 \
+        --randrepeat=1 --random_generator=lfsr --randseed=1 \
         --refill_buffers=1 --norandommap=1 \
         --group_reporting=1 \
         --eta=never \
