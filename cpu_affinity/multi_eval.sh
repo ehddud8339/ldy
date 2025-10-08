@@ -13,7 +13,7 @@ JOBS=("read" "write" "randread" "randwrite")
 : ${PRE_SIZE:="1G"}
 
 # 실행 시간(고정, no ramp)
-RUN_TIME="30s"
+RUN_TIME="60s"
 
 DROP_CACHES='sync; echo 3 > /proc/sys/vm/drop_caches'
 
@@ -49,8 +49,8 @@ for job in "${JOBS[@]}"; do
   precreate_layout "$job"
 
   # 2) 쿨다운 (60초)
-  echo "[wait] cool-down 60s..."
-  sleep 60
+  echo "[wait] cool-down 30s..."
+  sleep 30
 
   # 3) 실험 조합 실행
   for bs in "${BSLIST[@]}"; do
@@ -60,7 +60,7 @@ for job in "${JOBS[@]}"; do
 
       # 캐시 드랍 후 잠시 대기
       sudo sh -c "$DROP_CACHES" || echo "[warn] drop_caches failed"
-      sleep 10
+      sleep 5
 
       # 본 실험: 섹션 사용, direct 미사용(버퍼드), 시간 기반 30s, 랜덤 재현성 고정
       # directory/filename_format은 basic.fio에 이미 정의되어 있다면 생략 가능
@@ -70,10 +70,7 @@ for job in "${JOBS[@]}"; do
         --numjobs="${nj}" \
         --time_based=1 \
         --runtime="${RUN_TIME}" \
-        --randrepeat=1 --random_generator=lfsr --randseed=1 \
-        --refill_buffers=1 --norandommap=1 \
         --group_reporting=1 \
-        --eta=never \
         --output-format=json+ \
         --lat_percentiles=1 \
         --output="${out}"
