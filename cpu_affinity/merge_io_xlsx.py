@@ -1,6 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""
+merge_io_xlsx.py
+
+세 개의 결과 엑셀(ext4/fuse/rfuse)을 읽어서
+(section, bs)별 시트에 numjobs를 열로, 파일시스템별 핵심 지표를 행으로 정리합니다.
+
+- 입력: ext4_results.xlsx, fuse_results.xlsx, rfuse_results.xlsx
+  (앞서 만든 "블록 쌓기" 포맷: 병합제목 [section]_[bs] → 헤더(열=numjobs) → 지표행)
+- 출력: 섹션×블록크기별 시트 (예: seqread-4k, randwrite-128k)
+  행: ext4/fuse/rfuse의 IOPS/BW/lat_avg/p95/p99 (각 FS 블록 사이에 빈 줄)
+  열: numjobs (세 엑셀의 numjobs 합집합)
+- read 계열(seqread/randread/read)은 read 전용 지표를, write 계열은 write 전용 지표를 사용
+- NaN/결측치는 빈 칸 처리
+"""
+
 import argparse
 import math
 from pathlib import Path
@@ -22,8 +37,7 @@ def parse_blocks_from_sheet(xlsx_path: Path) -> Dict[Tuple[str, str], pd.DataFra
     }
     """
     wb = load_workbook(filename=str(xlsx_path), data_only=True, read_only=True)
-    # 시트가 하나라고 가정(혹은 첫 시트 사용)
-    ws = wb[wb.sheetnames[0]]
+    ws = wb[wb.sheetnames[0]]  # 첫 시트 사용
 
     blocks: Dict[Tuple[str, str], pd.DataFrame] = {}
 
@@ -37,16 +51,15 @@ def parse_blocks_from_sheet(xlsx_path: Path) -> Dict[Tuple[str, str], pd.DataFra
             row_idx += 1
             continue
 
-        # title like: "seqread_4k"
+        # 제목: "seqread_4k" 형태
         title = str(title_cell).strip()
         if "_" not in title:
             row_idx += 1
             continue
         section, bs = title.split("_", 1)
 
-        # header row is next
+        # 헤더(바로 다음 행): numjobs
         header_row = row_idx + 1
-        # columns: from col=2.. until None
         numjobs: List[int] = []
         col = 2
         while True:
@@ -56,15 +69,13 @@ def parse_blocks_from_sheet(xlsx_path: Path) -> Dict[Tuple[str, str], pd.DataFra
             try:
                 numjobs.append(int(val))
             except Exception:
-                # non-integer header, stop
                 break
             col += 1
         if not numjobs:
-            # malformed block; skip it
             row_idx += 1
             continue
 
-        # data rows start at row_idx + 2, until blank metric name appears
+        # 데이터 행들
         data_start = row_idx + 2
         r = data_start
         metrics: List[str] = []
@@ -72,20 +83,13 @@ def parse_blocks_from_sheet(xlsx_path: Path) -> Dict[Tuple[str, str], pd.DataFra
 
         while r <= maxrow:
             metric_name = ws.cell(row=r, column=1).value
-            # stop at blank line or next block title (heuristic: contains '_' and next row has header)
             if metric_name is None or str(metric_name).strip() == "":
                 break
             metric_name = str(metric_name).strip()
-            # if the next line seems like a new block title, stop (rare case)
-            if "_" in metric_name and len(metric_name.split("_", 1)[1]) > 0 and (ws.cell(row=r+1, column=1).value == ""):
-                # be conservative; but usually we won't hit this branch
-                break
 
             metrics.append(metric_name)
-            # read row values across numjobs
             for c_idx, nj in enumerate(numjobs, start=2):
                 v = ws.cell(row=r, column=c_idx).value
-                # normalize to float or NaN
                 if isinstance(v, (int, float)):
                     if math.isfinite(float(v)):
                         matrix[nj].append(float(v))
@@ -99,16 +103,14 @@ def parse_blocks_from_sheet(xlsx_path: Path) -> Dict[Tuple[str, str], pd.DataFra
             df = pd.DataFrame({nj: matrix[nj] for nj in numjobs}, index=metrics)
             blocks[(section, bs)] = df
 
-        # advance: skip data rows + one blank line (our writer left 1 blank row between blocks)
+        # 다음 블록으로 (블록 종료 후 한 줄 비움)
         row_idx = r + 1
 
     return blocks
 
 
 def load_fs_book(path: Path) -> Dict[Tuple[str, str], pd.DataFrame]:
-    """
-    Load one FS result workbook (ext4/fuse/rfuse) and return blocks dict.
-    """
+    """Load one FS result workbook (ext4/fuse/rfuse) and return blocks dict."""
     return parse_blocks_from_sheet(path)
 
 
@@ -129,8 +131,7 @@ def is_write_section(section: str) -> bool:
 
 def pick_metrics_for_section(section: str) -> Tuple[str, str, str]:
     """
-    Return metric field names to pick from per-block DataFrame, depending on read/write section.
-    (lat_avg, p95, p99) field names in our previous XLSX writer.
+    Return metric field names for (lat_avg, p95, p99) depending on read/write section.
     """
     if is_read_section(section):
         return ("avg_read_us", "p95_read_us", "p99_read_us")
@@ -153,7 +154,6 @@ def extract_triplet_for_block(section: str, df: pd.DataFrame) -> Dict[str, pd.Se
     def get_row(name: str) -> pd.Series:
         if name in df.index:
             return pd.to_numeric(df.loc[name], errors="coerce")
-        # fallback: all NaN for these columns
         return pd.Series([math.nan] * df.shape[1], index=df.columns)
 
     out = {
@@ -164,18 +164,6 @@ def extract_triplet_for_block(section: str, df: pd.DataFrame) -> Dict[str, pd.Se
         "p99_us": get_row(p99_name),
     }
     return out
-
-def union_numjobs(*series_groups: List[Dict[str, pd.Series]]) -> List[int]:
-    cols = set()
-    for group in series_groups:
-        for s in group.values():
-            cols.update(map(int, s.index.tolist()))
-    return sorted(cols)
-
-def reindex_to_union(series: pd.Series, union_cols: List[int]) -> pd.Series:
-    series.index = series.index.astype(int)
-    s = series.reindex(union_cols)
-    return s
 
 def build_sheet_matrix(section: str,
                        ext4_blk: Optional[pd.DataFrame],
@@ -221,12 +209,10 @@ def build_sheet_matrix(section: str,
                          ("p99_us", "p99_us")]
         for key, label in mapping_order:
             row_labels.append(f"{fsname}_{label}")
-            s = group[key]
-            # reindex to union
-            s2 = s.copy()
-            s2.index = s2.index.astype(int)
-            s2 = s2.reindex(union_cols)
-            rows.append([ (float(v) if isinstance(v, (int,float)) and math.isfinite(v) else None) for v in s2.tolist() ])
+            s = group[key].copy()
+            s.index = s.index.astype(int)
+            s = s.reindex(union_cols)
+            rows.append([ (float(v) if isinstance(v, (int,float)) and math.isfinite(v) else None) for v in s.tolist() ])
         # blank separator
         row_labels.append("")
         rows.append([None] * len(union_cols))
@@ -266,7 +252,6 @@ def main():
         print("No blocks found in input workbooks.")
         return
 
-    # Write per-(section,bs) sheets
     out_path = Path(args.output).resolve()
     with pd.ExcelWriter(out_path, engine="xlsxwriter") as writer:
         wb = writer.book
@@ -283,7 +268,7 @@ def main():
             if mat.empty:
                 continue
 
-            # Write with header row (blank + numjobs)
+            # 새 워크시트
             ws = wb.add_worksheet(sheet_name)
             writer.sheets[sheet_name] = ws
 
@@ -293,24 +278,31 @@ def main():
             int_fmt    = wb.add_format({"border": 1, "num_format": "0"})
             cell_fmt   = wb.add_format({"border": 1})
 
-            # column widths
-            ws.set_column(0, 0, 22)
-            ws.set_column(1, len(cols), 12)
+            ws.set_column(0, 0, 22)              # 라벨
+            ws.set_column(1, len(cols), 12)      # 수치
 
-            # header
+            # 헤더 행: "", numjobs...
             ws.write(0, 0, "", header_fmt)
             for i, nj in enumerate(cols, start=1):
                 ws.write(0, i, int(nj), header_fmt)
 
-            # body
+            # 본문: ★ 수정안 A — 빈 라벨/Series 안전 처리
             for r, label in enumerate(mat.index.tolist(), start=1):
+                # 좌측 라벨
                 ws.write(r, 0, label, idx_fmt if label else cell_fmt)
                 for c, nj in enumerate(cols, start=1):
+                    if not label:
+                        # 구분용 빈 줄: 전열 빈칸
+                        ws.write_blank(r, c, None, cell_fmt)
+                        continue
                     v = mat.loc[label, nj]
+                    # 중복 인덱스로 Series가 반환되면 첫 값만 사용
+                    if hasattr(v, "iloc"):
+                        v = v.iloc[0] if len(v) > 0 else None
+                    # NaN/None → 빈칸
                     if v is None or (isinstance(v, float) and not math.isfinite(v)):
                         ws.write_blank(r, c, None, cell_fmt)
                     else:
-                        # choose int for IOPS rows
                         fmt = int_fmt if label.endswith("_IOPS") else num_fmt
                         ws.write(r, c, float(v), fmt)
 
@@ -318,3 +310,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
