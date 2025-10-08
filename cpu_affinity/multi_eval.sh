@@ -48,7 +48,11 @@ for job in "${JOBS[@]}"; do
   # 1) 레이아웃 선작성 (섹션 미사용)
   precreate_layout "$job"
 
-  # 2) 실험 조합 실행
+  # 2) 쿨다운 (60초)
+  echo "[wait] cool-down 60s..."
+  sleep 60
+
+  # 3) 실험 조합 실행
   for bs in "${BSLIST[@]}"; do
     for nj in "${NUMJOBS[@]}"; do
       out="${LOGDIR}/${job}_${bs}_${nj}.json"
@@ -56,7 +60,7 @@ for job in "${JOBS[@]}"; do
 
       # 캐시 드랍 후 잠시 대기
       sudo sh -c "$DROP_CACHES" || echo "[warn] drop_caches failed"
-      sleep 3
+      sleep 10
 
       # 본 실험: 섹션 사용, direct 미사용(버퍼드), 시간 기반 30s, 랜덤 재현성 고정
       # directory/filename_format은 basic.fio에 이미 정의되어 있다면 생략 가능
@@ -77,10 +81,6 @@ for job in "${JOBS[@]}"; do
       echo " -> saved: $out"
     done
   done
-
-  # 3) 쿨다운 (60초)
-  echo "[wait] cool-down 60s..."
-  sleep 60
 done
 
 echo "[done] All evaluation completed."
