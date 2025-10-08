@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+make_io_xlsx.py
+- fio JSON ([section]_[bs]_[numjobs].json) → 엑셀 한 시트에 블록으로 정리
+- 시트명: 출력 파일명(stem)
+- 각 블록: 1행 병합 제목([section]_[bs]) / 2행 헤더(열=numjobs) / 3행~ 지표 행
+- 퍼센타일은 clat_* / lat_* 모두 지원 + 95/99/99.5/99.9/99.95/99.99
+- NaN/Inf는 빈 칸으로 기록(xlsxwriter가 NaN을 싫어하므로)
+"""
 
 import argparse
 import json
@@ -10,7 +18,11 @@ from typing import Dict, Any, Optional, Tuple, List
 
 import pandas as pd
 
+# 파일명 패턴: [section]_[bs]_[numjobs].json
 FILENAME_RE = re.compile(r'^(?P<section>[A-Za-z0-9]+)_(?P<bs>[^_]+)_(?P<numjobs>\d+)\.json$')
+
+# 추출할 퍼센타일 키들
+PCTS = ["95.000000", "99.000000", "99.500000", "99.900000", "99.950000", "99.990000"]
 
 def _norm_cpu_percent(v: Optional[float]) -> Optional[float]:
     if v is None:
@@ -19,18 +31,37 @@ def _norm_cpu_percent(v: Optional[float]) -> Optional[float]:
         f = float(v)
     except Exception:
         return None
-    # fio가 0.12(=12%)처럼 분수로 줄 수 있으므로 0–100%로 보정
+    # 0.12=12% 같은 분수 값이면 0–100으로 보정
     if 0.0 <= f <= 1.0:
         f *= 100.0
     return f
 
+def _pick_percentiles(sec_dict: Dict[str, Any]) -> Dict[str, float]:
+    """
+    fio JSON에서 퍼센타일 표를 찾아 µs 단위로 반환.
+    clat_ns/clat_us 또는 lat_ns/lat_us 어디에 있든 우선 발견되는 쪽 사용.
+    return 예: {"99.950000": 1234.0, ...} (µs)
+    """
+    out: Dict[str, float] = {}
+    for key in ("clat_ns", "clat_us", "lat_ns", "lat_us"):
+        bucket = sec_dict.get(key, {})
+        pct = bucket.get("percentile")
+        if isinstance(pct, dict) and pct:
+            for p in PCTS:
+                v = pct.get(p)
+                if v is not None:
+                    out[p] = (float(v) / 1000.0) if key.endswith("_ns") else float(v)
+            return out
+    return out
+
 def _agg_jobs(j: Dict[str, Any]) -> Dict[str, Any]:
     """
-    jobs[*]를 집계:
-      - read/write 각각: IOPS 합산, BW_bytes 합산(→ MB/s), 평균 지연(µs) 가중평균,
-        p95/p99_us(그룹 퍼센타일 있으면 사용).
+    jobs[*] 집계:
+      - read/write: IOPS 합산, BW_bytes 합산(→ MB/s),
+        평균 지연(µs) 가중평균(Σ(mean_us_i * ios_i)/Σios_i),
+        p95/p99/p99.5/p99.9/p99.95/p99.99 (가능 시)
+      - total: IOPS/BW 합
       - CPU%: 평균(필요 시 0–100 보정)
-    추가로 total 지표(IOPS/BW) 계산.
     """
     jobs = j.get("jobs", []) or []
 
@@ -39,22 +70,13 @@ def _agg_jobs(j: Dict[str, Any]) -> Dict[str, Any]:
         bwB_sum = 0.0
         ios_sum = 0
         mean_lat_num = 0.0  # Σ(mean_us_i * ios_i)
-        p95_us = None
-        p99_us = None
+        # 퍼센타일 맵
+        pmap: Dict[str, float] = {}
 
-        # 그룹 퍼센타일(가능 시)
+        # 그룹 퍼센타일(가능 시, jobs[0]에서 가져옴)
         if jobs:
             sec0 = jobs[0].get(side, {})
-            for key in ("clat_ns", "clat_us"):
-                pct = sec0.get(key, {}).get("percentile")
-                if isinstance(pct, dict):
-                    p95 = pct.get("95.000000")
-                    p99 = pct.get("99.000000")
-                    if p95 is not None:
-                        p95_us = (p95 / 1000.0) if key.endswith("_ns") else float(p95)
-                    if p99 is not None:
-                        p99_us = (p99 / 1000.0) if key.endswith("_ns") else float(p99)
-                    break
+            pmap = _pick_percentiles(sec0)
 
         for x in jobs:
             s = x.get(side, {}) or {}
@@ -73,10 +95,10 @@ def _agg_jobs(j: Dict[str, Any]) -> Dict[str, Any]:
 
         avg_us = (mean_lat_num / ios_sum) if ios_sum > 0 else math.nan
         MBps = bwB_sum / (1024.0 * 1024.0)
-        return iops_sum, MBps, avg_us, ios_sum, p95_us, p99_us
+        return iops_sum, MBps, avg_us, ios_sum, pmap
 
-    r_iops, r_bw, r_avg, r_ios, r_p95, r_p99 = agg_side("read")
-    w_iops, w_bw, w_avg, w_ios, w_p95, w_p99 = agg_side("write")
+    r_iops, r_bw, r_avg, r_ios, r_pcts = agg_side("read")
+    w_iops, w_bw, w_avg, w_ios, w_pcts = agg_side("write")
 
     # CPU%
     if jobs:
@@ -87,25 +109,32 @@ def _agg_jobs(j: Dict[str, Any]) -> Dict[str, Any]:
     usr = _norm_cpu_percent(usr)
     sys = _norm_cpu_percent(sys)
 
-    return {
-        # total(읽기+쓰기)
+    # 결과 dict
+    out = {
+        # total
         "IOPS_total": (r_iops + w_iops),
         "BW_total_MBps": (r_bw + w_bw),
-
         # read
         "avg_read_us": r_avg if r_ios > 0 else math.nan,
-        "p95_read_us": r_p95 if r_ios > 0 else math.nan,
-        "p99_read_us": r_p99 if r_ios > 0 else math.nan,
-
+        "p95_read_us":   r_pcts.get("95.000000"),
+        "p99_read_us":   r_pcts.get("99.000000"),
+        "p999_read_us":  r_pcts.get("99.500000"),
+        "p9990_read_us": r_pcts.get("99.900000"),
+        "p9995_read_us": r_pcts.get("99.950000"),
+        "p9999_read_us": r_pcts.get("99.990000"),
         # write
         "avg_write_us": w_avg if w_ios > 0 else math.nan,
-        "p95_write_us": w_p95 if w_ios > 0 else math.nan,
-        "p99_write_us": w_p99 if w_ios > 0 else math.nan,
-
+        "p95_write_us":   w_pcts.get("95.000000"),
+        "p99_write_us":   w_pcts.get("99.000000"),
+        "p999_write_us":  w_pcts.get("99.500000"),
+        "p9990_write_us": w_pcts.get("99.900000"),
+        "p9995_write_us": w_pcts.get("99.950000"),
+        "p9999_write_us": w_pcts.get("99.990000"),
         # CPU
         "usr_cpu_pct": usr,
         "sys_cpu_pct": sys,
     }
+    return out
 
 def parse_filename(p: Path) -> Optional[Tuple[str, str, int]]:
     m = FILENAME_RE.match(p.name)
@@ -137,28 +166,22 @@ def load_rows(input_dir: Path) -> pd.DataFrame:
 
 def build_block_matrix(grp: pd.DataFrame) -> Tuple[List[int], pd.DataFrame]:
     """
-    (section, bs) 그룹을 받아, 열= numjobs, 행= 주요 지표 형태의 표를 만든다.
-    반환: (numjobs_list, matrix_df)
+    (section, bs) 그룹 → 열=numjobs, 행=지표 행렬 생성
     """
     grp_sorted = grp.sort_values("numjobs")
     numjobs_list = grp_sorted["numjobs"].tolist()
 
-    # 보여줄 지표(순서 고정)
     metrics = [
         "IOPS_total",
         "BW_total_MBps",
-        "avg_read_us", "p95_read_us", "p99_read_us",
-        "avg_write_us", "p95_write_us", "p99_write_us",
+        "avg_read_us", "p95_read_us", "p99_read_us", "p999_read_us", "p9990_read_us", "p9995_read_us", "p9999_read_us",
+        "avg_write_us", "p95_write_us", "p99_write_us", "p999_write_us", "p9990_write_us", "p9995_write_us", "p9999_write_us",
         "usr_cpu_pct", "sys_cpu_pct",
     ]
 
-    # (rows=metrics, cols=numjobs)
-    data = {}
+    data: Dict[int, List[float]] = {}
     for nj, row in zip(numjobs_list, grp_sorted.to_dict("records")):
-        col_vals = []
-        for m in metrics:
-            val = row.get(m, math.nan)
-            col_vals.append(val)
+        col_vals = [row.get(m, math.nan) for m in metrics]
         data[nj] = col_vals
 
     mat = pd.DataFrame(data, index=metrics)
@@ -191,35 +214,32 @@ def write_one_sheet(df: pd.DataFrame, out_xlsx: Path, sheet_name: str):
         num_fmt  = workbook.add_format({"border": 1, "num_format": "0.00"})
         int_fmt  = workbook.add_format({"border": 1, "num_format": "0"})
 
-        # 열 폭 대략 조정
-        worksheet.set_column(0, 0, 20)  # 지표명
+        # 열 폭
+        worksheet.set_column(0, 0, 22)  # 지표명
         worksheet.set_column(1, 100, 12)
 
-        # (section, bs)로 그룹핑하여 블록을 위에서부터 쌓기
         start_row = 0
+        # (section, bs) 블록 쌓기
         for (section, bs), grp in df.groupby(["section", "bs"], sort=True):
             label = f"{section}_{bs}"
             numjobs_list, mat = build_block_matrix(grp)
 
-            # 1) 상단 병합 제목: [section]_[bs]
-            # 병합 범위: (start_row, 0) ~ (start_row, len(numjobs_list))  ← 왼쪽 지표명 칸 포함
-            end_col = 1 + len(numjobs_list)  # 0:지표명, 1..N:numjobs
+            # 1) 병합 제목
+            end_col = 1 + len(numjobs_list)  # 0: metric, 1..N: numjobs
             worksheet.merge_range(start_row, 0, start_row, end_col, label, title_fmt)
 
-            # 2) 헤더 행: (start_row+1)
-            # A열(0): 공란(지표명 자리), B..: numjobs 값
+            # 2) 헤더 행
             worksheet.write(start_row + 1, 0, "", header_fmt)
             for idx, nj in enumerate(numjobs_list, start=1):
                 worksheet.write(start_row + 1, idx, nj, header_fmt)
 
-            # 3) 데이터 행: 지표명 + 값들
+            # 3) 데이터 행
             for ridx, metric in enumerate(mat.index.tolist(), start=0):
                 row = start_row + 2 + ridx
                 worksheet.write(row, 0, metric, idx_fmt)
                 for cidx, nj in enumerate(numjobs_list, start=1):
                     val = mat.loc[metric, nj]
-
-                    # 포맷 선택(기존 로직 그대로)
+                    # 서식 선택
                     if metric == "IOPS_total":
                         fmt = int_fmt
                     elif metric.startswith("IOPS") or metric.endswith("_pct"):
@@ -230,14 +250,13 @@ def write_one_sheet(df: pd.DataFrame, out_xlsx: Path, sheet_name: str):
                         fmt = num_fmt
                     else:
                         fmt = cell_fmt
-
-                    # ★ NaN/Inf 방지: 비유한수이면 blank로 기록
+                    # NaN/Inf → 빈칸, 유한수만 숫자로 기록
                     if isinstance(val, (int, float)) and math.isfinite(val):
                         worksheet.write(row, cidx, val, fmt)
                     else:
                         worksheet.write_blank(row, cidx, None, fmt)
 
-            # 블록 끝난 뒤 빈 줄 하나
+            # 블록 끝: 공백 1행
             start_row = start_row + 2 + len(mat.index) + 1
 
     print(f"[ok] wrote: {out_xlsx} (sheet: {sheet_name})")
@@ -252,16 +271,15 @@ def main():
 
     input_dir = Path(args.input_dir).resolve()
     out_xlsx  = Path(args.output).resolve()
-    sheet_name = out_xlsx.stem  # 요구사항 1: -o의 파일명(stem)을 시트명으로 사용
+    sheet_name = out_xlsx.stem
 
     df = load_rows(input_dir)
     if df.empty:
         print("[info] no JSON files found (pattern: [section]_[bs]_[numjobs].json)")
         return
 
-    # (section, bs, numjobs) 정렬
+    # 정렬
     df.sort_values(by=["section", "bs", "numjobs"], inplace=True, ignore_index=True)
-
     write_one_sheet(df, out_xlsx, sheet_name)
 
 if __name__ == "__main__":

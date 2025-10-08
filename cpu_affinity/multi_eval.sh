@@ -4,7 +4,7 @@ set -euo pipefail
 # ==== Config ====
 DIR="/mnt/test"
 LOGDIR="fio_logs"
-JOBFILE="basic.fio"   # [seqread][seqwrite][randread][randwrite] 섹션 존재
+JOBFILE="fio_scripts/basic.fio"   # [seqread][seqwrite][randread][randwrite] 섹션 존재
 BSLIST=("4k" "128k")
 NUMJOBS=(1 2 4 8 16 32)
 JOBS=("read" "write" "randread" "randwrite")
