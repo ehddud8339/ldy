@@ -166,8 +166,8 @@ def build_block_matrix(grp: pd.DataFrame) -> Tuple[List[int], pd.DataFrame]:
     metrics = [
         "IOPS_total",
         "BW_total_MBps",
-        "avg_read_us", "p95_read_us", "p99_read_us", "p999_read_us", "p9990_read_us", "p9995_read_us", "p9999_read_us",
-        "avg_write_us", "p95_write_us", "p99_write_us", "p999_write_us", "p9990_write_us", "p9995_write_us", "p9999_write_us",
+        "avg_read_us", "p9995_read_us", "p9999_read_us",
+        "avg_write_us", "p9995_write_us", "p9999_write_us",
         "usr_cpu_pct", "sys_cpu_pct",
     ]
 
