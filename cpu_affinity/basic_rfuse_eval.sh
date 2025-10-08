@@ -36,6 +36,9 @@ precreate_layout() {
     --size="${PRE_SIZE}" \
     --numjobs=32 \
     --output=/dev/null
+
+  sudo sh -c "$DROP_CACHES" || echo "[warn] drop_caches failed"
+  sleep 15
 }
 
 # ==== Init ====
@@ -63,7 +66,7 @@ for job in "${JOBS[@]}"; do
 
       # 캐시 드랍 + 대기
       sudo sh -c "$DROP_CACHES" || echo "[warn] drop_caches failed"
-      sleep 5
+      sleep 10
 
       # 실행 (directory 모드; filename 미사용 → 파일 contention 회피)
       sudo fio "${JOBFILE}" \
