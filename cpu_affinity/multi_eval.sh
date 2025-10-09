@@ -55,7 +55,7 @@ for job in "${JOBS[@]}"; do
   # 3) 실험 조합 실행
   for bs in "${BSLIST[@]}"; do
     for nj in "${NUMJOBS[@]}"; do
-      out="${LOGDIR}/${job}_${bs}_${nj}.json"
+      out="${LOGDIR}/${job}_${bs}_${nj}.log"
       echo "==== RUN ${job} bs=${bs} numjobs=${nj} ===="
 
       # 캐시 드랍 후 잠시 대기
@@ -68,11 +68,6 @@ for job in "${JOBS[@]}"; do
         --section="${job}" \
         --bs="${bs}" \
         --numjobs="${nj}" \
-        --time_based=1 \
-        --runtime="${RUN_TIME}" \
-        --group_reporting=1 \
-        --output-format=json+ \
-        --lat_percentiles=1 \
         --output="${out}"
 
       echo " -> saved: $out"
