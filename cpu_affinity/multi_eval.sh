@@ -49,8 +49,8 @@ for job in "${JOBS[@]}"; do
   precreate_layout "$job"
 
   # 2) 쿨다운 (60초)
-  echo "[wait] cool-down 30s..."
-  sleep 30
+  echo "[wait] cool-down 10s..."
+  sleep 10
 
   # 3) 실험 조합 실행
   for bs in "${BSLIST[@]}"; do
