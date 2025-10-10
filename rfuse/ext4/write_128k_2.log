@@ -3,18 +3,18 @@ write: (g=0): rw=write, bs=(R) 128KiB-128KiB, (W) 128KiB-128KiB, (T) 128KiB-128K
 fio-3.16
 Starting 2 processes
 
-write: (groupid=0, jobs=2): err= 0: pid=5970: Fri Oct 10 15:21:29 2025
+write: (groupid=0, jobs=2): err= 0: pid=53794: Fri Oct 10 15:30:47 2025
   write: IOPS=14.2k, BW=1778MiB/s (1864MB/s)(256MiB/144msec); 0 zone resets
-    clat (usec): min=20, max=178, avg=27.64, stdev=18.95
-     lat (usec): min=20, max=182, avg=28.16, stdev=19.37
+    clat (usec): min=20, max=165, avg=28.41, stdev=18.40
+     lat (usec): min=21, max=169, avg=28.93, stdev=18.78
     clat percentiles (usec):
-     |  1.00th=[   22],  5.00th=[   22], 10.00th=[   23], 20.00th=[   23],
-     | 30.00th=[   23], 40.00th=[   24], 50.00th=[   24], 60.00th=[   24],
-     | 70.00th=[   24], 80.00th=[   25], 90.00th=[   26], 95.00th=[   37],
-     | 99.00th=[  114], 99.50th=[  129], 99.90th=[  169], 99.95th=[  178],
-     | 99.99th=[  180]
-  lat (usec)   : 50=95.41%, 100=0.29%, 250=4.30%
-  cpu          : usr=1.75%, sys=32.98%, ctx=16, majf=0, minf=21
+     |  1.00th=[   22],  5.00th=[   23], 10.00th=[   23], 20.00th=[   23],
+     | 30.00th=[   24], 40.00th=[   24], 50.00th=[   25], 60.00th=[   26],
+     | 70.00th=[   26], 80.00th=[   26], 90.00th=[   28], 95.00th=[   32],
+     | 99.00th=[  115], 99.50th=[  117], 99.90th=[  145], 99.95th=[  165],
+     | 99.99th=[  165]
+  lat (usec)   : 50=95.31%, 100=0.29%, 250=4.39%
+  cpu          : usr=1.75%, sys=29.72%, ctx=116, majf=0, minf=23
   IO depths    : 1=100.1%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
@@ -25,4 +25,4 @@ Run status group 0 (all jobs):
   WRITE: bw=1778MiB/s (1864MB/s), 1778MiB/s-1778MiB/s (1864MB/s-1864MB/s), io=256MiB (268MB), run=144-144msec
 
 Disk stats (read/write):
-  nvme1n1: ios=0/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%
+  nvme1n1: ios=0/530, merge=0/2, ticks=0/26744, in_queue=26749, util=49.18%
