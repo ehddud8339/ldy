@@ -3,18 +3,18 @@ write: (g=0): rw=write, bs=(R) 128KiB-128KiB, (W) 128KiB-128KiB, (T) 128KiB-128K
 fio-3.16
 Starting 2 processes
 
-write: (groupid=0, jobs=2): err= 0: pid=2353275: Fri Oct 10 11:49:59 2025
+write: (groupid=0, jobs=2): err= 0: pid=2988322: Fri Oct 10 14:32:39 2025
   write: IOPS=14.2k, BW=1778MiB/s (1864MB/s)(256MiB/144msec); 0 zone resets
-    clat (usec): min=20, max=170, avg=27.69, stdev=17.47
-     lat (usec): min=21, max=173, avg=28.19, stdev=17.84
+    clat (usec): min=20, max=253, avg=28.17, stdev=18.85
+     lat (usec): min=21, max=255, avg=28.67, stdev=19.21
     clat percentiles (usec):
-     |  1.00th=[   22],  5.00th=[   23], 10.00th=[   23], 20.00th=[   24],
+     |  1.00th=[   22],  5.00th=[   23], 10.00th=[   23], 20.00th=[   23],
      | 30.00th=[   24], 40.00th=[   24], 50.00th=[   25], 60.00th=[   25],
-     | 70.00th=[   25], 80.00th=[   26], 90.00th=[   26], 95.00th=[   29],
-     | 99.00th=[  115], 99.50th=[  117], 99.90th=[  139], 99.95th=[  167],
-     | 99.99th=[  172]
-  lat (usec)   : 50=96.00%, 100=0.10%, 250=3.91%
-  cpu          : usr=3.51%, sys=30.18%, ctx=72, majf=0, minf=21
+     | 70.00th=[   25], 80.00th=[   26], 90.00th=[   27], 95.00th=[   30],
+     | 99.00th=[  116], 99.50th=[  120], 99.90th=[  172], 99.95th=[  180],
+     | 99.99th=[  253]
+  lat (usec)   : 50=95.46%, 100=0.39%, 250=4.10%, 500=0.05%
+  cpu          : usr=1.75%, sys=30.77%, ctx=92, majf=0, minf=22
   IO depths    : 1=100.1%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
@@ -25,4 +25,4 @@ Run status group 0 (all jobs):
   WRITE: bw=1778MiB/s (1864MB/s), 1778MiB/s-1778MiB/s (1864MB/s-1864MB/s), io=256MiB (268MB), run=144-144msec
 
 Disk stats (read/write):
-  nvme1n1: ios=0/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%
+  nvme1n1: ios=0/536, merge=0/2, ticks=0/25504, in_queue=25510, util=44.26%
