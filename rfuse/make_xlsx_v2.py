@@ -4,9 +4,9 @@ from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 
 # ---------- CLI ----------
-parser = argparse.ArgumentParser(description="FIO logs → Excel summary (format.xlsx 스타일)")
+parser = argparse.ArgumentParser(description="FIO logs → Excel summary (busy vs idle side-by-side)")
 parser.add_argument("--log_dir", type=str, default="./", help="로그 파일 디렉토리")
-parser.add_argument("--output", type=str, default="summary.xlsx", help="출력 xlsx 파일명")
+parser.add_argument("--output", type=str, default="summary_side.xlsx", help="출력 xlsx 파일명")
 args = parser.parse_args()
 
 LOG_DIR = args.log_dir
@@ -22,7 +22,6 @@ def parse_fio_log(path):
     d = {"IOPS": None, "BW(MiB/s)": None, "lat_avg(ns)": None, "lat_p95(ns)": None, "lat_p99(ns)": None}
     with open(path, "r", encoding="utf-8", errors="ignore") as f:
         for line in f:
-            # IOPS / BW
             if "IOPS=" in line and "BW=" in line:
                 m_iops = re.search(r"IOPS=(\d+[kK]?)", line)
                 m_bw = re.search(r"BW=(\d+)(MiB/s|KiB/s|MB/s)", line)
@@ -35,11 +34,9 @@ def parse_fio_log(path):
                     if "ki" in u: bw /= 1024
                     elif "mb" in u: bw *= 0.9537
                     d["BW(MiB/s)"] = round(bw, 2)
-
             if "avg=" in line and "stdev" in line:
                 m = re.search(r"avg=([\d\.]+)", line)
                 if m: d["lat_avg(ns)"] = float(m.group(1))
-
             if "95.00th=[" in line or "99.00th=[" in line:
                 p95 = re.search(r"95\.00th=\[([\d\.]+)\]", line)
                 p99 = re.search(r"99\.00th=\[([\d\.]+)\]", line)
@@ -54,42 +51,56 @@ def classify(cpu_str):
     return "other"
 
 # ---------- Load ----------
-rows = []
+records = []
 for fn in os.listdir(LOG_DIR):
     if not fn.endswith(".log"): continue
     m = LOG_PATTERN.match(fn)
     if not m: continue
     cpu, wl, bs, nj = m.groups()
     d = parse_fio_log(os.path.join(LOG_DIR, fn))
-    rows.append({
+    records.append({
         "cpu": cpu, "type": classify(cpu), "workload": wl, "bs": bs, "numjobs": int(nj), **d
     })
-df = pd.DataFrame(rows)
+df = pd.DataFrame(records)
 
 if df.empty:
     raise SystemExit(f"No .log found in {LOG_DIR}")
 
 # ---------- Pivot ----------
-def to_pivot(df_type):
+def make_pivot(df_type):
     return df_type.pivot_table(
         index=["workload", "bs"],
         columns="numjobs",
         values=["IOPS", "BW(MiB/s)", "lat_avg(ns)", "lat_p95(ns)", "lat_p99(ns)"]
     ).sort_index()
 
-busy = to_pivot(df[df["type"] == "busy"])
-idle = to_pivot(df[df["type"] == "idle"])
+busy = make_pivot(df[df["type"] == "busy"])
+idle = make_pivot(df[df["type"] == "idle"])
 
 # ---------- Excel ----------
 wb = Workbook()
-ws_busy = wb.active; ws_busy.title = "busy"
-ws_idle = wb.create_sheet("idle")
+ws = wb.active
+ws.title = "summary"
 
-for r in dataframe_to_rows(busy, index=True, header=True):
-    ws_busy.append(r)
-for r in dataframe_to_rows(idle, index=True, header=True):
-    ws_idle.append(r)
+# Convert DataFrame → list
+busy_rows = list(dataframe_to_rows(busy, index=True, header=True))
+idle_rows = list(dataframe_to_rows(idle, index=True, header=True))
+
+# 공백 열 간격
+GAP = 5
+
+# busy 헤더 기록
+for r_idx, row in enumerate(busy_rows, start=1):
+    for c_idx, val in enumerate(row, start=1):
+        ws.cell(row=r_idx, column=c_idx, value=val)
+
+# idle 헤더 기록 (busy의 마지막 열 + GAP)
+idle_col_offset = busy.shape[1] + 3 + GAP  # +3은 index 컬럼(workload, bs)
+for r_idx, row in enumerate(idle_rows, start=1):
+    for c_idx, val in enumerate(row, start=idle_col_offset):
+        ws.cell(row=r_idx, column=c_idx, value=val)
 
 wb.save(OUTPUT_FILE)
 print(f"✅ Excel 저장 완료: {OUTPUT_FILE}")
+print(f"busy cols: {busy.shape[1]} / idle cols: {idle.shape[1]}")
 
