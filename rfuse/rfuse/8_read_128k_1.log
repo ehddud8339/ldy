@@ -2,20 +2,18 @@ read: (g=0): rw=read, bs=(R) 128KiB-128KiB, (W) 128KiB-128KiB, (T) 128KiB-128KiB
 fio-3.16
 Starting 1 process
 
-read: (groupid=0, jobs=1): err= 0: pid=164435: Mon Oct 13 14:09:33 2025
-  read: IOPS=5145, BW=643MiB/s (674MB/s)(128MiB/199msec)
-    clat (usec): min=3, max=3939, avg=187.85, stdev=329.74
-     lat (usec): min=3, max=3939, avg=187.87, stdev=329.74
+read: (groupid=0, jobs=1): err= 0: pid=330358: Mon Oct 13 19:44:10 2025
+  read: IOPS=10.6k, BW=1320MiB/s (1384MB/s)(128MiB/97msec)
+    clat (usec): min=3, max=442, avg=90.12, stdev=133.33
+     lat (usec): min=3, max=443, avg=90.14, stdev=133.33
     clat percentiles (usec):
      |  1.00th=[    5],  5.00th=[    5], 10.00th=[    5], 20.00th=[    5],
-     | 30.00th=[    6], 40.00th=[    7], 50.00th=[   11], 60.00th=[   38],
-     | 70.00th=[   69], 80.00th=[  603], 90.00th=[  685], 95.00th=[  775],
-     | 99.00th=[  938], 99.50th=[  963], 99.90th=[ 3687], 99.95th=[ 3949],
-     | 99.99th=[ 3949]
-  lat (usec)   : 4=0.49%, 10=49.41%, 20=0.20%, 50=19.53%, 100=2.83%
-  lat (usec)   : 250=3.12%, 500=2.05%, 750=16.11%, 1000=5.86%
-  lat (msec)   : 2=0.20%, 4=0.20%
-  cpu          : usr=0.00%, sys=14.65%, ctx=312, majf=0, minf=42
+     | 30.00th=[    5], 40.00th=[    5], 50.00th=[    8], 60.00th=[   31],
+     | 70.00th=[   32], 80.00th=[  310], 90.00th=[  318], 95.00th=[  326],
+     | 99.00th=[  347], 99.50th=[  351], 99.90th=[  367], 99.95th=[  445],
+     | 99.99th=[  445]
+  lat (usec)   : 4=0.29%, 10=49.80%, 50=24.80%, 250=0.10%, 500=25.00%
+  cpu          : usr=0.00%, sys=23.96%, ctx=258, majf=0, minf=41
   IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
@@ -23,4 +21,4 @@ read: (groupid=0, jobs=1): err= 0: pid=164435: Mon Oct 13 14:09:33 2025
      latency   : target=0, window=0, percentile=100.00%, depth=1
 
 Run status group 0 (all jobs):
-   READ: bw=643MiB/s (674MB/s), 643MiB/s-643MiB/s (674MB/s-674MB/s), io=128MiB (134MB), run=199-199msec
+   READ: bw=1320MiB/s (1384MB/s), 1320MiB/s-1320MiB/s (1384MB/s-1384MB/s), io=128MiB (134MB), run=97-97msec

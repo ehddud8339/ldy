@@ -3,20 +3,19 @@ read: (g=0): rw=read, bs=(R) 128KiB-128KiB, (W) 128KiB-128KiB, (T) 128KiB-128KiB
 fio-3.16
 Starting 3 processes
 
-read: (groupid=0, jobs=3): err= 0: pid=153324: Mon Oct 13 13:57:44 2025
-  read: IOPS=15.1k, BW=1882MiB/s (1974MB/s)(384MiB/204msec)
-    clat (usec): min=19, max=1184, avg=196.97, stdev=214.57
-     lat (usec): min=19, max=1184, avg=196.99, stdev=214.57
+read: (groupid=0, jobs=3): err= 0: pid=317714: Mon Oct 13 19:33:53 2025
+  read: IOPS=32.3k, BW=4042MiB/s (4238MB/s)(384MiB/95msec)
+    clat (usec): min=7, max=573, avg=91.63, stdev=99.46
+     lat (usec): min=7, max=573, avg=91.65, stdev=99.46
     clat percentiles (usec):
-     |  1.00th=[   22],  5.00th=[   23], 10.00th=[   24], 20.00th=[   25],
-     | 30.00th=[   26], 40.00th=[   27], 50.00th=[   37], 60.00th=[  227],
-     | 70.00th=[  306], 80.00th=[  392], 90.00th=[  506], 95.00th=[  611],
-     | 99.00th=[  848], 99.50th=[  922], 99.90th=[ 1029], 99.95th=[ 1090],
-     | 99.99th=[ 1188]
-  lat (usec)   : 20=0.07%, 50=49.93%, 100=2.67%, 250=10.03%, 500=26.89%
-  lat (usec)   : 750=8.56%, 1000=1.66%
-  lat (msec)   : 2=0.20%
-  cpu          : usr=0.00%, sys=24.79%, ctx=1514, majf=0, minf=128
+     |  1.00th=[    9],  5.00th=[    9], 10.00th=[    9], 20.00th=[   10],
+     | 30.00th=[   10], 40.00th=[   11], 50.00th=[   15], 60.00th=[  120],
+     | 70.00th=[  141], 80.00th=[  163], 90.00th=[  219], 95.00th=[  293],
+     | 99.00th=[  396], 99.50th=[  420], 99.90th=[  515], 99.95th=[  570],
+     | 99.99th=[  570]
+  lat (usec)   : 10=35.48%, 20=14.52%, 50=0.42%, 100=4.62%, 250=37.08%
+  lat (usec)   : 500=7.65%, 750=0.23%
+  cpu          : usr=0.00%, sys=27.86%, ctx=1528, majf=0, minf=125
   IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
@@ -24,7 +23,7 @@ read: (groupid=0, jobs=3): err= 0: pid=153324: Mon Oct 13 13:57:44 2025
      latency   : target=0, window=0, percentile=100.00%, depth=1
 
 Run status group 0 (all jobs):
-   READ: bw=1882MiB/s (1974MB/s), 1882MiB/s-1882MiB/s (1974MB/s-1974MB/s), io=384MiB (403MB), run=204-204msec
+   READ: bw=4042MiB/s (4238MB/s), 4042MiB/s-4042MiB/s (4238MB/s-4238MB/s), io=384MiB (403MB), run=95-95msec
 
 Disk stats (read/write):
-  nvme1n1: ios=1089/952, merge=0/0, ticks=738/40321, in_queue=41059, util=100.00%
+  nvme1n1: ios=0/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%
