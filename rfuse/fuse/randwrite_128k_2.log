@@ -3,20 +3,19 @@ randwrite: (g=0): rw=randwrite, bs=(R) 128KiB-128KiB, (W) 128KiB-128KiB, (T) 128
 fio-3.16
 Starting 2 processes
 
-randwrite: (groupid=0, jobs=2): err= 0: pid=161052: Fri Oct 10 16:08:36 2025
-  write: IOPS=6942, BW=868MiB/s (910MB/s)(256MiB/295msec); 0 zone resets
-    clat (usec): min=26, max=8855, avg=219.15, stdev=231.50
-     lat (usec): min=27, max=8861, avg=221.72, stdev=231.88
+randwrite: (groupid=0, jobs=2): err= 0: pid=993277: Mon Oct 13 00:34:07 2025
+  write: IOPS=14.3k, BW=1790MiB/s (1877MB/s)(256MiB/143msec); 0 zone resets
+    clat (usec): min=25, max=1786, avg=62.95, stdev=63.78
+     lat (usec): min=25, max=1788, avg=63.42, stdev=63.80
     clat percentiles (usec):
-     |  1.00th=[   40],  5.00th=[   46], 10.00th=[   58], 20.00th=[   96],
-     | 30.00th=[  117], 40.00th=[  147], 50.00th=[  192], 60.00th=[  231],
-     | 70.00th=[  293], 80.00th=[  347], 90.00th=[  408], 95.00th=[  437],
-     | 99.00th=[  506], 99.50th=[  578], 99.90th=[  725], 99.95th=[  750],
-     | 99.99th=[ 8848]
-  lat (usec)   : 50=6.98%, 100=14.70%, 250=40.77%, 500=36.38%, 750=1.07%
-  lat (usec)   : 1000=0.05%
-  lat (msec)   : 10=0.05%
-  cpu          : usr=0.51%, sys=22.62%, ctx=2056, majf=0, minf=18
+     |  1.00th=[   31],  5.00th=[   37], 10.00th=[   39], 20.00th=[   46],
+     | 30.00th=[   48], 40.00th=[   56], 50.00th=[   60], 60.00th=[   64],
+     | 70.00th=[   71], 80.00th=[   75], 90.00th=[   80], 95.00th=[   84],
+     | 99.00th=[  135], 99.50th=[  145], 99.90th=[ 1532], 99.95th=[ 1614],
+     | 99.99th=[ 1795]
+  lat (usec)   : 50=34.81%, 100=61.87%, 250=3.12%, 500=0.05%
+  lat (msec)   : 2=0.15%
+  cpu          : usr=0.00%, sys=14.39%, ctx=2055, majf=0, minf=18
   IO depths    : 1=100.1%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
@@ -24,4 +23,4 @@ randwrite: (groupid=0, jobs=2): err= 0: pid=161052: Fri Oct 10 16:08:36 2025
      latency   : target=0, window=0, percentile=100.00%, depth=1
 
 Run status group 0 (all jobs):
-  WRITE: bw=868MiB/s (910MB/s), 868MiB/s-868MiB/s (910MB/s-910MB/s), io=256MiB (268MB), run=295-295msec
+  WRITE: bw=1790MiB/s (1877MB/s), 1790MiB/s-1790MiB/s (1877MB/s-1877MB/s), io=256MiB (268MB), run=143-143msec
