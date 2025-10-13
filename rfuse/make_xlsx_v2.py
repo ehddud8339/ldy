@@ -1,205 +1,187 @@
-#!/usr/bin/env python3
-import os, re, argparse
+
+import os
+import re
+import sys
+from pathlib import Path
+from collections import defaultdict, OrderedDict
+
 import pandas as pd
-from collections import defaultdict
 from openpyxl import Workbook
-from openpyxl.styles import Alignment, Font
 from openpyxl.utils import get_column_letter
+from openpyxl.styles import Alignment, Font, Border, Side
 
-# ----------------- CLI -----------------
-parser = argparse.ArgumentParser(description="FIO logs → Excel (single-sheet, busy/idle side-by-side blocks like format.xlsx)")
-parser.add_argument("--log_dir", type=str, default="./", help="로그 파일 디렉토리")
-parser.add_argument("--output", type=str, default="summary_formatted.xlsx", help="출력 xlsx 파일명")
-args = parser.parse_args()
+# -------------- Helpers --------------
 
-LOG_DIR = args.log_dir
-OUTPUT_FILE = args.output
+CPUS_WHITELIST = {"0,2,4,6", "8,10,12,14"}
+FILENAME_RE = re.compile(
+    r'^(?P<cpus>[\d,]+)_(?P<workload>[A-Za-z]+)_(?P<bs>\d+k)_(?P<numjobs>\d+)\.log$'
+)
 
-# ----------------- Settings -----------------
-# 파일명 패턴: [cpus]_[workload]_[bs]_[numjobs].log
-LOG_PATTERN = re.compile(r"([\d,]+)_([a-z]+)_(\d+k)_(\d+)\.log$", re.IGNORECASE)
-BUSY_CPUS_STR = "0,2,4,6"
-IDLE_CPUS_STR = "8,10,12,14"
-BUSY_CPUS = set(map(int, BUSY_CPUS_STR.split(",")))
-IDLE_CPUS = set(map(int, IDLE_CPUS_STR.split(",")))
-
-WORKLOADS_ORDER = ["read", "write", "randread", "randwrite"]
-BS_ORDER = ["4k", "128k"]
-METRICS = ["IOPS", "BW(MiB/s)", "lat_avg(ns)", "lat_p95(ns)", "lat_p99(ns)"]
-NUMJOBS_ORDER = [1, 2, 3, 4]
-
-# 각 (workload, bs) 그룹 사이에 넣을 공백 열 개수
-GROUP_GAP = 2
-# busy와 idle 블록 사이 공백 열(요청 없으면 0으로)
-BUSY_IDLE_GAP = 0
-
-# ----------------- FIO log parser -----------------
-def parse_fio_log(filepath):
-    """
-    fio 텍스트 로그(표준 human-readable)에서 필요한 메트릭 추출
-    반환 단위:
-      IOPS: 정수
-      BW(MiB/s): float (MiB/s로 통일)
-      lat_*: float (ns 단위, fio 출력 단위가 ns라고 가정)
-    """
-    out = {
-        "IOPS": None,
-        "BW(MiB/s)": None,
-        "lat_avg(ns)": None,
-        "lat_p95(ns)": None,
-        "lat_p99(ns)": None,
-    }
-    with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
-        for line in f:
-            # IOPS, BW 라인
-            if "IOPS=" in line and "BW=" in line:
-                m_iops = re.search(r"IOPS=(\d+(?:\.\d+)?[kK]?)", line)
-                m_bw = re.search(r"BW=(\d+(?:\.\d+)?)(MiB/s|KiB/s|MB/s)", line, re.IGNORECASE)
-                if m_iops:
-                    v = m_iops.group(1)
-                    if v.lower().endswith("k"):
-                        out["IOPS"] = int(float(v[:-1]) * 1000.0)
-                    else:
-                        out["IOPS"] = int(float(v))
-                if m_bw:
-                    bw = float(m_bw.group(1))
-                    unit = m_bw.group(2).lower()
-                    # 통일: MiB/s
-                    if unit.startswith("kib"):
-                        bw = bw / 1024.0
-                    elif unit == "mb/s":
-                        # MB/s → MiB/s 근사 변환
-                        bw = bw * 0.953674
-                    out["BW(MiB/s)"] = round(bw, 2)
-
-            # 평균 latency 라인
-            if "avg=" in line and "stdev" in line:
-                m = re.search(r"avg=([\d\.]+)", line)
-                if m:
-                    out["lat_avg(ns)"] = float(m.group(1))
-
-            # 퍼센타일 라인
-            if "95.00th=[" in line or "99.00th=[" in line:
-                p95 = re.search(r"95\.00th=\[([\d\.]+)\]", line)
-                p99 = re.search(r"99\.00th=\[([\d\.]+)\]", line)
-                if p95:
-                    out["lat_p95(ns)"] = float(p95.group(1))
-                if p99:
-                    out["lat_p99(ns)"] = float(p99.group(1))
-    return out
-
-def classify_by_cpu_string(cpu_str: str):
-    """
-    파일명 앞의 [cpus] 문자열로 busy/idle 판정.
-    지정된 집합과 정확히 같으면 해당 그룹으로 간주.
-    """
-    try:
-        s = set(map(int, cpu_str.split(",")))
-    except Exception:
-        return "other"
-    if s == BUSY_CPUS:
-        return "busy"
-    if s == IDLE_CPUS:
-        return "idle"
-    # (혹시 부분집합이면 필요에 따라 로직 조정 가능)
-    return "other"
-
-# ----------------- Load logs -----------------
-# 데이터 구조: data[(group, workload, bs, numjobs)] = {metric:value, ...}
-data = {}
-for fn in os.listdir(LOG_DIR):
-    if not fn.endswith(".log"):
-        continue
-    m = LOG_PATTERN.match(fn)
+def _num_with_suffix_to_float(s: str) -> float:
+    """Convert fio-style numeric with suffix k/M/G to float (no thousands separators)."""
+    s = s.strip()
+    m = re.match(r'^\s*([0-9]*\.?[0-9]+)\s*([kKmMgG]?)\s*$', s)
     if not m:
-        continue
-    cpu_str, wl, bs, nj = m.groups()
-    group = classify_by_cpu_string(cpu_str)
-    if group not in ("busy", "idle"):
-        continue
-    try:
-        nj = int(nj)
-    except Exception:
-        continue
-    metrics = parse_fio_log(os.path.join(LOG_DIR, fn))
-    data[(group, wl, bs, nj)] = metrics
+        # fallback: try int
+        try:
+            return float(s)
+        except Exception:
+            return float("nan")
+    val = float(m.group(1))
+    suf = m.group(2).lower()
+    if suf == 'k':
+        val *= 1e3
+    elif suf == 'm':
+        val *= 1e6
+    elif suf == 'g':
+        val *= 1e9
+    return val
 
-if not data:
-    raise SystemExit(f"No matching .log files in {LOG_DIR} (expecting names like '[cpus]_[workload]_[bs]_[numjobs].log')")
-
-# ----------------- Excel layout helpers -----------------
-def write_block(ws, start_col: int, header_text: str, block_values: dict):
+def parse_fio_file_metrics(path: Path) -> dict:
     """
-    start_col 열부터 4개(numjobs=1..4) 열을 사용해 블록을 그린다.
-    행 구조(상단에서부터):
-      R1: 머지 헤더  (header_text)  ← start_col..start_col+3 병합
-      R2: numjobs 헤더(1,2,3,4)
-      R3..R7: METRICS 순서대로 값
-    block_values: dict[numjobs] -> dict(metric->value)
+    Parse a fio output log to extract metrics:
+    - IOPS (numeric)
+    - BW_MBps (MB/s, decimal megabytes per second)
+    - LAT_AVG_USEC (avg 'lat' in microseconds)
+    Returns dict; missing values are set to None.
     """
-    # 상단 머지 헤더
-    ws.merge_cells(start_row=1, start_column=start_col, end_row=1, end_column=start_col + 3)
-    hdr_cell = ws.cell(row=1, column=start_col, value=header_text)
-    hdr_cell.alignment = Alignment(horizontal="center", vertical="center")
-    hdr_cell.font = Font(bold=True)
+    text = path.read_text(errors="ignore")
 
-    # numjobs 헤더
-    for i, nj in enumerate(NUMJOBS_ORDER):
-        ws.cell(row=2, column=start_col + i, value=str(nj)).alignment = Alignment(horizontal="center")
+    # IOPS
+    iops = None
+    m = re.search(r'IOPS\s*=\s*([0-9\.]+[kKmMgG]?)', text)
+    if m:
+        iops = _num_with_suffix_to_float(m.group(1))
 
-    # 메트릭 레이블(왼쪽 고정, 블록 옆에 이미 한 번만 써도 되지만 여기선 깔끔히 각 블록 아래 행에 값만 씀)
-    # 값 채우기: METRICS × numjobs
-    for r, metric in enumerate(METRICS, start=3):
-        for i, nj in enumerate(NUMJOBS_ORDER):
-            val = block_values.get(nj, {}).get(metric, None)
-            ws.cell(row=r, column=start_col + i, value=val)
+    # BW in MB/s: Prefer value inside parentheses like "(2057MB/s)"
+    bw_mb = None
+    m = re.search(r'\(\s*([0-9]*\.?[0-9]+)\s*MB/s\s*\)', text)
+    if m:
+        bw_mb = float(m.group(1))
+    else:
+        # Fallback: parse "BW=1962MiB/s" and convert MiB/s -> MB/s (MiB * 1.048576 = MB)
+        m2 = re.search(r'BW\s*=\s*([0-9]*\.?[0-9]+)\s*MiB/s', text, re.IGNORECASE)
+        if m2:
+            mib = float(m2.group(1))
+            bw_mb = mib * 1.048576  # 1 MiB = 1.048576 MB
 
-def collect_block_values(group: str, workload: str, bs: str):
-    """
-    특정 (group, workload, bs)에 대해
-    { numjobs: {metric: value} } dict 생성
-    """
-    block = {}
-    for nj in NUMJOBS_ORDER:
-        m = data.get((group, workload, bs, nj), {})
-        block[nj] = {metric: m.get(metric) for metric in METRICS}
-    return block
+    # lat avg: Prefer "lat (" total latency), else fall back to clat
+    lat_avg_usec = None
+    m = re.search(r'lat\s*\(\s*(nsec|usec|msec)\s*\)\s*:\s*.*?avg\s*=\s*([0-9]*\.?[0-9]+)',
+                  text, re.IGNORECASE | re.DOTALL)
+    if not m:
+        m = re.search(r'clat\s*\(\s*(nsec|usec|msec)\s*\)\s*:\s*.*?avg\s*=\s*([0-9]*\.?[0-9]+)',
+                      text, re.IGNORECASE | re.DOTALL)
 
-# ----------------- Build sheet -----------------
-wb = Workbook()
-ws = wb.active
-ws.title = "summary"
+    if m:
+        unit = m.group(1).lower()
+        avg = float(m.group(2))
+        if unit == "nsec":
+            lat_avg_usec = avg / 1000.0
+        elif unit == "usec":
+            lat_avg_usec = avg
+        elif unit == "msec":
+            lat_avg_usec = avg * 1000.0
 
-# 왼쪽에 메트릭 레이블 컬럼을 한 번만 박아두자 (3~7행)
-ws.cell(row=2, column=1, value="numjobs →")
-for idx, name in enumerate(METRICS, start=3):
-    ws.cell(row=idx, column=1, value=name).font = Font(bold=True)
+    return {
+        "IOPS": iops,
+        "BW(MB/s)": bw_mb,
+        "lat_avg": lat_avg_usec,
+    }
 
-current_col = 2  # 실제 블록 시작 열(메트릭 레이블 다음 열에서 시작)
+def build_group_key(cpus: str, workload: str, bs: str) -> str:
+    return f"{cpus}_{workload}_{bs}"
 
-for wl in WORKLOADS_ORDER:
-    for bs in BS_ORDER:
-        # busy 블록
-        busy_header = f"{BUSY_CPUS_STR}_{wl}_{bs}"
-        busy_vals = collect_block_values("busy", wl, bs)
-        write_block(ws, current_col, busy_header, busy_vals)
+# -------------- Main --------------
 
-        # idle 블록 (busy 바로 오른쪽)
-        idle_header = f"{IDLE_CPUS_STR}_{wl}_{bs}"
-        idle_vals = collect_block_values("idle", wl, bs)
-        idle_start = current_col + 4 + BUSY_IDLE_GAP
-        write_block(ws, idle_start, idle_header, idle_vals)
+def main(log_dir: str = "."):
+    base = Path(log_dir).resolve()
+    logs = sorted(p for p in base.glob("*.log") if p.is_file())
 
-        # 다음 그룹으로 이동
-        current_col = idle_start + 4 + GROUP_GAP
+    if not logs:
+        print(f"[INFO] No .log files found in: {base}")
+        return 0
 
-# 보기 좋게 열 너비 자동(간단 추정)
-for col in range(1, current_col):
-    ws.column_dimensions[get_column_letter(col)].width = 12
+    grouped: dict[str, dict[int, dict]] = defaultdict(dict)
 
-# 최상단 왼쪽 코멘트
-ws.cell(row=1, column=1, value="metric").font = Font(bold=True)
+    for p in logs:
+        m = FILENAME_RE.match(p.name)
+        if not m:
+            # Skip unmatched filenames silently
+            continue
+        cpus = m.group("cpus")
+        workload = m.group("workload")
+        bs = m.group("bs")
+        numjobs = int(m.group("numjobs"))
 
-wb.save(OUTPUT_FILE)
-print(f"✅ Excel 생성 완료: {OUTPUT_FILE}")
+        # Only consider two cpus sets
+        if cpus not in CPUS_WHITELIST:
+            continue
+
+        key = build_group_key(cpus, workload, bs)
+        metrics = parse_fio_file_metrics(p)
+        grouped[key][numjobs] = metrics
+
+    if not grouped:
+        print("[INFO] No valid groups (matching cpus whitelist and filename pattern) found.")
+        return 0
+
+    # Prepare Excel workbook
+    wb = Workbook()
+    # Remove default sheet
+    wb.remove(wb.active)
+
+    # Styles
+    center = Alignment(horizontal="center", vertical="center")
+    right = Alignment(horizontal="right", vertical="center")
+    bold = Font(bold=True)
+    thin = Side(style="thin", color="000000")
+    border_all = Border(left=thin, right=thin, top=thin, bottom=thin)
+
+    # For each group create a sheet
+    for key, by_jobs in grouped.items():
+        ws = wb.create_sheet(title=key[:31])  # Excel sheet name limit
+        # Header merge: B1..E1 merged with key
+        ws.merge_cells("B1:E1")
+        ws["B1"].value = key
+        ws["B1"].font = bold
+        ws["B1"].alignment = center
+
+        # Column headers (numjobs 1..4)
+        for idx, nj in enumerate([1, 2, 3, 4], start=2):  # B..E
+            cell = ws.cell(row=2, column=idx, value=nj)
+            cell.font = bold
+            cell.alignment = center
+            cell.border = border_all
+
+        # Row labels
+        rows = ["IOPS", "BW(MB/s)", "lat_avg"]
+        for r_i, label in enumerate(rows, start=3):
+            lab_cell = ws.cell(row=r_i, column=1, value=label)
+            lab_cell.font = bold
+            lab_cell.alignment = right
+            lab_cell.border = border_all
+
+            # Fill metrics per numjobs
+            for c_i, nj in enumerate([1, 2, 3, 4], start=2):
+                val = None
+                if nj in by_jobs and label in by_jobs[nj]:
+                    val = by_jobs[nj][label]
+                cell = ws.cell(row=r_i, column=c_i, value=val)
+                cell.alignment = center
+                cell.border = border_all
+
+        # Set column widths
+        ws.column_dimensions["A"].width = 14
+        for col in ["B","C","D","E"]:
+            ws.column_dimensions[col].width = 12
+
+    out_name = f"{base.name}_summary.xlsx"
+    out_path = base / out_name
+    wb.save(out_path)
+    print(f"[OK] Wrote summary workbook: {out_path}")
+
+if __name__ == "__main__":
+    log_dir = sys.argv[1] if len(sys.argv) > 1 else "."
+    main(log_dir)
 
