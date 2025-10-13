@@ -18,7 +18,7 @@ def fs_name_from_path(p: Path) -> str:
 def get_cpu_state(cpus: str):
     """Return 'BUSY' if cpus starts with '0', 'IDLE' if starts with '8', else None."""
     if isinstance(cpus, str):
-        s = cpus.strip()
+        s = cpus.strip().strip("[]")
         if s.startswith("0"):
             return "BUSY"
         if s.startswith("8"):
@@ -45,17 +45,21 @@ def parse_tables_from_sheet(ws):
         )
 
         if isinstance(head, str) and nj_ok:
+            # Normalize header and split
+            head_norm = head.strip().strip("[]")
+            parts = head_norm.split("_")
+            if len(parts) >= 3:
+                cpus, workload, bs = parts[0], parts[1], parts[2]
+            else:
+                cur += 1
+                continue
+
             vals = {}
             for i, metric in enumerate(TARGET_METRICS, start=2):
                 row_vals = [ws.cell(cur + i, c).value for c in range(2, 6)]
                 vals[metric] = row_vals
 
-            parts = head.split("_")
-            if len(parts) >= 3:
-                cpus = parts[0]
-                workload = parts[1]
-                bs = parts[2]
-                out[(cpus, workload, bs)] = vals
+            out[(cpus, workload, bs)] = vals
 
             # Skip header + numjobs row + 3 metric rows + 3 spacing rows
             cur += 1 + 1 + len(TARGET_METRICS) + 3
@@ -201,6 +205,14 @@ def main():
     fs_pref = ["ext4", "fuse", "rfuse"]
     keys, table_map, fs_order = build_output(data_by_fs, fs_order_pref=fs_pref)
     write_output(keys, table_map, fs_order, out_path)
+
+    # Sanity warnings for identical BUSY/IDLE rows
+    for (workload, bs, metric), states in table_map.items():
+        for fs in fs_order:
+            b = states['BUSY'].get(fs)
+            i = states['IDLE'].get(fs)
+            if b and i and b == i and any(v is not None for v in (b + i)):
+                print(f"[WARN] BUSY/IDLE identical for {fs} {workload}_{bs}_{metric}")
 
 if __name__ == "__main__":
     main()
