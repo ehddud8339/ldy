@@ -14,7 +14,7 @@ MOUNT_POINT="/mnt/test"
 SECTIONS=("read" "write" "randread" "randwrite")
 BS_LIST=("4k" "128k")
 NUM_JOBS=("1" "2" "3" "4")
-BUSY_SET=("0" "2" "4" "8")
+BUSY_SET=("0" "2" "4" "6")
 IDLE_SET=("8" "10" "12" "14")
 FIO_BUSY_BASE="fio_scripts/busy.fio"
 FIO_IDLE_BASE="fio_scripts/idle.fio"
@@ -24,6 +24,23 @@ RESULT_DIR="/home/ldy/src/ldy/rfuse/"
 function drop_all_caches() {
   sudo sh -c 'sync'
   sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'
+}
+
+# === [추가] 배열 앞 n개를 콤마로 이어 반환: join_first_n BUSY_SET 3 -> "0,2,4"
+join_first_n() {
+  local -n _arr="$1"
+  local _n="$2"
+  local _len="${#_arr[@]}"
+  local _use=$_n
+  if (( _n > _len )); then
+    echo "[WARN] requested numjobs=${_n} > CPU list size=${_len}. using all CPUs in ${1}." >&2
+    _use=$_len
+  fi
+  local _out=""
+  for ((i=0; i<_use; i++)); do
+    if [[ -z "${_out}" ]]; then _out="${_arr[i]}"; else _out+=",${_arr[i]}"; fi
+  done
+  echo "${_out}"
 }
 
 # ===== Mount helpers (from your base) =====
@@ -207,10 +224,11 @@ function bg_load_on_cpus() {
     --directory="${MOUNT_POINT}" \
     --section="randwrite" \
     --bs=128k --size=4G --numjobs=4 \
-    --cpus_allowed=${BUSY_SET} --cpus_allowed_policy=split \
+    --cpus_allowed="$(IFS=,; echo "${BUSY_SET[*]}")" --cpus_allowed_policy=split \
     --output=/dev/null &
   BG_PID=$!
-  sleep "[BG] running... (pid=${BG_PID}"
+  echo "[BG] running... (pid=${BG_PID}"
+  sleep 3
 }
 
 # section 반복 전, 해당 section의 최대 numjobs를 실행하여 파일을 생성 (프리필)
@@ -284,7 +302,12 @@ for fs in "${FS_TYPE[@]}"; do
     # numjobs에 따라서 BUSY_SET, IDLE_SET을 넘겨줘는 로직이 필요함
     for bs in "${BS_LIST[@]}"; do
       for nj in "${[@]}"; do
-        run_one_fio "${section}" "${bs}" "${nj}" "${}" "${fs_outdir}"
+        busy_cpus="$(join_first_n BUSY_SET "${nj}")"
+        idle_cpus="$(join_first_n IDLE_SET "${nj}")"
+
+        run_one_fio "${section}" "${bs}" "${nj}" "${busy_cpus}" "${fs_outdir}"
+
+        run_one_fio "${section}" "${bs}" "${nj}" "${idle_cpus}" "${fs_outdir}"
       done
     done
   done
