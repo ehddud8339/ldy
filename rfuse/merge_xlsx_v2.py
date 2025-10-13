@@ -2,26 +2,32 @@
 import sys
 from pathlib import Path
 import re
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 
 from openpyxl import load_workbook, Workbook
 from openpyxl.styles import Alignment, Font, Border, Side
 
 TARGET_METRICS = ["IOPS", "BW(MB/s)", "lat_avg"]
 WORKLOAD_ORDER = ["randread", "randwrite", "read", "write"]
-CPU_STATE_MAP = {
-    "0,2,4,6": "BUSY",
-    "8,10,12,14": "IDLE",
-}
 
 def fs_name_from_path(p: Path) -> str:
     stem = p.stem  # e.g., "ext4_summary"
     m = re.match(r"(.+?)_summary$", stem, re.IGNORECASE)
     return m.group(1) if m else stem
 
+def get_cpu_state(cpus: str):
+    """Return 'BUSY' if cpus starts with '0', 'IDLE' if starts with '8', else None."""
+    if isinstance(cpus, str):
+        s = cpus.strip()
+        if s.startswith("0"):
+            return "BUSY"
+        if s.startswith("8"):
+            return "IDLE"
+    return None
+
 def parse_tables_from_sheet(ws):
     """
-    Parse tables from the 'summary' sheet generated earlier.
+    Parse tables from the 'summary' sheet.
     Returns dict: {(cpus, workload, bs): {metric: [v1,v2,v3,v4]}}
     """
     max_row = ws.max_row
@@ -51,7 +57,7 @@ def parse_tables_from_sheet(ws):
                 bs = parts[2]
                 out[(cpus, workload, bs)] = vals
 
-            # skip header + numjobs row + 3 metric rows + 3 spacing rows
+            # Skip header + numjobs row + 3 metric rows + 3 spacing rows
             cur += 1 + 1 + len(TARGET_METRICS) + 3
             continue
         else:
@@ -72,40 +78,37 @@ def workload_key(w):
 def build_output(data_by_fs: dict, fs_order_pref=None):
     """
     data_by_fs: {fs_name: {(cpus, workload, bs): {metric: [v1..v4]}}}
-    We want to produce tables keyed by (workload, bs), with rows BUSY_<fs>, IDLE_<fs>.
+    Produce tables keyed by (workload, bs), rows BUSY_<fs>, IDLE_<fs>.
     Returns:
       keys: sorted list of (workload, bs)
       table_map[(workload,bs,metric)][state][fs] = [v1..v4]
       fs_order: ordered list of fs names
     """
-    # Collect all workload/bs pairs that appear with BUSY or IDLE cpus keys
     wb_keys = set()
     for fs, d in data_by_fs.items():
         for (cpus, workload, bs) in d.keys():
-            if cpus in CPU_STATE_MAP:
+            if get_cpu_state(cpus) in ("BUSY", "IDLE"):
                 wb_keys.add((workload, bs))
 
     keys = sorted(wb_keys, key=lambda k: (workload_key(k[0]), bs_key(k[1])))
 
-    # Prepare table_map
-    table_map = defaultdict(lambda: defaultdict(dict))  # -> [ (workload,bs,metric) ][state][fs] -> list[4]
+    table_map = defaultdict(lambda: defaultdict(dict))
     for fs, d in data_by_fs.items():
         for (workload, bs) in keys:
             for metric in TARGET_METRICS:
-                # Initialize both states with None if missing
-                for state in CPU_STATE_MAP.values():
+                for state in ("BUSY", "IDLE"):
                     table_map[(workload, bs, metric)].setdefault(state, {})
                     table_map[(workload, bs, metric)][state].setdefault(fs, [None]*4)
 
-            # For cpus variants present for this fs/workload/bs, fill per-state rows
             for (cpus, w2, b2), metrics in d.items():
-                if w2 != workload or b2 != bs or cpus not in CPU_STATE_MAP:
+                if w2 != workload or b2 != bs:
                     continue
-                state = CPU_STATE_MAP[cpus]
+                state = get_cpu_state(cpus)
+                if state not in ("BUSY", "IDLE"):
+                    continue
                 for metric in TARGET_METRICS:
                     table_map[(workload, bs, metric)][state][fs] = metrics.get(metric, [None]*4)
 
-    # Determine FS order
     all_fs = list(data_by_fs.keys())
     if fs_order_pref:
         fs_order = [fs for fs in fs_order_pref if fs in all_fs]
@@ -132,19 +135,17 @@ def write_output(keys, table_map, fs_order, out_path: Path):
     for (workload, bs) in keys:
         for metric in TARGET_METRICS:
             header = f"{workload}_{bs}_{metric}"
-            # Header row (merge B..E)
             ws.merge_cells(start_row=current_row, start_column=2, end_row=current_row, end_column=5)
             h = ws.cell(current_row, 2, header)
             h.font = bold; h.alignment = center
             current_row += 1
 
-            # numjobs header
             for i, nj in enumerate([1,2,3,4], start=2):
                 c = ws.cell(current_row, i, nj)
-                c.font = bold; c.alignment = center; c.border = border
+                c.font = bold; c.alignment = center
+                c.border = border
             current_row += 1
 
-            # Rows: BUSY_<fs> then IDLE_<fs>
             for state in ["BUSY", "IDLE"]:
                 for fs in fs_order:
                     row_name = f"{state}_{fs}"
@@ -158,13 +159,11 @@ def write_output(keys, table_map, fs_order, out_path: Path):
                         c.alignment = center; c.border = border
                     current_row += 1
 
-            # spacing
             current_row += 3
             tables_written += 1
 
-    # Adjust widths
     ws.column_dimensions["A"].width = 18
-    for col in ["B","C","D","E"]:
+    for col in ["B", "C", "D", "E"]:
         ws.column_dimensions[col].width = 12
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -173,8 +172,7 @@ def write_output(keys, table_map, fs_order, out_path: Path):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python3 merge_fs_summaries_v2.py <fs1_summary.xlsx> [<fs2_summary.xlsx> ...] [--out OUTPUT.xlsx]")
-        print("FS name is derived from filename prefix before '_summary.xlsx' (e.g., 'ext4_summary.xlsx' -> 'ext4').")
+        print("Usage: python3 merge_fs_summaries_v3.py <fs1_summary.xlsx> [<fs2_summary.xlsx> ...] [--out OUTPUT.xlsx]")
         sys.exit(1)
 
     args = sys.argv[1:]
@@ -184,7 +182,7 @@ def main():
         files = [Path(p) for p in (args[:idx] + args[idx+2:])]
     else:
         files = [Path(p) for p in args]
-        out_path = files[0].parent / "merged_summary_v2.xlsx"
+        out_path = files[0].parent / "merged_summary_v3.xlsx"
 
     data_by_fs = {}
     for f in files:
