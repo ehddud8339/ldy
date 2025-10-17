@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-pipe set -euo
+set -euo pipefail
 
 python3 make_xlsx.py ./ext4 --out ext4_summary.xlsx
 python3 make_xlsx.py ./fuse --out fuse_summary.xlsx
