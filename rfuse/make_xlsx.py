@@ -110,13 +110,16 @@ def parse_fio_log(path):
 
     return {
         "IOPS": iops,
-        "BW(mb/s)": bw,
-        "lat_avg(us)": lat_avg,
-        "p95_lat(us)": p95,
-        "p99_lat(us)": p99,
-        "usr_cpu(%)": usr_cpu,
-        "sys_cpu(%)": sys_cpu,
     }
+#    return {
+#        "IOPS": iops,
+#        "BW(mb/s)": bw,
+#        "lat_avg(us)": lat_avg,
+#        "p95_lat(us)": p95,
+#        "p99_lat(us)": p99,
+#        "usr_cpu(%)": usr_cpu,
+#        "sys_cpu(%)": sys_cpu,
+#    }
 
 def build_blocks(log_dir):
     """Group parsed results into blocks keyed by (workload, bs)."""
@@ -146,7 +149,8 @@ def write_excel(ordered_groups, out_path):
       Row 2: numjobs headers (1,2,4,8,16,32,...)
       Next rows: IOPS, BW(mb/s), lat_avg(us), p95_lat(us), p99_lat(us)
     """
-    metrics_order = ["IOPS", "BW(mb/s)", "lat_avg(us)", "p95_lat(us)", "p99_lat(us)"]
+    #metrics_order = ["IOPS", "BW(mb/s)", "lat_avg(us)", "p95_lat(us)", "p99_lat(us)"]
+    metrics_order = ["IOPS"]
     with pd.ExcelWriter(out_path, engine="xlsxwriter") as writer:
         workbook = writer.book
         ws = workbook.add_worksheet("Sheet1")

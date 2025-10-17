@@ -3,18 +3,18 @@ write: (g=0): rw=write, bs=(R) 128KiB-128KiB, (W) 128KiB-128KiB, (T) 128KiB-128K
 fio-3.16
 Starting 16 processes
 
-write: (groupid=0, jobs=16): err= 0: pid=23897: Fri Oct 17 16:41:07 2025
-  write: IOPS=12.3k, BW=1541MiB/s (1616MB/s)(2048MiB/1329msec); 0 zone resets
-    clat (usec): min=60, max=523, avg=164.10, stdev=29.83
-     lat (usec): min=61, max=525, avg=166.66, stdev=30.47
+write: (groupid=0, jobs=16): err= 0: pid=73871: Fri Oct 17 17:26:53 2025
+  write: IOPS=12.8k, BW=1594MiB/s (1671MB/s)(2048MiB/1285msec); 0 zone resets
+    clat (usec): min=67, max=382, avg=164.65, stdev=29.08
+     lat (usec): min=67, max=384, avg=167.26, stdev=29.69
     clat percentiles (usec):
-     |  1.00th=[   97],  5.00th=[  120], 10.00th=[  130], 20.00th=[  141],
-     | 30.00th=[  151], 40.00th=[  157], 50.00th=[  163], 60.00th=[  169],
+     |  1.00th=[  102],  5.00th=[  121], 10.00th=[  130], 20.00th=[  143],
+     | 30.00th=[  151], 40.00th=[  157], 50.00th=[  165], 60.00th=[  172],
      | 70.00th=[  178], 80.00th=[  186], 90.00th=[  198], 95.00th=[  210],
-     | 99.00th=[  258], 99.50th=[  277], 99.90th=[  314], 99.95th=[  330],
-     | 99.99th=[  482]
-  lat (usec)   : 100=1.26%, 250=97.44%, 500=1.29%, 750=0.01%
-  cpu          : usr=0.37%, sys=4.86%, ctx=16489, majf=0, minf=150
+     | 99.00th=[  260], 99.50th=[  277], 99.90th=[  306], 99.95th=[  330],
+     | 99.99th=[  363]
+  lat (usec)   : 100=0.80%, 250=97.89%, 500=1.31%
+  cpu          : usr=0.28%, sys=5.11%, ctx=16484, majf=0, minf=153
   IO depths    : 1=100.1%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
@@ -22,4 +22,4 @@ write: (groupid=0, jobs=16): err= 0: pid=23897: Fri Oct 17 16:41:07 2025
      latency   : target=0, window=0, percentile=100.00%, depth=1
 
 Run status group 0 (all jobs):
-  WRITE: bw=1541MiB/s (1616MB/s), 1541MiB/s-1541MiB/s (1616MB/s-1616MB/s), io=2048MiB (2147MB), run=1329-1329msec
+  WRITE: bw=1594MiB/s (1671MB/s), 1594MiB/s-1594MiB/s (1671MB/s-1671MB/s), io=2048MiB (2147MB), run=1285-1285msec

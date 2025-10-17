@@ -48,7 +48,8 @@ def parse_summary_sheet(xlsx_path, sheet_name="Sheet1"):
                 continue
 
             # Consume next metric rows (up to expected list)
-            metrics_order = ["IOPS", "BW(mb/s)", "lat_avg(us)", "p95_lat(us)", "p99_lat(us)"]
+            # metrics_order = ["IOPS", "BW(mb/s)", "lat_avg(us)", "p95_lat(us)", "p99_lat(us)"]
+            metrics_order = ["IOPS"]
             metric_rows = {}
             rr = r + 2
             for mname in metrics_order:
@@ -127,7 +128,8 @@ def merge_files(dir_path, out_path, sheet_name="Sheet1"):
     other_fs = sorted([fs for fs in per_fs.keys() if fs not in fs_priority])
     fs_row_order = [fs for fs in fs_priority if fs in per_fs] + other_fs
 
-    metrics_order = ["IOPS", "BW(mb/s)", "lat_avg(us)", "p95_lat(us)", "p99_lat(us)"]
+    metrics_order = ["IOPS"]
+    # metrics_order = ["IOPS", "BW(mb/s)", "lat_avg(us)", "p95_lat(us)", "p99_lat(us)"]
 
     with pd.ExcelWriter(out_path, engine="xlsxwriter") as writer:
         wb = writer.book
