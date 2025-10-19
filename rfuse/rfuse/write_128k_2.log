@@ -3,19 +3,19 @@ write: (g=0): rw=write, bs=(R) 128KiB-128KiB, (W) 128KiB-128KiB, (T) 128KiB-128K
 fio-3.16
 Starting 2 processes
 
-write: (groupid=0, jobs=2): err= 0: pid=88469: Sun Oct 19 20:21:14 2025
-  write: IOPS=7447, BW=931MiB/s (976MB/s)(256MiB/275msec); 0 zone resets
-    clat (usec): min=48, max=8014, avg=96.64, stdev=353.65
-     lat (usec): min=49, max=8016, avg=97.10, stdev=353.74
+write: (groupid=0, jobs=2): err= 0: pid=42523: Sun Oct 19 21:24:59 2025
+  write: IOPS=7787, BW=973MiB/s (1021MB/s)(256MiB/263msec); 0 zone resets
+    clat (usec): min=53, max=8062, avg=91.51, stdev=289.54
+     lat (usec): min=54, max=8063, avg=91.94, stdev=289.58
     clat percentiles (usec):
-     |  1.00th=[   63],  5.00th=[   67], 10.00th=[   70], 20.00th=[   72],
-     | 30.00th=[   74], 40.00th=[   75], 50.00th=[   77], 60.00th=[   79],
-     | 70.00th=[   80], 80.00th=[   83], 90.00th=[   89], 95.00th=[   92],
-     | 99.00th=[  100], 99.50th=[  106], 99.90th=[ 7701], 99.95th=[ 8029],
-     | 99.99th=[ 8029]
-  lat (usec)   : 50=0.05%, 100=98.97%, 250=0.63%
-  lat (msec)   : 4=0.05%, 10=0.29%
-  cpu          : usr=0.00%, sys=30.28%, ctx=2058, majf=0, minf=21
+     |  1.00th=[   62],  5.00th=[   65], 10.00th=[   73], 20.00th=[   76],
+     | 30.00th=[   77], 40.00th=[   79], 50.00th=[   80], 60.00th=[   81],
+     | 70.00th=[   82], 80.00th=[   84], 90.00th=[   87], 95.00th=[   89],
+     | 99.00th=[  102], 99.50th=[  114], 99.90th=[ 5276], 99.95th=[ 7963],
+     | 99.99th=[ 8094]
+  lat (usec)   : 100=98.97%, 250=0.83%
+  lat (msec)   : 10=0.20%
+  cpu          : usr=0.77%, sys=28.79%, ctx=2060, majf=0, minf=23
   IO depths    : 1=100.1%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
@@ -23,4 +23,4 @@ write: (groupid=0, jobs=2): err= 0: pid=88469: Sun Oct 19 20:21:14 2025
      latency   : target=0, window=0, percentile=100.00%, depth=1
 
 Run status group 0 (all jobs):
-  WRITE: bw=931MiB/s (976MB/s), 931MiB/s-931MiB/s (976MB/s-976MB/s), io=256MiB (268MB), run=275-275msec
+  WRITE: bw=973MiB/s (1021MB/s), 973MiB/s-973MiB/s (1021MB/s-1021MB/s), io=256MiB (268MB), run=263-263msec
