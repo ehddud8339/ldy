@@ -3,22 +3,19 @@ randwrite: (g=0): rw=randwrite, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4
 fio-3.16
 Starting 4 processes
 
-<<<<<<< HEAD
-randwrite: (groupid=0, jobs=4): err= 0: pid=38714: Sun Oct 19 15:59:58 2025
-  write: IOPS=450k, BW=1756MiB/s (1842MB/s)(1024MiB/583msec); 0 zone resets
-    clat (nsec): min=508, max=8070.5k, avg=3769.48, stdev=15824.74
-     lat (nsec): min=546, max=8070.9k, avg=3808.40, stdev=15825.38
+randwrite: (groupid=0, jobs=4): err= 0: pid=673303: Mon Oct 20 06:34:44 2025
+  write: IOPS=588k, BW=2296MiB/s (2407MB/s)(1024MiB/446msec); 0 zone resets
+    clat (nsec): min=522, max=37357, avg=1957.38, stdev=676.07
+     lat (nsec): min=561, max=37419, avg=1996.31, stdev=676.56
     clat percentiles (nsec):
-     |  1.00th=[ 1256],  5.00th=[ 2192], 10.00th=[ 2352], 20.00th=[ 2608],
-     | 30.00th=[ 2896], 40.00th=[ 3344], 50.00th=[ 3728], 60.00th=[ 4016],
-     | 70.00th=[ 4256], 80.00th=[ 4576], 90.00th=[ 5088], 95.00th=[ 5664],
-     | 99.00th=[ 7648], 99.50th=[ 8256], 99.90th=[10176], 99.95th=[11840],
-     | 99.99th=[17536]
-  lat (nsec)   : 750=0.28%, 1000=0.45%
-  lat (usec)   : 2=1.44%, 4=57.29%, 10=40.42%, 20=0.10%, 50=0.01%
-  lat (usec)   : 100=0.01%, 250=0.01%
-  lat (msec)   : 10=0.01%
-  cpu          : usr=3.90%, sys=55.10%, ctx=7774, majf=0, minf=45
+     |  1.00th=[  900],  5.00th=[ 1304], 10.00th=[ 1368], 20.00th=[ 1464],
+     | 30.00th=[ 1576], 40.00th=[ 1880], 50.00th=[ 1944], 60.00th=[ 2008],
+     | 70.00th=[ 2064], 80.00th=[ 2160], 90.00th=[ 2384], 95.00th=[ 3216],
+     | 99.00th=[ 5024], 99.50th=[ 5600], 99.90th=[ 7200], 99.95th=[ 7968],
+     | 99.99th=[11328]
+  lat (nsec)   : 750=0.47%, 1000=0.74%
+  lat (usec)   : 2=58.05%, 4=39.18%, 10=1.54%, 20=0.02%, 50=0.01%
+  cpu          : usr=4.13%, sys=36.81%, ctx=8830, majf=0, minf=41
   IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
@@ -26,35 +23,7 @@ randwrite: (groupid=0, jobs=4): err= 0: pid=38714: Sun Oct 19 15:59:58 2025
      latency   : target=0, window=0, percentile=100.00%, depth=1
 
 Run status group 0 (all jobs):
-  WRITE: bw=1756MiB/s (1842MB/s), 1756MiB/s-1756MiB/s (1842MB/s-1842MB/s), io=1024MiB (1074MB), run=583-583msec
+  WRITE: bw=2296MiB/s (2407MB/s), 2296MiB/s-2296MiB/s (2407MB/s-2407MB/s), io=1024MiB (1074MB), run=446-446msec
 
 Disk stats (read/write):
-  nvme1n1: ios=20/22199, merge=0/857, ticks=9/1474, in_queue=1482, util=31.02%
-=======
-randwrite: (groupid=0, jobs=4): err= 0: pid=255153: Sun Oct 19 23:55:03 2025
-  write: IOPS=619k, BW=2418MiB/s (2535MB/s)(4096MiB/1694msec); 0 zone resets
-    clat (nsec): min=258, max=1608.1k, avg=1310.93, stdev=10632.16
-     lat (nsec): min=276, max=1608.1k, avg=1330.91, stdev=10632.66
-    clat percentiles (nsec):
-     |  1.00th=[   588],  5.00th=[   652], 10.00th=[   692], 20.00th=[   764],
-     | 30.00th=[   852], 40.00th=[   932], 50.00th=[  1032], 60.00th=[  1176],
-     | 70.00th=[  1464], 80.00th=[  1656], 90.00th=[  1880], 95.00th=[  2096],
-     | 99.00th=[  2704], 99.50th=[  3056], 99.90th=[  7264], 99.95th=[  8512],
-     | 99.99th=[166912]
-  lat (nsec)   : 500=0.12%, 750=17.97%, 1000=29.48%
-  lat (usec)   : 2=45.43%, 4=6.75%, 10=0.22%, 20=0.01%, 50=0.01%
-  lat (usec)   : 100=0.01%, 250=0.01%, 500=0.01%, 750=0.01%, 1000=0.01%
-  lat (msec)   : 2=0.01%
-  cpu          : usr=3.82%, sys=30.11%, ctx=6597, majf=0, minf=44
-  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     issued rwts: total=0,1048576,0,4 short=0,0,0,0 dropped=0,0,0,0
-     latency   : target=0, window=0, percentile=100.00%, depth=1
-
-Run status group 0 (all jobs):
-  WRITE: bw=2418MiB/s (2535MB/s), 2418MiB/s-2418MiB/s (2535MB/s-2535MB/s), io=4096MiB (4295MB), run=1694-1694msec
-
-Disk stats (read/write):
-  nvme1n1: ios=182/238759, merge=0/9208, ticks=97/329576, in_queue=329693, util=84.91%
->>>>>>> 4bfa6a59f46b41d3b8df70055b2daaa594aa3bed
+  nvme1n1: ios=0/50800, merge=0/0, ticks=0/4181, in_queue=4180, util=51.43%
