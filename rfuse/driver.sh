@@ -8,7 +8,3 @@ python3 make_xlsx.py ./rfuse --out rfuse_summary.xlsx
 python3 make_xlsx.py ./rfuse_busy --out rfuse_busy_summary.xlsx
 
 python3 merge_xlsx.py . --out merged_summary.xlsx
-<<<<<<< HEAD
-
-=======
->>>>>>> 4bfa6a59f46b41d3b8df70055b2daaa594aa3bed
