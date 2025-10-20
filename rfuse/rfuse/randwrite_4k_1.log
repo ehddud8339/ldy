@@ -1,6 +1,7 @@
 randwrite: (g=0): rw=randwrite, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
 fio-3.16
 Starting 1 process
+<<<<<<< HEAD
 randwrite: Laying out IO file (1 file / 256MiB)
 
 randwrite: (groupid=0, jobs=1): err= 0: pid=106216: Sun Oct 19 17:00:09 2025
@@ -25,3 +26,30 @@ randwrite: (groupid=0, jobs=1): err= 0: pid=106216: Sun Oct 19 17:00:09 2025
 
 Run status group 0 (all jobs):
   WRITE: bw=292MiB/s (306MB/s), 292MiB/s-292MiB/s (306MB/s-306MB/s), io=256MiB (268MB), run=877-877msec
+=======
+randwrite: Laying out IO file (1 file / 1024MiB)
+
+randwrite: (groupid=0, jobs=1): err= 0: pid=143865: Sun Oct 19 23:09:31 2025
+  write: IOPS=104k, BW=407MiB/s (427MB/s)(1024MiB/2514msec); 0 zone resets
+    clat (usec): min=3, max=7978, avg= 4.92, stdev=18.23
+     lat (usec): min=3, max=7978, avg= 4.93, stdev=18.23
+    clat percentiles (nsec):
+     |  1.00th=[ 3472],  5.00th=[ 3600], 10.00th=[ 3696], 20.00th=[ 4320],
+     | 30.00th=[ 4448], 40.00th=[ 4576], 50.00th=[ 4832], 60.00th=[ 5152],
+     | 70.00th=[ 5280], 80.00th=[ 5472], 90.00th=[ 5728], 95.00th=[ 5984],
+     | 99.00th=[ 6688], 99.50th=[ 7328], 99.90th=[15424], 99.95th=[19328],
+     | 99.99th=[28544]
+   bw (  KiB/s): min=707944, max=815504, per=100.00%, avg=761724.00, stdev=76056.41, samples=2
+   iops        : min=176986, max=203876, avg=190431.00, stdev=19014.10, samples=2
+  lat (usec)   : 4=16.42%, 10=83.36%, 20=0.18%, 50=0.04%, 100=0.01%
+  lat (msec)   : 10=0.01%
+  cpu          : usr=1.87%, sys=25.23%, ctx=262166, majf=0, minf=10
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,262144,0,1 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=407MiB/s (427MB/s), 407MiB/s-407MiB/s (427MB/s-427MB/s), io=1024MiB (1074MB), run=2514-2514msec
+>>>>>>> 4bfa6a59f46b41d3b8df70055b2daaa594aa3bed

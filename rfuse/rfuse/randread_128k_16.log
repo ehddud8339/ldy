@@ -3,6 +3,7 @@ randread: (g=0): rw=randread, bs=(R) 128KiB-128KiB, (W) 128KiB-128KiB, (T) 128Ki
 fio-3.16
 Starting 16 processes
 
+<<<<<<< HEAD
 randread: (groupid=0, jobs=16): err= 0: pid=105980: Sun Oct 19 16:59:37 2025
   read: IOPS=25.7k, BW=3215MiB/s (3371MB/s)(4096MiB/1274msec)
     clat (usec): min=5, max=10215, avg=576.35, stdev=461.96
@@ -27,3 +28,29 @@ randread: (groupid=0, jobs=16): err= 0: pid=105980: Sun Oct 19 16:59:37 2025
 
 Run status group 0 (all jobs):
    READ: bw=3215MiB/s (3371MB/s), 3215MiB/s-3215MiB/s (3371MB/s-3371MB/s), io=4096MiB (4295MB), run=1274-1274msec
+=======
+randread: (groupid=0, jobs=16): err= 0: pid=139142: Sun Oct 19 23:00:42 2025
+  read: IOPS=12.5k, BW=1556MiB/s (1632MB/s)(16.0GiB/10527msec)
+    clat (usec): min=8, max=26151, avg=1265.37, stdev=2395.82
+     lat (usec): min=8, max=26152, avg=1265.66, stdev=2396.00
+    clat percentiles (usec):
+     |  1.00th=[   19],  5.00th=[   24], 10.00th=[   31], 20.00th=[   42],
+     | 30.00th=[   63], 40.00th=[  338], 50.00th=[  482], 60.00th=[  627],
+     | 70.00th=[  832], 80.00th=[ 1205], 90.00th=[ 3621], 95.00th=[ 7308],
+     | 99.00th=[11207], 99.50th=[12125], 99.90th=[14091], 99.95th=[16057],
+     | 99.99th=[21627]
+   bw (  MiB/s): min=  361, max= 6367, per=90.25%, avg=1404.59, stdev=115.82, samples=324
+   iops        : min= 2890, max=50938, avg=11236.61, stdev=926.52, samples=324
+  lat (usec)   : 10=0.01%, 20=2.15%, 50=22.74%, 100=11.19%, 250=0.93%
+  lat (usec)   : 500=14.36%, 750=15.10%, 1000=9.70%
+  lat (msec)   : 2=10.51%, 4=4.39%, 10=6.48%, 20=2.43%, 50=0.02%
+  cpu          : usr=0.53%, sys=8.57%, ctx=83255, majf=0, minf=686
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=131072,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=1556MiB/s (1632MB/s), 1556MiB/s-1556MiB/s (1632MB/s-1632MB/s), io=16.0GiB (17.2GB), run=10527-10527msec
+>>>>>>> 4bfa6a59f46b41d3b8df70055b2daaa594aa3bed

@@ -3,6 +3,7 @@ randwrite: (g=0): rw=randwrite, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4
 fio-3.16
 Starting 4 processes
 
+<<<<<<< HEAD
 randwrite: (groupid=0, jobs=4): err= 0: pid=38714: Sun Oct 19 15:59:58 2025
   write: IOPS=450k, BW=1756MiB/s (1842MB/s)(1024MiB/583msec); 0 zone resets
     clat (nsec): min=508, max=8070.5k, avg=3769.48, stdev=15824.74
@@ -29,3 +30,31 @@ Run status group 0 (all jobs):
 
 Disk stats (read/write):
   nvme1n1: ios=20/22199, merge=0/857, ticks=9/1474, in_queue=1482, util=31.02%
+=======
+randwrite: (groupid=0, jobs=4): err= 0: pid=255153: Sun Oct 19 23:55:03 2025
+  write: IOPS=619k, BW=2418MiB/s (2535MB/s)(4096MiB/1694msec); 0 zone resets
+    clat (nsec): min=258, max=1608.1k, avg=1310.93, stdev=10632.16
+     lat (nsec): min=276, max=1608.1k, avg=1330.91, stdev=10632.66
+    clat percentiles (nsec):
+     |  1.00th=[   588],  5.00th=[   652], 10.00th=[   692], 20.00th=[   764],
+     | 30.00th=[   852], 40.00th=[   932], 50.00th=[  1032], 60.00th=[  1176],
+     | 70.00th=[  1464], 80.00th=[  1656], 90.00th=[  1880], 95.00th=[  2096],
+     | 99.00th=[  2704], 99.50th=[  3056], 99.90th=[  7264], 99.95th=[  8512],
+     | 99.99th=[166912]
+  lat (nsec)   : 500=0.12%, 750=17.97%, 1000=29.48%
+  lat (usec)   : 2=45.43%, 4=6.75%, 10=0.22%, 20=0.01%, 50=0.01%
+  lat (usec)   : 100=0.01%, 250=0.01%, 500=0.01%, 750=0.01%, 1000=0.01%
+  lat (msec)   : 2=0.01%
+  cpu          : usr=3.82%, sys=30.11%, ctx=6597, majf=0, minf=44
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,1048576,0,4 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=2418MiB/s (2535MB/s), 2418MiB/s-2418MiB/s (2535MB/s-2535MB/s), io=4096MiB (4295MB), run=1694-1694msec
+
+Disk stats (read/write):
+  nvme1n1: ios=182/238759, merge=0/9208, ticks=97/329576, in_queue=329693, util=84.91%
+>>>>>>> 4bfa6a59f46b41d3b8df70055b2daaa594aa3bed

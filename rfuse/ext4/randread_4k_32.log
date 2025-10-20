@@ -3,6 +3,7 @@ randread: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-409
 fio-3.16
 Starting 32 processes
 
+<<<<<<< HEAD
 randread: (groupid=0, jobs=32): err= 0: pid=38096: Sun Oct 19 15:59:03 2025
   read: IOPS=781k, BW=3052MiB/s (3200MB/s)(8192MiB/2684msec)
     clat (nsec): min=397, max=8041.0k, avg=39987.54, stdev=42715.75
@@ -31,3 +32,34 @@ Run status group 0 (all jobs):
 
 Disk stats (read/write):
   nvme1n1: ios=1304100/0, merge=0/0, ticks=70638/0, in_queue=70638, util=96.09%
+=======
+randread: (groupid=0, jobs=32): err= 0: pid=250205: Sun Oct 19 23:45:40 2025
+  read: IOPS=290k, BW=1134MiB/s (1189MB/s)(32.0GiB/28902msec)
+    clat (nsec): min=255, max=15025k, avg=104815.40, stdev=208900.16
+     lat (nsec): min=273, max=15026k, avg=104923.20, stdev=208904.30
+    clat percentiles (nsec):
+     |  1.00th=[   1576],  5.00th=[   2064], 10.00th=[   2384],
+     | 20.00th=[   3024], 30.00th=[   4016], 40.00th=[  59136],
+     | 50.00th=[  80384], 60.00th=[  92672], 70.00th=[ 113152],
+     | 80.00th=[ 142336], 90.00th=[ 193536], 95.00th=[ 254976],
+     | 99.00th=[1433600], 99.50th=[1581056], 99.90th=[1925120],
+     | 99.95th=[2146304], 99.99th=[3653632]
+   bw (  MiB/s): min=  197, max= 2825, per=100.00%, avg=1167.27, stdev=22.82, samples=1758
+   iops        : min=50612, max=723297, avg=298821.50, stdev=5841.89, samples=1758
+  lat (nsec)   : 500=0.01%, 750=0.08%, 1000=0.13%
+  lat (usec)   : 2=3.93%, 4=25.69%, 10=5.94%, 20=0.98%, 50=0.60%
+  lat (usec)   : 100=26.79%, 250=30.59%, 500=3.54%, 750=0.17%, 1000=0.04%
+  lat (msec)   : 2=1.46%, 4=0.07%, 10=0.01%, 20=0.01%
+  cpu          : usr=2.17%, sys=9.89%, ctx=5303370, majf=0, minf=375
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=8388608,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=1134MiB/s (1189MB/s), 1134MiB/s-1134MiB/s (1189MB/s-1189MB/s), io=32.0GiB (34.4GB), run=28902-28902msec
+
+Disk stats (read/write):
+  nvme1n1: ios=5302961/0, merge=0/0, ticks=793408/0, in_queue=793407, util=99.70%
+>>>>>>> 4bfa6a59f46b41d3b8df70055b2daaa594aa3bed

@@ -3,6 +3,7 @@ read: (g=0): rw=read, bs=(R) 128KiB-128KiB, (W) 128KiB-128KiB, (T) 128KiB-128KiB
 fio-3.16
 Starting 8 processes
 
+<<<<<<< HEAD
 read: (groupid=0, jobs=8): err= 0: pid=104169: Sun Oct 19 16:56:11 2025
   read: IOPS=18.4k, BW=2299MiB/s (2410MB/s)(2048MiB/891msec)
     clat (usec): min=10, max=7753, avg=418.44, stdev=419.77
@@ -27,3 +28,29 @@ read: (groupid=0, jobs=8): err= 0: pid=104169: Sun Oct 19 16:56:11 2025
 
 Run status group 0 (all jobs):
    READ: bw=2299MiB/s (2410MB/s), 2299MiB/s-2299MiB/s (2410MB/s-2410MB/s), io=2048MiB (2147MB), run=891-891msec
+=======
+read: (groupid=0, jobs=8): err= 0: pid=136459: Sun Oct 19 22:54:53 2025
+  read: IOPS=13.3k, BW=1665MiB/s (1746MB/s)(8192MiB/4920msec)
+    clat (usec): min=4, max=14665, avg=591.12, stdev=1093.20
+     lat (usec): min=4, max=14665, avg=591.32, stdev=1093.15
+    clat percentiles (usec):
+     |  1.00th=[   10],  5.00th=[   14], 10.00th=[   19], 20.00th=[   36],
+     | 30.00th=[   45], 40.00th=[   55], 50.00th=[   89], 60.00th=[  235],
+     | 70.00th=[  445], 80.00th=[  807], 90.00th=[ 2008], 95.00th=[ 2704],
+     | 99.00th=[ 5080], 99.50th=[ 6063], 99.90th=[ 8586], 99.95th=[10814],
+     | 99.99th=[13698]
+   bw (  MiB/s): min=  730, max= 3934, per=88.47%, avg=1473.00, stdev=130.83, samples=72
+   iops        : min= 5840, max=31476, avg=11784.00, stdev=1046.67, samples=72
+  lat (usec)   : 10=1.10%, 20=10.68%, 50=24.65%, 100=14.93%, 250=9.54%
+  lat (usec)   : 500=11.40%, 750=6.67%, 1000=3.74%
+  lat (msec)   : 2=7.21%, 4=7.90%, 10=2.13%, 20=0.06%
+  cpu          : usr=0.72%, sys=18.34%, ctx=27446, majf=0, minf=347
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=65536,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=1665MiB/s (1746MB/s), 1665MiB/s-1665MiB/s (1746MB/s-1746MB/s), io=8192MiB (8590MB), run=4920-4920msec
+>>>>>>> 4bfa6a59f46b41d3b8df70055b2daaa594aa3bed
