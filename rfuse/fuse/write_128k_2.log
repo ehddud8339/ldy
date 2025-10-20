@@ -3,18 +3,18 @@ write: (g=0): rw=write, bs=(R) 128KiB-128KiB, (W) 128KiB-128KiB, (T) 128KiB-128K
 fio-3.16
 Starting 2 processes
 
-write: (groupid=0, jobs=2): err= 0: pid=437928: Mon Oct 20 13:29:20 2025
-  write: IOPS=8904, BW=1113MiB/s (1167MB/s)(256MiB/230msec); 0 zone resets
-    clat (usec): min=51, max=243, avg=61.85, stdev=11.72
-     lat (usec): min=51, max=244, avg=62.30, stdev=11.75
+write: (groupid=0, jobs=2): err= 0: pid=21852: Mon Oct 20 14:47:35 2025
+  write: IOPS=9022, BW=1128MiB/s (1183MB/s)(256MiB/227msec); 0 zone resets
+    clat (usec): min=50, max=234, avg=63.12, stdev=13.00
+     lat (usec): min=50, max=236, avg=63.58, stdev=13.02
     clat percentiles (usec):
-     |  1.00th=[   53],  5.00th=[   54], 10.00th=[   55], 20.00th=[   56],
-     | 30.00th=[   57], 40.00th=[   58], 50.00th=[   59], 60.00th=[   60],
-     | 70.00th=[   64], 80.00th=[   69], 90.00th=[   72], 95.00th=[   75],
-     | 99.00th=[  104], 99.50th=[  149], 99.90th=[  186], 99.95th=[  217],
-     | 99.99th=[  243]
-  lat (usec)   : 100=98.93%, 250=1.07%
-  cpu          : usr=0.00%, sys=9.65%, ctx=2054, majf=0, minf=22
+     |  1.00th=[   52],  5.00th=[   53], 10.00th=[   55], 20.00th=[   56],
+     | 30.00th=[   57], 40.00th=[   58], 50.00th=[   60], 60.00th=[   66],
+     | 70.00th=[   68], 80.00th=[   71], 90.00th=[   73], 95.00th=[   74],
+     | 99.00th=[  119], 99.50th=[  149], 99.90th=[  206], 99.95th=[  229],
+     | 99.99th=[  235]
+  lat (usec)   : 100=98.49%, 250=1.51%
+  cpu          : usr=0.44%, sys=9.11%, ctx=2054, majf=0, minf=22
   IO depths    : 1=100.1%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
@@ -22,4 +22,4 @@ write: (groupid=0, jobs=2): err= 0: pid=437928: Mon Oct 20 13:29:20 2025
      latency   : target=0, window=0, percentile=100.00%, depth=1
 
 Run status group 0 (all jobs):
-  WRITE: bw=1113MiB/s (1167MB/s), 1113MiB/s-1113MiB/s (1167MB/s-1167MB/s), io=256MiB (268MB), run=230-230msec
+  WRITE: bw=1128MiB/s (1183MB/s), 1128MiB/s-1128MiB/s (1183MB/s-1183MB/s), io=256MiB (268MB), run=227-227msec

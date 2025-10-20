@@ -3,18 +3,18 @@ randwrite: (g=0): rw=randwrite, bs=(R) 128KiB-128KiB, (W) 128KiB-128KiB, (T) 128
 fio-3.16
 Starting 8 processes
 
-randwrite: (groupid=0, jobs=8): err= 0: pid=424104: Mon Oct 20 13:25:11 2025
-  write: IOPS=19.5k, BW=2432MiB/s (2550MB/s)(1024MiB/421msec); 0 zone resets
-    clat (nsec): min=5168, max=83251, avg=37293.48, stdev=8308.55
-     lat (nsec): min=5514, max=84002, avg=37873.59, stdev=8387.13
+randwrite: (groupid=0, jobs=8): err= 0: pid=7789: Mon Oct 20 14:42:31 2025
+  write: IOPS=20.4k, BW=2547MiB/s (2671MB/s)(1024MiB/402msec); 0 zone resets
+    clat (nsec): min=5165, max=86853, avg=36582.31, stdev=8206.85
+     lat (nsec): min=5589, max=87581, avg=37160.99, stdev=8287.20
     clat percentiles (nsec):
-     |  1.00th=[14016],  5.00th=[25984], 10.00th=[28800], 20.00th=[31104],
-     | 30.00th=[33024], 40.00th=[35072], 50.00th=[37632], 60.00th=[39168],
-     | 70.00th=[40704], 80.00th=[42752], 90.00th=[45824], 95.00th=[53504],
-     | 99.00th=[59136], 99.50th=[61184], 99.90th=[68096], 99.95th=[69120],
-     | 99.99th=[83456]
-  lat (usec)   : 10=0.34%, 20=2.59%, 50=89.98%, 100=7.09%
-  cpu          : usr=0.27%, sys=10.57%, ctx=750, majf=0, minf=77
+     |  1.00th=[13632],  5.00th=[25216], 10.00th=[27776], 20.00th=[30336],
+     | 30.00th=[32384], 40.00th=[34560], 50.00th=[37120], 60.00th=[38656],
+     | 70.00th=[40192], 80.00th=[41728], 90.00th=[44800], 95.00th=[52480],
+     | 99.00th=[58112], 99.50th=[59648], 99.90th=[68096], 99.95th=[73216],
+     | 99.99th=[86528]
+  lat (usec)   : 10=0.38%, 20=2.54%, 50=90.61%, 100=6.47%
+  cpu          : usr=0.22%, sys=10.55%, ctx=761, majf=0, minf=84
   IO depths    : 1=100.1%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
@@ -22,7 +22,7 @@ randwrite: (groupid=0, jobs=8): err= 0: pid=424104: Mon Oct 20 13:25:11 2025
      latency   : target=0, window=0, percentile=100.00%, depth=1
 
 Run status group 0 (all jobs):
-  WRITE: bw=2432MiB/s (2550MB/s), 2432MiB/s-2432MiB/s (2550MB/s-2550MB/s), io=1024MiB (1074MB), run=421-421msec
+  WRITE: bw=2547MiB/s (2671MB/s), 2547MiB/s-2547MiB/s (2671MB/s-2671MB/s), io=1024MiB (1074MB), run=402-402msec
 
 Disk stats (read/write):
-  nvme1n1: ios=0/2228, merge=0/2, ticks=0/8076, in_queue=8077, util=72.06%
+  nvme1n1: ios=0/2255, merge=0/2, ticks=0/8289, in_queue=8298, util=71.26%
