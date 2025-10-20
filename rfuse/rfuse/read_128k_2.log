@@ -3,22 +3,22 @@ read: (g=0): rw=read, bs=(R) 128KiB-128KiB, (W) 128KiB-128KiB, (T) 128KiB-128KiB
 fio-3.16
 Starting 2 processes
 
-read: (groupid=0, jobs=2): err= 0: pid=136960: Mon Oct 20 10:19:24 2025
-  read: IOPS=3951, BW=494MiB/s (518MB/s)(1024MiB/2073msec)
-    clat (usec): min=3, max=12706, avg=482.44, stdev=780.16
-     lat (usec): min=3, max=12706, avg=482.51, stdev=780.13
+read: (groupid=0, jobs=2): err= 0: pid=166713: Mon Oct 20 11:05:56 2025
+  read: IOPS=3527, BW=441MiB/s (462MB/s)(1024MiB/2322msec)
+    clat (usec): min=3, max=12772, avg=546.07, stdev=838.60
+     lat (usec): min=3, max=12772, avg=546.14, stdev=838.57
     clat percentiles (usec):
      |  1.00th=[    5],  5.00th=[    6], 10.00th=[    7], 20.00th=[    8],
-     | 30.00th=[    9], 40.00th=[   11], 50.00th=[   33], 60.00th=[   61],
-     | 70.00th=[  297], 80.00th=[ 1549], 90.00th=[ 1713], 95.00th=[ 1827],
-     | 99.00th=[ 2147], 99.50th=[ 3195], 99.90th=[ 3589], 99.95th=[ 6849],
-     | 99.99th=[12649]
-   bw (  KiB/s): min=509952, max=578560, per=100.00%, avg=541973.33, stdev=16245.89, samples=7
-   iops        : min= 3984, max= 4520, avg=4234.17, stdev=126.92, samples=7
-  lat (usec)   : 4=0.01%, 10=38.06%, 20=11.63%, 50=7.73%, 100=4.27%
-  lat (usec)   : 250=7.14%, 500=4.77%, 750=1.32%, 1000=0.07%
-  lat (msec)   : 2=23.55%, 4=1.35%, 10=0.06%, 20=0.02%
-  cpu          : usr=0.13%, sys=8.96%, ctx=3268, majf=0, minf=86
+     | 30.00th=[    9], 40.00th=[   11], 50.00th=[   31], 60.00th=[   49],
+     | 70.00th=[  441], 80.00th=[ 1663], 90.00th=[ 1762], 95.00th=[ 1844],
+     | 99.00th=[ 2212], 99.50th=[ 3261], 99.90th=[ 4752], 99.95th=[ 6390],
+     | 99.99th=[12780]
+   bw (  KiB/s): min=402944, max=554496, per=100.00%, avg=465792.00, stdev=31048.53, samples=8
+   iops        : min= 3148, max= 4332, avg=3639.00, stdev=242.57, samples=8
+  lat (usec)   : 4=0.16%, 10=37.39%, 20=12.27%, 50=10.96%, 100=4.48%
+  lat (usec)   : 250=3.22%, 500=1.70%, 750=0.42%, 1000=0.05%
+  lat (msec)   : 2=27.73%, 4=1.51%, 10=0.09%, 20=0.02%
+  cpu          : usr=0.25%, sys=7.89%, ctx=2920, majf=0, minf=83
   IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
@@ -26,4 +26,4 @@ read: (groupid=0, jobs=2): err= 0: pid=136960: Mon Oct 20 10:19:24 2025
      latency   : target=0, window=0, percentile=100.00%, depth=1
 
 Run status group 0 (all jobs):
-   READ: bw=494MiB/s (518MB/s), 494MiB/s-494MiB/s (518MB/s-518MB/s), io=1024MiB (1074MB), run=2073-2073msec
+   READ: bw=441MiB/s (462MB/s), 441MiB/s-441MiB/s (462MB/s-462MB/s), io=1024MiB (1074MB), run=2322-2322msec

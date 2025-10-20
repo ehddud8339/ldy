@@ -3,19 +3,19 @@ write: (g=0): rw=write, bs=(R) 128KiB-128KiB, (W) 128KiB-128KiB, (T) 128KiB-128K
 fio-3.16
 Starting 2 processes
 
-write: (groupid=0, jobs=2): err= 0: pid=139942: Mon Oct 20 10:24:39 2025
-  write: IOPS=8200, BW=1025MiB/s (1075MB/s)(1024MiB/999msec); 0 zone resets
-    clat (usec): min=52, max=8407, avg=103.02, stdev=261.38
-     lat (usec): min=53, max=8408, avg=103.48, stdev=261.41
+write: (groupid=0, jobs=2): err= 0: pid=169701: Mon Oct 20 11:11:09 2025
+  write: IOPS=9051, BW=1131MiB/s (1186MB/s)(1024MiB/905msec); 0 zone resets
+    clat (usec): min=42, max=8064, avg=96.99, stdev=271.75
+     lat (usec): min=43, max=8065, avg=97.50, stdev=271.79
     clat percentiles (usec):
-     |  1.00th=[   64],  5.00th=[   71], 10.00th=[   76], 20.00th=[   79],
-     | 30.00th=[   83], 40.00th=[   87], 50.00th=[   91], 60.00th=[   96],
-     | 70.00th=[  103], 80.00th=[  109], 90.00th=[  114], 95.00th=[  120],
-     | 99.00th=[  133], 99.50th=[  147], 99.90th=[ 4555], 99.95th=[ 8029],
-     | 99.99th=[ 8455]
-  lat (usec)   : 100=65.36%, 250=34.47%
+     |  1.00th=[   58],  5.00th=[   61], 10.00th=[   65], 20.00th=[   73],
+     | 30.00th=[   79], 40.00th=[   81], 50.00th=[   83], 60.00th=[   87],
+     | 70.00th=[   95], 80.00th=[  100], 90.00th=[  106], 95.00th=[  116],
+     | 99.00th=[  159], 99.50th=[  163], 99.90th=[ 6587], 99.95th=[ 8029],
+     | 99.99th=[ 8094]
+  lat (usec)   : 50=0.12%, 100=80.66%, 250=19.04%
   lat (msec)   : 2=0.01%, 4=0.01%, 10=0.15%
-  cpu          : usr=0.20%, sys=31.17%, ctx=8203, majf=0, minf=22
+  cpu          : usr=0.61%, sys=31.11%, ctx=8204, majf=0, minf=24
   IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
@@ -23,4 +23,4 @@ write: (groupid=0, jobs=2): err= 0: pid=139942: Mon Oct 20 10:24:39 2025
      latency   : target=0, window=0, percentile=100.00%, depth=1
 
 Run status group 0 (all jobs):
-  WRITE: bw=1025MiB/s (1075MB/s), 1025MiB/s-1025MiB/s (1075MB/s-1075MB/s), io=1024MiB (1074MB), run=999-999msec
+  WRITE: bw=1131MiB/s (1186MB/s), 1131MiB/s-1131MiB/s (1186MB/s-1186MB/s), io=1024MiB (1074MB), run=905-905msec
