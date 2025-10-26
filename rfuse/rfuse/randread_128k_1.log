@@ -2,19 +2,19 @@ randread: (g=0): rw=randread, bs=(R) 128KiB-128KiB, (W) 128KiB-128KiB, (T) 128Ki
 fio-3.16
 Starting 1 process
 
-randread: (groupid=0, jobs=1): err= 0: pid=6423: Wed Oct 22 20:55:19 2025
-  read: IOPS=3618, BW=452MiB/s (474MB/s)(128MiB/283msec)
-    clat (usec): min=24, max=8604, avg=275.12, stdev=319.62
-     lat (usec): min=24, max=8605, avg=275.23, stdev=319.64
+randread: (groupid=0, jobs=1): err= 0: pid=38486: Sun Oct 26 16:09:54 2025
+  read: IOPS=3543, BW=443MiB/s (464MB/s)(128MiB/289msec)
+    clat (usec): min=25, max=8608, avg=280.46, stdev=321.97
+     lat (usec): min=25, max=8609, avg=280.58, stdev=322.00
     clat percentiles (usec):
-     |  1.00th=[   27],  5.00th=[   30], 10.00th=[   40], 20.00th=[   43],
-     | 30.00th=[   46], 40.00th=[  338], 50.00th=[  355], 60.00th=[  363],
-     | 70.00th=[  371], 80.00th=[  392], 90.00th=[  502], 95.00th=[  545],
-     | 99.00th=[  611], 99.50th=[  627], 99.90th=[  652], 99.95th=[ 8586],
+     |  1.00th=[   28],  5.00th=[   30], 10.00th=[   39], 20.00th=[   44],
+     | 30.00th=[   46], 40.00th=[  347], 50.00th=[  363], 60.00th=[  371],
+     | 70.00th=[  375], 80.00th=[  392], 90.00th=[  515], 95.00th=[  570],
+     | 99.00th=[  603], 99.50th=[  619], 99.90th=[  644], 99.95th=[ 8586],
      | 99.99th=[ 8586]
-  lat (usec)   : 50=35.25%, 100=2.34%, 500=52.34%, 750=9.96%
+  lat (usec)   : 50=34.86%, 100=2.73%, 500=50.49%, 750=11.82%
   lat (msec)   : 10=0.10%
-  cpu          : usr=1.42%, sys=29.08%, ctx=646, majf=0, minf=42
+  cpu          : usr=0.00%, sys=30.56%, ctx=649, majf=0, minf=41
   IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
@@ -22,4 +22,4 @@ randread: (groupid=0, jobs=1): err= 0: pid=6423: Wed Oct 22 20:55:19 2025
      latency   : target=0, window=0, percentile=100.00%, depth=1
 
 Run status group 0 (all jobs):
-   READ: bw=452MiB/s (474MB/s), 452MiB/s-452MiB/s (474MB/s-474MB/s), io=128MiB (134MB), run=283-283msec
+   READ: bw=443MiB/s (464MB/s), 443MiB/s-443MiB/s (464MB/s-464MB/s), io=128MiB (134MB), run=289-289msec

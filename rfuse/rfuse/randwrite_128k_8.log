@@ -3,20 +3,20 @@ randwrite: (g=0): rw=randwrite, bs=(R) 128KiB-128KiB, (W) 128KiB-128KiB, (T) 128
 fio-3.16
 Starting 8 processes
 
-randwrite: (groupid=0, jobs=8): err= 0: pid=7850: Wed Oct 22 20:56:58 2025
-  write: IOPS=12.4k, BW=1556MiB/s (1632MB/s)(1024MiB/658msec); 0 zone resets
-    clat (usec): min=38, max=8180, avg=270.09, stdev=708.66
-     lat (usec): min=39, max=8181, avg=270.80, stdev=708.69
+randwrite: (groupid=0, jobs=8): err= 0: pid=40257: Sun Oct 26 16:11:32 2025
+  write: IOPS=12.4k, BW=1554MiB/s (1629MB/s)(1024MiB/659msec); 0 zone resets
+    clat (usec): min=33, max=7958, avg=284.76, stdev=755.18
+     lat (usec): min=34, max=7959, avg=285.72, stdev=755.22
     clat percentiles (usec):
-     |  1.00th=[   50],  5.00th=[   67], 10.00th=[   80], 20.00th=[  101],
-     | 30.00th=[  120], 40.00th=[  143], 50.00th=[  165], 60.00th=[  190],
-     | 70.00th=[  219], 80.00th=[  251], 90.00th=[  310], 95.00th=[  469],
-     | 99.00th=[ 4490], 99.50th=[ 7046], 99.90th=[ 8094], 99.95th=[ 8160],
-     | 99.99th=[ 8160]
-  lat (usec)   : 50=1.00%, 100=18.68%, 250=59.91%, 500=16.05%, 750=2.09%
-  lat (usec)   : 1000=0.26%
-  lat (msec)   : 2=0.42%, 4=0.52%, 10=1.07%
-  cpu          : usr=0.06%, sys=42.03%, ctx=613, majf=0, minf=77
+     |  1.00th=[   55],  5.00th=[   73], 10.00th=[   88], 20.00th=[  109],
+     | 30.00th=[  127], 40.00th=[  149], 50.00th=[  172], 60.00th=[  194],
+     | 70.00th=[  219], 80.00th=[  249], 90.00th=[  302], 95.00th=[  457],
+     | 99.00th=[ 4883], 99.50th=[ 7177], 99.90th=[ 7701], 99.95th=[ 7898],
+     | 99.99th=[ 7963]
+  lat (usec)   : 50=0.63%, 100=14.73%, 250=64.78%, 500=15.47%, 750=1.97%
+  lat (usec)   : 1000=0.31%
+  lat (msec)   : 2=0.28%, 4=0.37%, 10=1.46%
+  cpu          : usr=0.12%, sys=44.42%, ctx=596, majf=0, minf=72
   IO depths    : 1=100.1%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
@@ -24,4 +24,4 @@ randwrite: (groupid=0, jobs=8): err= 0: pid=7850: Wed Oct 22 20:56:58 2025
      latency   : target=0, window=0, percentile=100.00%, depth=1
 
 Run status group 0 (all jobs):
-  WRITE: bw=1556MiB/s (1632MB/s), 1556MiB/s-1556MiB/s (1632MB/s-1632MB/s), io=1024MiB (1074MB), run=658-658msec
+  WRITE: bw=1554MiB/s (1629MB/s), 1554MiB/s-1554MiB/s (1629MB/s-1629MB/s), io=1024MiB (1074MB), run=659-659msec
