@@ -1,0 +1,26 @@
+randwrite: (g=0): rw=randwrite, bs=(R) 128KiB-128KiB, (W) 128KiB-128KiB, (T) 128KiB-128KiB, ioengine=psync, iodepth=1
+...
+fio-3.16
+Starting 4 processes
+
+randwrite: (groupid=0, jobs=4): err= 0: pid=312052: Wed Oct 22 20:15:30 2025
+  write: IOPS=14.0k, BW=1753MiB/s (1839MB/s)(512MiB/292msec); 0 zone resets
+    clat (usec): min=27, max=1218, avg=89.13, stdev=39.29
+     lat (usec): min=28, max=1218, avg=90.44, stdev=39.38
+    clat percentiles (usec):
+     |  1.00th=[   49],  5.00th=[   60], 10.00th=[   67], 20.00th=[   73],
+     | 30.00th=[   79], 40.00th=[   84], 50.00th=[   88], 60.00th=[   92],
+     | 70.00th=[   97], 80.00th=[  103], 90.00th=[  113], 95.00th=[  121],
+     | 99.00th=[  133], 99.50th=[  143], 99.90th=[  172], 99.95th=[ 1205],
+     | 99.99th=[ 1221]
+  lat (usec)   : 50=1.22%, 100=74.83%, 250=23.85%
+  lat (msec)   : 2=0.10%
+  cpu          : usr=0.56%, sys=14.06%, ctx=4111, majf=0, minf=42
+  IO depths    : 1=100.1%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,4096,0,4 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=1753MiB/s (1839MB/s), 1753MiB/s-1753MiB/s (1839MB/s-1839MB/s), io=512MiB (537MB), run=292-292msec
