@@ -2,18 +2,18 @@ randwrite: (g=0): rw=randwrite, bs=(R) 128KiB-128KiB, (W) 128KiB-128KiB, (T) 128
 fio-3.16
 Starting 1 process
 
-randwrite: (groupid=0, jobs=1): err= 0: pid=113491: Wed Oct 22 17:22:55 2025
-  write: IOPS=8533, BW=1067MiB/s (1118MB/s)(128MiB/120msec); 0 zone resets
-    clat (usec): min=23, max=463, avg=59.42, stdev=43.16
-     lat (usec): min=24, max=468, avg=59.89, stdev=43.33
+randwrite: (groupid=0, jobs=1): err= 0: pid=7691: Wed Oct 22 20:56:46 2025
+  write: IOPS=8752, BW=1094MiB/s (1147MB/s)(128MiB/117msec); 0 zone resets
+    clat (usec): min=21, max=457, avg=57.45, stdev=45.14
+     lat (usec): min=21, max=462, avg=57.93, stdev=45.33
     clat percentiles (usec):
-     |  1.00th=[   27],  5.00th=[   31], 10.00th=[   33], 20.00th=[   36],
-     | 30.00th=[   39], 40.00th=[   55], 50.00th=[   56], 60.00th=[   57],
-     | 70.00th=[   59], 80.00th=[   63], 90.00th=[   83], 95.00th=[  122],
-     | 99.00th=[  293], 99.50th=[  400], 99.90th=[  420], 99.95th=[  465],
-     | 99.99th=[  465]
-  lat (usec)   : 50=35.16%, 100=56.74%, 250=6.84%, 500=1.27%
-  cpu          : usr=0.00%, sys=54.62%, ctx=61, majf=0, minf=9
+     |  1.00th=[   25],  5.00th=[   28], 10.00th=[   30], 20.00th=[   33],
+     | 30.00th=[   36], 40.00th=[   52], 50.00th=[   54], 60.00th=[   55],
+     | 70.00th=[   56], 80.00th=[   60], 90.00th=[   76], 95.00th=[  130],
+     | 99.00th=[  379], 99.50th=[  392], 99.90th=[  424], 99.95th=[  457],
+     | 99.99th=[  457]
+  lat (usec)   : 50=36.72%, 100=54.69%, 250=7.23%, 500=1.37%
+  cpu          : usr=0.00%, sys=54.31%, ctx=61, majf=0, minf=9
   IO depths    : 1=100.1%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
@@ -21,4 +21,4 @@ randwrite: (groupid=0, jobs=1): err= 0: pid=113491: Wed Oct 22 17:22:55 2025
      latency   : target=0, window=0, percentile=100.00%, depth=1
 
 Run status group 0 (all jobs):
-  WRITE: bw=1067MiB/s (1118MB/s), 1067MiB/s-1067MiB/s (1118MB/s-1118MB/s), io=128MiB (134MB), run=120-120msec
+  WRITE: bw=1094MiB/s (1147MB/s), 1094MiB/s-1094MiB/s (1147MB/s-1147MB/s), io=128MiB (134MB), run=117-117msec
