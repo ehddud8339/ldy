@@ -325,8 +325,6 @@ int BPF_KPROBE(handle_nvme_queue_rq,
 
   e = reserve_evt();
   if (!e) return 0;
-
-  fill_hdr(e, EVT_DRIVER_ENTER, infop->req_id);
-
-
+  
+  // fill_hdr(e, EVT_DRIVER_ENTER, infop->req_id);
 }
