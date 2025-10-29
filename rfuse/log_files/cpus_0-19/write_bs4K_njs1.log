@@ -2,18 +2,18 @@ write: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, io
 fio-3.16
 Starting 1 process
 
-write: (groupid=0, jobs=1): err= 0: pid=325319: Wed Oct 29 12:03:44 2025
-  write: IOPS=73.3k, BW=286MiB/s (300MB/s)(128MiB/447msec); 0 zone resets
-    clat (usec): min=9, max=621, avg=11.64, stdev= 4.80
-     lat (usec): min=9, max=621, avg=11.70, stdev= 4.82
+write: (groupid=0, jobs=1): err= 0: pid=19554: Wed Oct 29 13:40:32 2025
+  write: IOPS=63.0k, BW=246MiB/s (258MB/s)(128MiB/520msec); 0 zone resets
+    clat (usec): min=10, max=103, avg=13.82, stdev= 4.13
+     lat (usec): min=10, max=103, avg=13.89, stdev= 4.15
     clat percentiles (nsec):
-     |  1.00th=[ 9664],  5.00th=[ 9792], 10.00th=[ 9920], 20.00th=[ 9920],
-     | 30.00th=[10048], 40.00th=[10176], 50.00th=[10304], 60.00th=[10688],
-     | 70.00th=[11328], 80.00th=[12224], 90.00th=[14912], 95.00th=[17280],
-     | 99.00th=[27008], 99.50th=[28288], 99.90th=[42240], 99.95th=[47360],
-     | 99.99th=[81408]
-  lat (usec)   : 10=24.58%, 20=72.46%, 50=2.93%, 100=0.03%, 750=0.01%
-  cpu          : usr=4.04%, sys=40.81%, ctx=32779, majf=0, minf=9
+     |  1.00th=[11072],  5.00th=[11456], 10.00th=[11584], 20.00th=[11840],
+     | 30.00th=[12096], 40.00th=[12224], 50.00th=[12480], 60.00th=[12864],
+     | 70.00th=[13504], 80.00th=[14400], 90.00th=[16512], 95.00th=[21120],
+     | 99.00th=[31360], 99.50th=[33536], 99.90th=[40192], 99.95th=[50432],
+     | 99.99th=[83456]
+  lat (usec)   : 20=94.22%, 50=5.73%, 100=0.05%, 250=0.01%
+  cpu          : usr=5.97%, sys=41.04%, ctx=32778, majf=0, minf=11
   IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
@@ -21,4 +21,4 @@ write: (groupid=0, jobs=1): err= 0: pid=325319: Wed Oct 29 12:03:44 2025
      latency   : target=0, window=0, percentile=100.00%, depth=1
 
 Run status group 0 (all jobs):
-  WRITE: bw=286MiB/s (300MB/s), 286MiB/s-286MiB/s (300MB/s-300MB/s), io=128MiB (134MB), run=447-447msec
+  WRITE: bw=246MiB/s (258MB/s), 246MiB/s-246MiB/s (258MB/s-258MB/s), io=128MiB (134MB), run=520-520msec
