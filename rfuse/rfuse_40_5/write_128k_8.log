@@ -3,19 +3,21 @@ write: (g=0): rw=write, bs=(R) 128KiB-128KiB, (W) 128KiB-128KiB, (T) 128KiB-128K
 fio-3.16
 Starting 8 processes
 
-write: (groupid=0, jobs=8): err= 0: pid=246611: Mon Oct 27 07:21:05 2025
-  write: IOPS=9061, BW=1133MiB/s (1188MB/s)(1024MiB/904msec); 0 zone resets
-    clat (usec): min=118, max=11735, avg=342.56, stdev=191.47
-     lat (usec): min=119, max=11800, avg=344.63, stdev=192.43
+write: (groupid=0, jobs=8): err= 0: pid=350003: Mon Oct 27 10:58:35 2025
+  write: IOPS=3747, BW=468MiB/s (491MB/s)(1024MiB/2186msec); 0 zone resets
+    clat (usec): min=101, max=25839, avg=1639.94, stdev=1757.08
+     lat (usec): min=102, max=25840, avg=1642.42, stdev=1757.55
     clat percentiles (usec):
-     |  1.00th=[  161],  5.00th=[  192], 10.00th=[  215], 20.00th=[  247],
-     | 30.00th=[  273], 40.00th=[  297], 50.00th=[  326], 60.00th=[  355],
-     | 70.00th=[  383], 80.00th=[  420], 90.00th=[  478], 95.00th=[  529],
-     | 99.00th=[  652], 99.50th=[  717], 99.90th=[ 2835], 99.95th=[ 3490],
-     | 99.99th=[11731]
-  lat (usec)   : 250=21.25%, 500=71.41%, 750=6.93%, 1000=0.21%
-  lat (msec)   : 2=0.07%, 4=0.11%, 20=0.01%
-  cpu          : usr=0.74%, sys=19.10%, ctx=9788, majf=1, minf=85
+     |  1.00th=[  147],  5.00th=[  163], 10.00th=[  180], 20.00th=[  293],
+     | 30.00th=[  652], 40.00th=[  914], 50.00th=[ 1172], 60.00th=[ 1483],
+     | 70.00th=[ 1893], 80.00th=[ 2507], 90.00th=[ 3589], 95.00th=[ 4817],
+     | 99.00th=[ 7570], 99.50th=[ 9634], 99.90th=[17695], 99.95th=[20055],
+     | 99.99th=[25822]
+   bw (  KiB/s): min=477315, max=710656, per=100.00%, avg=604758.33, stdev=17461.86, samples=22
+   iops        : min= 3729, max= 5552, avg=4724.67, stdev=136.42, samples=22
+  lat (usec)   : 250=18.15%, 500=7.40%, 750=7.80%, 1000=9.86%
+  lat (msec)   : 2=28.81%, 4=20.34%, 10=7.21%, 20=0.38%, 50=0.05%
+  cpu          : usr=0.14%, sys=8.33%, ctx=987931, majf=0, minf=77
   IO depths    : 1=100.1%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
@@ -23,4 +25,4 @@ write: (groupid=0, jobs=8): err= 0: pid=246611: Mon Oct 27 07:21:05 2025
      latency   : target=0, window=0, percentile=100.00%, depth=1
 
 Run status group 0 (all jobs):
-  WRITE: bw=1133MiB/s (1188MB/s), 1133MiB/s-1133MiB/s (1188MB/s-1188MB/s), io=1024MiB (1074MB), run=904-904msec
+  WRITE: bw=468MiB/s (491MB/s), 468MiB/s-468MiB/s (491MB/s-491MB/s), io=1024MiB (1074MB), run=2186-2186msec
