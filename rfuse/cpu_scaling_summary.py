@@ -1,270 +1,210 @@
 import os
 import re
+from datetime import datetime
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment
 from openpyxl.utils import get_column_letter
 
-############################
-# 실험 환경에 맞게 수정하는 부분
-############################
+# === 실험 환경 설정 ===
+BASE_LOG_DIR = "log_files/rfuse"
 
-BASE_LOG_DIR = "/home/ldy/src/ldy/rfuse/log_files/ext4"
+WORKLOADS     = ["read", "write", "randread", "randwrite"]
+CPU_SETS      = ["0-39", "0-19", "0-9", "0-4", "0"]         # 행 순서
+NUMJOBS_LIST  = ["1", "2", "4", "8", "16", "32"]            # 열 순서
 
-WORKLOADS = ["read", "write", "randread", "randwrite"]
-CPU_SETS = ["0-39", "0-19", "0-9", "0-4", "0"]  # 행 순서
-NUMJOBS_LIST = ["1", "2", "4", "8", "16", "32"]  # 열 순서
+# 여러 개의 bs 필터를 허용 (소문자 기준). None이면 전체 수집
+BS_FILTERS = ["4k", "128k"]          # 예: ["4k","128k"] / ["128k"] / None
 
-# 출력 파일
-OUTPUT_XLSX = "ext4_cpu_scaling_summary.xlsx"
+OUTPUT_XLSX = "rfuse_cpu_scaling_summary.xlsx"
 
 
-############################
-# fio 로그에서 값 추출하는 헬퍼
-############################
-
+# === fio 로그 파싱 ===
 def parse_fio_log(filepath, workload):
-    """
-    filepath: fio 결과 .log 경로
-    workload: "read", "write", "randread", "randwrite"
-              fio 로그 안에서 'read:' 'write:' 블록 중 어느 걸 볼지 결정할 때 사용
-              randread -> read, randwrite -> write 라고 보면 됨.
-    return: (iops, tail_99_99_usec)  # 둘 다 float
-            없으면 None
-    """
-
-    # fio output의 read/write 구분:
-    # randread도 fio 출력은 "read:" 섹션으로 나온다.
-    # randwrite도 fio 출력은 "write:" 섹션으로 나온다.
-    if workload in ["read", "randread"]:
-        section_key = "read"
-    else:
-        section_key = "write"
+    # randread/randwrite도 출력 섹션은 read:/write:
+    section_key = "read" if workload in ["read", "randread"] else "write"
 
     iops_val = None
     tail_val_usec = None
-
-    # 우리는 clat percentiles 블록을 읽어서 99.99th를 잡을 건데,
-    # 단위(usec, msec, nsec)를 함께 추적한다.
-    clat_unit = None  # "nsec", "usec", "msec"
+    clat_unit = None  # nsec/usec/msec
 
     with open(filepath, "r", errors="ignore") as f:
         for line in f:
-            line_strip = line.strip()
+            s = line.strip()
 
-            # 1) IOPS 파싱
-            # 예: "   read: IOPS=12345, BW=..."
-            # 또는 "  write: IOPS=12.3k, BW=..."
-            # fio는 k/M/G 단위 접미사를 쓸 수 있다.
-            m_iops = re.search(
-                rf"{section_key}:\s+IOPS=([0-9]+(\.[0-9]+)?[kMG]?)",
-                line_strip
-            )
+            # IOPS=... (k/M/G 접미사 처리)
+            m_iops = re.search(rf"{section_key}:\s+IOPS=([0-9]+(\.[0-9]+)?[kMG]?)", s)
             if m_iops and iops_val is None:
-                raw = m_iops.group(1)  # 예: '12.3k'
-                # 접미사 처리
+                raw = m_iops.group(1)
                 mult = 1.0
                 if raw.endswith('k'):
-                    mult = 1e3
-                    raw_num = raw[:-1]
+                    mult = 1e3;  raw = raw[:-1]
                 elif raw.endswith('M'):
-                    mult = 1e6
-                    raw_num = raw[:-1]
+                    mult = 1e6;  raw = raw[:-1]
                 elif raw.endswith('G'):
-                    mult = 1e9
-                    raw_num = raw[:-1]
-                else:
-                    raw_num = raw
+                    mult = 1e9;  raw = raw[:-1]
                 try:
-                    iops_val = float(raw_num) * mult
+                    iops_val = float(raw) * mult
                 except ValueError:
                     pass
 
-            # 2) clat percentiles 단위 감지
-            # 예: "   clat percentiles (usec):"
-            m_clat_header = re.search(r"clat percentiles \((nsec|usec|msec)\):", line_strip)
-            if m_clat_header:
-                clat_unit = m_clat_header.group(1)
+            # clat 단위 탐지
+            m_unit = re.search(r"clat percentiles \((nsec|usec|msec)\):", s)
+            if m_unit:
+                clat_unit = m_unit.group(1)
 
-            # 3) 99.99th latency 파싱
-            # 예: "  | 99.99th=[  8450], 99.995th=[  9000], ..."
-            m_p9999 = re.search(r"99\.99th=\[\s*([0-9]+)\s*\]", line_strip)
-            if m_p9999 and tail_val_usec is None and clat_unit is not None:
-                raw_tail = float(m_p9999.group(1))  # 숫자만
-                # 단위 변환 → microseconds(usec) 기준으로 통합
+            # 99.99th
+            m_p = re.search(r"99\.99th=\[\s*([0-9]+)\s*\]", s)
+            if m_p and tail_val_usec is None and clat_unit is not None:
+                raw_tail = float(m_p.group(1))
                 if clat_unit == "usec":
                     tail_val_usec = raw_tail
                 elif clat_unit == "msec":
                     tail_val_usec = raw_tail * 1000.0
                 elif clat_unit == "nsec":
                     tail_val_usec = raw_tail / 1000.0
-                # else: leave None
 
     return iops_val, tail_val_usec
 
 
-############################
-# 엑셀 작성 유틸
-############################
+# === 시트 작성 ===
+def write_workload_bs_sheet(wb, workload, bs_token, data_iops, data_tail):
+    title = f"{workload}_bs{bs_token}"
+    ws = wb.create_sheet(title=title)
 
-def write_workload_sheet(wb, workload, data_iops, data_tail):
-    """
-    wb: Workbook
-    workload: "randread" 등 (시트 이름으로도 사용)
-    data_iops[cpu_set][numjobs] = float or None
-    data_tail[cpu_set][numjobs] = float(usec) or None
+    left_label_col    = 1                  # cpus: 라벨
+    left_block_start  = 2                  # IOPS 데이터 시작 열
+    right_label_col   = left_block_start + len(NUMJOBS_LIST) + 1
+    right_block_start = right_label_col + 1
 
-    시트 형식:
-    [workload]_IOPS (col 1..7) | [workload]_99.99_tail_latency (col 9..15)
-    각 블록의 1행은 병합된 헤더
-    2행은 numjobs 헤더
-    3행 이후는 cpu_set 행
-    """
-
-    ws = wb.create_sheet(title=workload)
-
-    # 레이아웃 고정
-    # 왼쪽 블록 시작열
-    left_start_col = 1
-    # 오른쪽 블록 시작열
-    right_start_col = 1 + 1 + len(NUMJOBS_LIST) + 1  # 하나 비우고 다시 시작
-    # 예: numjobs가 6개면 -> left 1..7 (A..G), 빈열 H, right는 I..O
-
-    # 공용 스타일
-    bold_center = Font(bold=True)
+    bold_center  = Font(bold=True)
     center_align = Alignment(horizontal="center", vertical="center")
 
-    # --- 왼쪽 블록 헤더: [workload]_IOPS ---
-    left_header_col1 = left_start_col
-    left_header_colN = left_start_col + len(NUMJOBS_LIST)  # merge across these
+    # === 병합 헤더 (키워드 인자 사용) ===
     ws.merge_cells(
         start_row=1,
-        start_column=left_header_col1,
+        start_column=left_block_start,
         end_row=1,
-        end_column=left_header_colN
+        end_column=left_block_start + len(NUMJOBS_LIST) - 1
     )
-    ws.cell(row=1, column=left_header_col1).value = f"[{workload}]_IOPS"
-    ws.cell(row=1, column=left_header_col1).font = bold_center
-    ws.cell(row=1, column=left_header_col1).alignment = center_align
+    ws.cell(row=1, column=left_block_start).value = f"[{workload}]_IOPS (bs={bs_token})"
+    ws.cell(row=1, column=left_block_start).font = bold_center
+    ws.cell(row=1, column=left_block_start).alignment = center_align
 
-    # 두 번째 행(numjobs row)
-    for idx, nj in enumerate(NUMJOBS_LIST):
-        col = left_start_col + idx
-        ws.cell(row=2, column=col).value = nj
-        ws.cell(row=2, column=col).font = bold_center
-        ws.cell(row=2, column=col).alignment = center_align
-
-    # 데이터 행들 (CPU 세트별)
-    # row_offset = 3
-    for r_i, cpu_set in enumerate(CPU_SETS):
-        row = 3 + r_i
-        # 왼쪽 첫 셀은 cpu_set 라벨을 IOPS 블록 왼쪽에 넣을지 말지는
-        # 요구사항상 "cpus:0-39" 같은 문자열은 행 라벨처럼 보인다.
-        # 표 예시에서 행 라벨은 맨 왼쪽에만 있고 IOPS/latency 블록 둘 다 공유하는지
-        # 애매하지만, 여기서는 각 블록마다 넣지 않고 IOPS 쪽에만 넣자.
-        row_label_col = left_start_col - 1
-        if row_label_col >= 1:
-            ws.cell(row=row, column=row_label_col).value = f"cpus:{cpu_set}"
-            ws.cell(row=row, column=row_label_col).font = bold_center
-
-        for idx, nj in enumerate(NUMJOBS_LIST):
-            col = left_start_col + idx
-            val = data_iops.get(cpu_set, {}).get(nj)
-            ws.cell(row=row, column=col).value = val
-
-    # --- 오른쪽 블록 헤더: [workload]_99.99_tail_latency ---
-    right_header_col1 = right_start_col
-    right_header_colN = right_start_col + len(NUMJOBS_LIST) - 1
     ws.merge_cells(
         start_row=1,
-        start_column=right_header_col1,
+        start_column=right_block_start,
         end_row=1,
-        end_column=right_header_colN
+        end_column=right_block_start + len(NUMJOBS_LIST) - 1
     )
-    ws.cell(row=1, column=right_header_col1).value = f"[{workload}]_99.99_tail_latency(usec)"
-    ws.cell(row=1, column=right_header_col1).font = bold_center
-    ws.cell(row=1, column=right_header_col1).alignment = center_align
+    ws.cell(row=1, column=right_block_start).value = f"[{workload}]_99.99_tail_latency(usec)"
+    ws.cell(row=1, column=right_block_start).font = bold_center
+    ws.cell(row=1, column=right_block_start).alignment = center_align
 
-    # 두 번째 행(numjobs row)
+    # === 2행: numjobs 헤더 ===
+    ws.cell(row=2, column=left_label_col).value = ""   # 라벨 칸 비움
     for idx, nj in enumerate(NUMJOBS_LIST):
-        col = right_start_col + idx
-        ws.cell(row=2, column=col).value = nj
-        ws.cell(row=2, column=col).font = bold_center
-        ws.cell(row=2, column=col).alignment = center_align
+        c = left_block_start + idx
+        ws.cell(row=2, column=c).value = nj
+        ws.cell(row=2, column=c).font = bold_center
+        ws.cell(row=2, column=c).alignment = center_align
 
-    # 데이터 행들
-    for r_i, cpu_set in enumerate(CPU_SETS):
-        row = 3 + r_i
-        # 오른쪽 블록도 행 라벨을 다시 적어주자. 가독성↑
-        row_label_col = right_start_col - 1
-        ws.cell(row=row, column=row_label_col).value = f"cpus:{cpu_set}"
-        ws.cell(row=row, column=row_label_col).font = bold_center
+    ws.cell(row=2, column=right_label_col).value = ""
+    for idx, nj in enumerate(NUMJOBS_LIST):
+        c = right_block_start + idx
+        ws.cell(row=2, column=c).value = nj
+        ws.cell(row=2, column=c).font = bold_center
+        ws.cell(row=2, column=c).alignment = center_align
 
+    # === 본문 ===
+    for r_i, cs in enumerate(CPU_SETS):
+        r = 3 + r_i
+        # 라벨
+        ws.cell(row=r, column=left_label_col).value  = f"cpus:{cs}"
+        ws.cell(row=r, column=left_label_col).font   = bold_center
+        ws.cell(row=r, column=right_label_col).value = f"cpus:{cs}"
+        ws.cell(row=r, column=right_label_col).font  = bold_center
+
+        # 값 채우기
         for idx, nj in enumerate(NUMJOBS_LIST):
-            col = right_start_col + idx
-            val = data_tail.get(cpu_set, {}).get(nj)
-            ws.cell(row=row, column=col).value = val
+            ws.cell(row=r, column=left_block_start  + idx).value = data_iops.get(cs, {}).get(nj)
+            ws.cell(row=r, column=right_block_start + idx).value = data_tail.get(cs, {}).get(nj)
 
-    # 칸 정렬/너비 약간 손보기
-    max_col = right_start_col + len(NUMJOBS_LIST)
+    # 열 너비
+    max_col = right_block_start + len(NUMJOBS_LIST)
     for c in range(1, max_col + 1):
-        letter = get_column_letter(c)
-        ws.column_dimensions[letter].width = 14
+        ws.column_dimensions[get_column_letter(c)].width = 16
 
-
-############################
-# 메인 로직
-############################
-
+# === 메인 ===
 def main():
-    # data 구조 초기화
-    # data_iops[workload][cpu_set][numjobs] = float
-    # data_tail[workload][cpu_set][numjobs] = float
-    data_iops = {wl: {cs: {nj: None for nj in NUMJOBS_LIST} for cs in CPU_SETS} for wl in WORKLOADS}
-    data_tail = {wl: {cs: {nj: None for nj in NUMJOBS_LIST} for cs in CPU_SETS} for wl in WORKLOADS}
+    # data[workload][bs][cpu_set][numjobs] = value
+    data_iops = {wl: {} for wl in WORKLOADS}
+    data_tail = {wl: {} for wl in WORKLOADS}
 
-    # 로그 디렉토리 순회
-    # 기대 경로: BASE_LOG_DIR/cpu_0-39/*.log
-    for cpu_set in CPU_SETS:
-        cpu_dir = os.path.join(BASE_LOG_DIR, f"cpu_{cpu_set}")
-        if not os.path.isdir(cpu_dir):
+    # 허용 bs 집합
+    bs_allow = None if BS_FILTERS is None else set([b.lower() for b in BS_FILTERS])
+
+    # 디렉토리 스캔: cpus_0-4, cpus_0, ...
+    for d in os.listdir(BASE_LOG_DIR):
+        full_dir = os.path.join(BASE_LOG_DIR, d)
+        if not os.path.isdir(full_dir):
+            continue
+        m_dir = re.match(r"cpus_(.+)$", d)
+        if not m_dir:
+            continue
+        cpu_set = m_dir.group(1)
+        if cpu_set not in CPU_SETS:
             continue
 
-        for fname in os.listdir(cpu_dir):
+        for fname in os.listdir(full_dir):
             if not fname.endswith(".log"):
                 continue
-
-            # fname 예: randread_bs4K_nj32.log
-            m = re.match(r"(read|write|randread|randwrite)_bs[^_]+_nj([0-9]+)\.log$", fname)
+            # 파일 패턴: randread_bs128k_njs32.log
+            m = re.match(r"(read|write|randread|randwrite)_bs([0-9]+[KkMmGg])_njs([0-9]+)\.log$", fname)
             if not m:
                 continue
+            wl  = m.group(1)
+            bs  = m.group(2).lower()   # '128k'
+            njs = m.group(3)
 
-            workload = m.group(1)
-            numjobs = m.group(2)
-
-            if workload not in WORKLOADS:
+            if wl not in WORKLOADS or njs not in NUMJOBS_LIST:
                 continue
-            if numjobs not in NUMJOBS_LIST:
+            if bs_allow is not None and bs not in bs_allow:
                 continue
 
-            fpath = os.path.join(cpu_dir, fname)
-            iops, tail = parse_fio_log(fpath, workload)
+            fpath = os.path.join(full_dir, fname)
+            iops, tail = parse_fio_log(fpath, wl)
 
-            data_iops[workload][cpu_set][numjobs] = iops
-            data_tail[workload][cpu_set][numjobs] = tail
+            data_iops.setdefault(wl, {}).setdefault(bs, {cs: {nj: None for nj in NUMJOBS_LIST} for cs in CPU_SETS})
+            data_tail.setdefault(wl, {}).setdefault(bs, {cs: {nj: None for nj in NUMJOBS_LIST} for cs in CPU_SETS})
 
-    # 이제 엑셀 생성
-    wb = Workbook()
-    # 기본으로 생기는 첫 시트는 버린다 (openpyxl 기본 Sheet)
-    default_ws = wb.active
-    wb.remove(default_ws)
+            data_iops[wl][bs][cpu_set][njs] = iops
+            data_tail[wl][bs][cpu_set][njs] = tail
 
+    # 엑셀 생성
+    wb = Workbook(); wb.remove(wb.active)
+
+    # 시트 순서: workload 고정, bs는 BS_FILTERS 순서(있으면), 없으면 정렬
     for wl in WORKLOADS:
-        write_workload_sheet(wb, wl, data_iops[wl], data_tail[wl])
+        bs_list = list(data_iops.get(wl, {}).keys())
+        if not bs_list:
+            continue
+        if BS_FILTERS is not None:
+            # 요청 순서 유지
+            ordered = [b for b in BS_FILTERS if b in bs_list]
+        else:
+            ordered = sorted(bs_list, key=lambda x: (x[-1], int(x[:-1])) if x[:-1].isdigit() else x)
+        for bs in ordered:
+            write_workload_bs_sheet(
+                wb,
+                wl,
+                bs,
+                data_iops[wl][bs],
+                data_tail[wl][bs]
+            )
 
     wb.save(OUTPUT_XLSX)
-    print(f"Saved summary to {OUTPUT_XLSX}")
+    print(f"[DONE] wrote {OUTPUT_XLSX}")
 
 
 if __name__ == "__main__":
     main()
-
