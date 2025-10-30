@@ -8,14 +8,14 @@ from openpyxl.utils import get_column_letter
 # 실험 환경에 맞게 수정하는 부분
 ############################
 
-BASE_LOG_DIR = "/home/ldy/src/ldy/rfuse/log_files"
+BASE_LOG_DIR = "/home/ldy/src/ldy/rfuse/log_files/ext4"
 
 WORKLOADS = ["read", "write", "randread", "randwrite"]
 CPU_SETS = ["0-39", "0-19", "0-9", "0-4", "0"]  # 행 순서
 NUMJOBS_LIST = ["1", "2", "4", "8", "16", "32"]  # 열 순서
 
 # 출력 파일
-OUTPUT_XLSX = "cpu_scaling_summary.xlsx"
+OUTPUT_XLSX = "ext4_cpu_scaling_summary.xlsx"
 
 
 ############################
