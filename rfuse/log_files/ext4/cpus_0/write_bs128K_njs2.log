@@ -1,0 +1,29 @@
+write: (g=0): rw=write, bs=(R) 128KiB-128KiB, (W) 128KiB-128KiB, (T) 128KiB-128KiB, ioengine=psync, iodepth=1
+...
+fio-3.16
+Starting 2 processes
+
+write: (groupid=0, jobs=2): err= 0: pid=87260: Thu Oct 30 03:20:49 2025
+  write: IOPS=8569, BW=1071MiB/s (1123MB/s)(256MiB/239msec); 0 zone resets
+    clat (usec): min=49, max=16069, avg=88.39, stdev=733.13
+     lat (usec): min=49, max=16070, avg=89.23, stdev=733.13
+    clat percentiles (usec):
+     |  1.00th=[   50],  5.00th=[   50], 10.00th=[   51], 20.00th=[   51],
+     | 30.00th=[   52], 40.00th=[   52], 50.00th=[   53], 60.00th=[   53],
+     | 70.00th=[   54], 80.00th=[   55], 90.00th=[   55], 95.00th=[   56],
+     | 99.00th=[   60], 99.50th=[   62], 99.90th=[16057], 99.95th=[16057],
+     | 99.99th=[16057]
+  lat (usec)   : 50=4.00%, 100=95.70%, 250=0.05%
+  lat (msec)   : 10=0.05%, 20=0.20%
+  cpu          : usr=0.65%, sys=27.61%, ctx=65, majf=0, minf=25
+  IO depths    : 1=100.1%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,2048,0,2 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+  WRITE: bw=1071MiB/s (1123MB/s), 1071MiB/s-1071MiB/s (1123MB/s-1123MB/s), io=256MiB (268MB), run=239-239msec
+
+Disk stats (read/write):
+  nvme0n1: ios=0/166, merge=0/0, ticks=0/297, in_queue=297, util=19.28%

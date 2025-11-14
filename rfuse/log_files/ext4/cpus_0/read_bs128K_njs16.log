@@ -1,0 +1,40 @@
+read: (g=0): rw=read, bs=(R) 128KiB-128KiB, (W) 128KiB-128KiB, (T) 128KiB-128KiB, ioengine=psync, iodepth=1
+...
+fio-3.16
+Starting 16 processes
+read: Laying out IO file (1 file / 128MiB)
+read: Laying out IO file (1 file / 128MiB)
+read: Laying out IO file (1 file / 128MiB)
+read: Laying out IO file (1 file / 128MiB)
+read: Laying out IO file (1 file / 128MiB)
+read: Laying out IO file (1 file / 128MiB)
+read: Laying out IO file (1 file / 128MiB)
+read: Laying out IO file (1 file / 128MiB)
+
+read: (groupid=0, jobs=16): err= 0: pid=86689: Thu Oct 30 03:20:34 2025
+  read: IOPS=19.6k, BW=2450MiB/s (2569MB/s)(2048MiB/836msec)
+    clat (usec): min=11, max=5317, avg=802.68, stdev=1369.92
+     lat (usec): min=11, max=5317, avg=802.74, stdev=1369.90
+    clat percentiles (usec):
+     |  1.00th=[   14],  5.00th=[   15], 10.00th=[   16], 20.00th=[   17],
+     | 30.00th=[   21], 40.00th=[   23], 50.00th=[   31], 60.00th=[   90],
+     | 70.00th=[   91], 80.00th=[ 1860], 90.00th=[ 3458], 95.00th=[ 3490],
+     | 99.00th=[ 3687], 99.50th=[ 3720], 99.90th=[ 4228], 99.95th=[ 4752],
+     | 99.99th=[ 5080]
+   bw (  MiB/s): min= 2431, max= 2431, per=99.23%, avg=2431.00, stdev= 0.00, samples=16
+   iops        : min=19448, max=19448, avg=19448.00, stdev= 0.00, samples=16
+  lat (usec)   : 20=28.58%, 50=21.43%, 100=24.80%, 250=0.08%, 750=0.01%
+  lat (usec)   : 1000=0.02%
+  lat (msec)   : 2=5.24%, 4=19.70%, 10=0.16%
+  cpu          : usr=0.05%, sys=6.87%, ctx=4130, majf=0, minf=666
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=16384,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=2450MiB/s (2569MB/s), 2450MiB/s-2450MiB/s (2569MB/s-2569MB/s), io=2048MiB (2147MB), run=836-836msec
+
+Disk stats (read/write):
+  nvme0n1: ios=7788/0, merge=0/0, ticks=1348/0, in_queue=1349, util=89.89%

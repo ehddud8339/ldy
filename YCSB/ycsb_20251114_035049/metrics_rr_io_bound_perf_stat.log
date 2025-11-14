@@ -1,0 +1,1046 @@
+#           time             counts unit events
+     1.001020861      6,478,896,707      cycles                                                        (37.43%)
+     1.001020861      8,081,362,621      instructions              #    1.25  insn per cycle           (41.83%)
+     1.001020861      1,551,926,450      branches                                                      (41.83%)
+     1.001020861         21,329,249      branch-misses             #    1.37% of all branches          (41.83%)
+     1.001020861             56,980      cs                                                          
+     1.001020861             56,980      context-switches                                            
+     1.001020861         10,431,173      LLC-loads                                                     (41.83%)
+     1.001020861          1,651,417      LLC-load-misses           #   15.83% of all LL-cache accesses  (41.83%)
+     2.003825110      7,309,611,276      cycles                                                        (37.49%)
+     2.003825110     10,783,420,515      instructions              #    1.48  insn per cycle           (41.88%)
+     2.003825110      2,153,500,702      branches                                                      (41.88%)
+     2.003825110         18,052,024      branch-misses             #    0.84% of all branches          (41.88%)
+     2.003825110             79,775      cs                                                          
+     2.003825110             79,775      context-switches                                            
+     2.003825110         16,362,836      LLC-loads                                                     (41.88%)
+     2.003825110          2,657,762      LLC-load-misses           #   16.24% of all LL-cache accesses  (41.64%)
+     3.006677317      5,106,889,001      cycles                                                        (37.48%)
+     3.006677317      7,682,883,905      instructions              #    1.50  insn per cycle           (41.88%)
+     3.006677317      1,481,033,906      branches                                                      (41.88%)
+     3.006677317          5,200,963      branch-misses             #    0.35% of all branches          (41.86%)
+     3.006677317             84,041      cs                                                          
+     3.006677317             84,041      context-switches                                            
+     3.006677317         12,180,758      LLC-loads                                                     (41.52%)
+     3.006677317          2,348,627      LLC-load-misses           #   19.28% of all LL-cache accesses  (41.37%)
+     4.009541059      4,751,104,628      cycles                                                        (37.48%)
+     4.009541059      7,228,232,986      instructions              #    1.52  insn per cycle           (41.88%)
+     4.009541059      1,383,373,982      branches                                                      (41.78%)
+     4.009541059          4,856,970      branch-misses             #    0.35% of all branches          (41.43%)
+     4.009541059             80,584      cs                                                          
+     4.009541059             80,584      context-switches                                            
+     4.009541059         11,890,639      LLC-loads                                                     (41.37%)
+     4.009541059          1,868,043      LLC-load-misses           #   15.71% of all LL-cache accesses  (41.37%)
+     5.011824629      4,808,956,948      cycles                                                        (37.51%)
+     5.011824629      7,555,819,046      instructions              #    1.57  insn per cycle           (41.66%)
+     5.011824629      1,452,510,237      branches                                                      (41.37%)
+     5.011824629          4,793,907      branch-misses             #    0.33% of all branches          (41.33%)
+     5.011824629             81,732      cs                                                          
+     5.011824629             81,732      context-switches                                            
+     5.011824629         11,937,147      LLC-loads                                                     (41.33%)
+     5.011824629          1,888,641      LLC-load-misses           #   15.82% of all LL-cache accesses  (41.33%)
+     6.014803421      5,226,273,155      cycles                                                        (37.20%)
+     6.014803421      7,962,799,547      instructions              #    1.52  insn per cycle           (41.44%)
+     6.014803421      1,536,551,094      branches                                                      (41.43%)
+     6.014803421          5,717,817      branch-misses             #    0.37% of all branches          (41.43%)
+     6.014803421             82,310      cs                                                          
+     6.014803421             82,310      context-switches                                            
+     6.014803421         12,851,461      LLC-loads                                                     (41.44%)
+     6.014803421          2,216,155      LLC-load-misses           #   17.24% of all LL-cache accesses  (41.67%)
+     7.019826845      8,411,528,053      cycles                                                        (37.19%)
+     7.019826845     12,338,201,184      instructions              #    1.47  insn per cycle           (41.58%)
+     7.019826845      2,322,181,905      branches                                                      (41.58%)
+     7.019826845          5,120,758      branch-misses             #    0.22% of all branches          (41.58%)
+     7.019826845             70,406      cs                                                          
+     7.019826845             70,406      context-switches                                            
+     7.019826845         19,492,981      LLC-loads                                                     (41.60%)
+     7.019826845          5,715,989      LLC-load-misses           #   29.32% of all LL-cache accesses  (41.73%)
+     8.025456271      6,303,517,953      cycles                                                        (37.00%)
+     8.025456271      9,717,752,927      instructions              #    1.54  insn per cycle           (41.39%)
+     8.025456271      1,904,280,362      branches                                                      (41.39%)
+     8.025456271          5,561,812      branch-misses             #    0.29% of all branches          (41.49%)
+     8.025456271             79,350      cs                                                          
+     8.025456271             79,350      context-switches                                            
+     8.025456271         14,509,345      LLC-loads                                                     (41.83%)
+     8.025456271          3,279,000      LLC-load-misses           #   22.60% of all LL-cache accesses  (41.86%)
+     9.027823508      5,401,791,434      cycles                                                        (36.93%)
+     9.027823508      8,345,617,153      instructions              #    1.54  insn per cycle           (41.33%)
+     9.027823508      1,647,243,807      branches                                                      (41.58%)
+     9.027823508          5,489,283      branch-misses             #    0.33% of all branches          (41.87%)
+     9.027823508             87,375      cs                                                          
+     9.027823508             87,375      context-switches                                            
+     9.027823508         12,904,521      LLC-loads                                                     (41.90%)
+     9.027823508          2,042,402      LLC-load-misses           #   15.83% of all LL-cache accesses  (41.90%)
+    10.030706053      5,496,539,444      cycles                                                        (37.19%)
+    10.030706053      8,418,812,668      instructions              #    1.53  insn per cycle           (41.72%)
+    10.030706053      1,680,137,776      branches                                                      (41.87%)
+    10.030706053          7,857,712      branch-misses             #    0.47% of all branches          (41.87%)
+    10.030706053             79,101      cs                                                          
+    10.030706053             79,101      context-switches                                            
+    10.030706053         12,884,612      LLC-loads                                                     (41.87%)
+    10.030706053          2,294,596      LLC-load-misses           #   17.81% of all LL-cache accesses  (41.87%)
+    11.034133001      5,360,329,828      cycles                                                        (37.41%)
+    11.034133001      7,823,233,073      instructions              #    1.46  insn per cycle           (41.86%)
+    11.034133001      1,541,794,686      branches                                                      (41.86%)
+    11.034133001          6,658,700      branch-misses             #    0.43% of all branches          (41.86%)
+    11.034133001             81,114      cs                                                          
+    11.034133001             81,114      context-switches                                            
+    11.034133001         12,475,169      LLC-loads                                                     (41.86%)
+    11.034133001          2,354,250      LLC-load-misses           #   18.87% of all LL-cache accesses  (41.86%)
+    12.037215910      4,902,704,181      cycles                                                        (37.48%)
+    12.037215910      7,712,244,203      instructions              #    1.57  insn per cycle           (41.88%)
+    12.037215910      1,493,915,325      branches                                                      (41.88%)
+    12.037215910          4,931,201      branch-misses             #    0.33% of all branches          (41.88%)
+    12.037215910             82,389      cs                                                          
+    12.037215910             82,389      context-switches                                            
+    12.037215910         12,082,540      LLC-loads                                                     (41.88%)
+    12.037215910          2,144,209      LLC-load-misses           #   17.75% of all LL-cache accesses  (41.74%)
+    13.039827895      7,821,178,758      cycles                                                        (37.47%)
+    13.039827895     12,068,531,590      instructions              #    1.54  insn per cycle           (41.87%)
+    13.039827895      2,275,891,766      branches                                                      (41.87%)
+    13.039827895          5,479,782      branch-misses             #    0.24% of all branches          (41.87%)
+    13.039827895             73,948      cs                                                          
+    13.039827895             73,948      context-switches                                            
+    13.039827895         21,392,751      LLC-loads                                                     (41.67%)
+    13.039827895          6,158,772      LLC-load-misses           #   28.79% of all LL-cache accesses  (41.41%)
+    14.043345090      8,034,282,572      cycles                                                        (37.37%)
+    14.043345090     12,028,531,436      instructions              #    1.50  insn per cycle           (41.75%)
+    14.043345090      2,217,476,636      branches                                                      (41.76%)
+    14.043345090          7,639,605      branch-misses             #    0.34% of all branches          (41.71%)
+    14.043345090             74,341      cs                                                          
+    14.043345090             74,341      context-switches                                            
+    14.043345090         19,623,224      LLC-loads                                                     (41.55%)
+    14.043345090          5,634,939      LLC-load-misses           #   28.72% of all LL-cache accesses  (41.54%)
+    15.049239330     14,395,320,211      cycles                                                        (37.48%)
+    15.049239330     13,296,322,462      instructions              #    0.92  insn per cycle           (41.88%)
+    15.049239330      2,455,381,130      branches                                                      (41.73%)
+    15.049239330         10,252,467      branch-misses             #    0.42% of all branches          (41.40%)
+    15.049239330             85,591      cs                                                          
+    15.049239330             85,591      context-switches                                            
+    15.049239330         21,805,521      LLC-loads                                                     (41.37%)
+    15.049239330          6,131,103      LLC-load-misses           #   28.12% of all LL-cache accesses  (41.37%)
+    16.051645218      7,968,589,431      cycles                                                        (37.49%)
+    16.051645218     12,507,248,946      instructions              #    1.57  insn per cycle           (41.63%)
+    16.051645218      2,277,610,478      branches                                                      (41.38%)
+    16.051645218          7,872,514      branch-misses             #    0.35% of all branches          (41.36%)
+    16.051645218             78,837      cs                                                          
+    16.051645218             78,837      context-switches                                            
+    16.051645218         20,419,483      LLC-loads                                                     (41.36%)
+    16.051645218          4,947,822      LLC-load-misses           #   24.23% of all LL-cache accesses  (41.36%)
+    17.054581639      7,563,469,692      cycles                                                        (37.16%)
+    17.054581639     11,441,396,449      instructions              #    1.51  insn per cycle           (41.41%)
+    17.054581639      2,169,067,886      branches                                                      (41.41%)
+    17.054581639          8,788,965      branch-misses             #    0.41% of all branches          (41.41%)
+    17.054581639             80,911      cs                                                          
+    17.054581639             80,911      context-switches                                            
+    17.054581639         18,776,550      LLC-loads                                                     (41.41%)
+    17.054581639          5,411,655      LLC-load-misses           #   28.82% of all LL-cache accesses  (41.71%)
+    18.058429428      5,062,673,214      cycles                                                        (36.99%)
+    18.058429428      8,463,610,164      instructions              #    1.67  insn per cycle           (41.38%)
+    18.058429428      1,671,633,609      branches                                                      (41.38%)
+    18.058429428          6,563,649      branch-misses             #    0.39% of all branches          (41.42%)
+    18.058429428             90,305      cs                                                          
+    18.058429428             90,305      context-switches                                            
+    18.058429428         13,581,076      LLC-loads                                                     (41.76%)
+    18.058429428          2,130,998      LLC-load-misses           #   15.69% of all LL-cache accesses  (41.87%)
+    19.061256822      9,942,951,919      cycles                                                        (36.97%)
+    19.061256822     13,302,020,862      instructions              #    1.34  insn per cycle           (41.37%)
+    19.061256822      2,455,633,854      branches                                                      (41.50%)
+    19.061256822         10,343,602      branch-misses             #    0.42% of all branches          (41.83%)
+    19.061256822             74,378      cs                                                          
+    19.061256822             74,378      context-switches                                            
+    19.061256822         20,919,676      LLC-loads                                                     (41.88%)
+    19.061256822          5,686,636      LLC-load-misses           #   27.18% of all LL-cache accesses  (41.88%)
+    20.063825945      6,630,533,493      cycles                                                        (37.10%)
+    20.063825945     10,293,987,087      instructions              #    1.55  insn per cycle           (41.59%)
+    20.063825945      1,971,411,546      branches                                                      (41.86%)
+    20.063825945          9,558,343      branch-misses             #    0.48% of all branches          (41.89%)
+    20.063825945             79,340      cs                                                          
+    20.063825945             79,340      context-switches                                            
+    20.063825945         16,682,818      LLC-loads                                                     (41.89%)
+    20.063825945          3,297,923      LLC-load-misses           #   19.77% of all LL-cache accesses  (41.89%)
+    21.066895506      4,822,443,493      cycles                                                        (37.38%)
+    21.066895506      8,201,860,963      instructions              #    1.70  insn per cycle           (41.87%)
+    21.066895506      1,616,391,375      branches                                                      (41.87%)
+    21.066895506          5,293,135      branch-misses             #    0.33% of all branches          (41.87%)
+    21.066895506             87,017      cs                                                          
+    21.066895506             87,017      context-switches                                            
+    21.066895506         13,172,971      LLC-loads                                                     (41.87%)
+    21.066895506          2,028,366      LLC-load-misses           #   15.40% of all LL-cache accesses  (41.87%)
+    22.069814081      5,024,445,305      cycles                                                        (37.48%)
+    22.069814081      8,180,268,495      instructions              #    1.63  insn per cycle           (41.88%)
+    22.069814081      1,587,744,067      branches                                                      (41.88%)
+    22.069814081          5,427,925      branch-misses             #    0.34% of all branches          (41.88%)
+    22.069814081             88,722      cs                                                          
+    22.069814081             88,722      context-switches                                            
+    22.069814081         12,518,333      LLC-loads                                                     (41.88%)
+    22.069814081          1,894,155      LLC-load-misses           #   15.13% of all LL-cache accesses  (41.80%)
+    23.071818602      5,020,222,678      cycles                                                        (37.52%)
+    23.071818602      8,124,694,128      instructions              #    1.62  insn per cycle           (41.92%)
+    23.071818602      1,576,757,730      branches                                                      (41.92%)
+    23.071818602          5,229,204      branch-misses             #    0.33% of all branches          (41.92%)
+    23.071818602             88,031      cs                                                          
+    23.071818602             88,031      context-switches                                            
+    23.071818602         12,653,079      LLC-loads                                                     (41.67%)
+    23.071818602          2,035,596      LLC-load-misses           #   16.09% of all LL-cache accesses  (41.35%)
+    24.074664848      5,458,876,500      cycles                                                        (37.48%)
+    24.074664848      8,584,762,725      instructions              #    1.57  insn per cycle           (41.88%)
+    24.074664848      1,671,093,995      branches                                                      (41.86%)
+    24.074664848          5,578,405      branch-misses             #    0.33% of all branches          (41.52%)
+    24.074664848             83,034      cs                                                          
+    24.074664848             83,034      context-switches                                            
+    24.074664848         14,025,132      LLC-loads                                                     (41.38%)
+    24.074664848          2,642,971      LLC-load-misses           #   18.84% of all LL-cache accesses  (41.37%)
+    25.077650832      7,799,906,425      cycles                                                        (37.46%)
+    25.077650832     12,062,543,286      instructions              #    1.55  insn per cycle           (41.81%)
+    25.077650832      2,297,616,316      branches                                                      (41.47%)
+    25.077650832          5,603,283      branch-misses             #    0.24% of all branches          (41.41%)
+    25.077650832             70,909      cs                                                          
+    25.077650832             70,909      context-switches                                            
+    25.077650832         19,790,011      LLC-loads                                                     (41.40%)
+    25.077650832          5,832,259      LLC-load-misses           #   29.47% of all LL-cache accesses  (41.41%)
+#           time             counts unit events
+    26.081215175      8,364,461,932      cycles                                                        (37.35%)
+    26.081215175     12,572,467,239      instructions              #    1.50  insn per cycle           (41.42%)
+    26.081215175      2,327,000,141      branches                                                      (41.38%)
+    26.081215175          6,574,273      branch-misses             #    0.28% of all branches          (41.38%)
+    26.081215175             73,116      cs                                                          
+    26.081215175             73,116      context-switches                                            
+    26.081215175         19,857,832      LLC-loads                                                     (41.38%)
+    26.081215175          5,145,491      LLC-load-misses           #   25.91% of all LL-cache accesses  (41.51%)
+    27.083826183      8,504,360,266      cycles                                                        (37.04%)
+    27.083826183     12,002,739,641      instructions              #    1.41  insn per cycle           (41.40%)
+    27.083826183      2,201,173,459      branches                                                      (41.40%)
+    27.083826183          6,546,686      branch-misses             #    0.30% of all branches          (41.40%)
+    27.083826183             80,071      cs                                                          
+    27.083826183             80,071      context-switches                                            
+    27.083826183         19,845,134      LLC-loads                                                     (41.56%)
+    27.083826183          5,172,531      LLC-load-misses           #   26.06% of all LL-cache accesses  (41.83%)
+    28.087775329      8,242,466,061      cycles                                                        (37.00%)
+    28.087775329     11,807,781,738      instructions              #    1.43  insn per cycle           (41.40%)
+    28.087775329      2,123,814,847      branches                                                      (41.40%)
+    28.087775329          5,957,519      branch-misses             #    0.28% of all branches          (41.62%)
+    28.087775329             78,249      cs                                                          
+    28.087775329             78,249      context-switches                                            
+    28.087775329         19,108,952      LLC-loads                                                     (41.85%)
+    28.087775329          4,804,777      LLC-load-misses           #   25.14% of all LL-cache accesses  (41.86%)
+    29.090954180      7,875,895,501      cycles                                                        (36.97%)
+    29.090954180     11,311,581,146      instructions              #    1.44  insn per cycle           (41.38%)
+    29.090954180      2,058,329,388      branches                                                      (41.69%)
+    29.090954180          6,685,181      branch-misses             #    0.32% of all branches          (41.87%)
+    29.090954180             79,056      cs                                                          
+    29.090954180             79,056      context-switches                                            
+    29.090954180         19,793,978      LLC-loads                                                     (41.88%)
+    29.090954180          4,870,288      LLC-load-misses           #   24.60% of all LL-cache accesses  (41.88%)
+    30.093964930      8,558,381,230      cycles                                                        (37.25%)
+    30.093964930     11,987,167,363      instructions              #    1.40  insn per cycle           (41.79%)
+    30.093964930      2,184,595,687      branches                                                      (41.87%)
+    30.093964930          7,498,568      branch-misses             #    0.34% of all branches          (41.87%)
+    30.093964930             77,530      cs                                                          
+    30.093964930             77,530      context-switches                                            
+    30.093964930         20,231,330      LLC-loads                                                     (41.87%)
+    30.093964930          5,050,469      LLC-load-misses           #   24.96% of all LL-cache accesses  (41.88%)
+    31.095826819      9,144,432,799      cycles                                                        (37.49%)
+    31.095826819     12,727,580,460      instructions              #    1.39  insn per cycle           (41.92%)
+    31.095826819      2,314,764,260      branches                                                      (41.92%)
+    31.095826819          6,265,348      branch-misses             #    0.27% of all branches          (41.92%)
+    31.095826819             75,055      cs                                                          
+    31.095826819             75,055      context-switches                                            
+    31.095826819         21,799,564      LLC-loads                                                     (41.92%)
+    31.095826819          6,449,043      LLC-load-misses           #   29.58% of all LL-cache accesses  (41.92%)
+    32.098673448     11,031,961,687      cycles                                                        (37.47%)
+    32.098673448     15,907,385,094      instructions              #    1.44  insn per cycle           (41.87%)
+    32.098673448      2,898,710,975      branches                                                      (41.87%)
+    32.098673448          7,114,036      branch-misses             #    0.25% of all branches          (41.87%)
+    32.098673448             72,440      cs                                                          
+    32.098673448             72,440      context-switches                                            
+    32.098673448         25,269,324      LLC-loads                                                     (41.85%)
+    32.098673448          8,148,850      LLC-load-misses           #   32.25% of all LL-cache accesses  (41.54%)
+    33.102385256      8,424,496,964      cycles                                                        (37.42%)
+    33.102385256     12,979,338,161      instructions              #    1.54  insn per cycle           (41.81%)
+    33.102385256      2,408,423,738      branches                                                      (41.81%)
+    33.102385256          6,501,159      branch-misses             #    0.27% of all branches          (41.81%)
+    33.102385256             69,900      cs                                                          
+    33.102385256             69,900      context-switches                                            
+    33.102385256         17,604,265      LLC-loads                                                     (41.55%)
+    33.102385256          4,951,324      LLC-load-misses           #   28.13% of all LL-cache accesses  (41.46%)
+    34.106612483      7,786,825,564      cycles                                                        (37.42%)
+    34.106612483     12,204,957,618      instructions              #    1.57  insn per cycle           (41.81%)
+    34.106612483      2,187,580,698      branches                                                      (41.81%)
+    34.106612483          6,317,475      branch-misses             #    0.29% of all branches          (41.57%)
+    34.106612483             77,790      cs                                                          
+    34.106612483             77,790      context-switches                                            
+    34.106612483         19,145,367      LLC-loads                                                     (41.46%)
+    34.106612483          4,712,032      LLC-load-misses           #   24.61% of all LL-cache accesses  (41.46%)
+    35.110765408      8,221,285,497      cycles                                                        (37.48%)
+    35.110765408     12,567,853,367      instructions              #    1.53  insn per cycle           (41.86%)
+    35.110765408      2,282,241,155      branches                                                      (41.53%)
+    35.110765408          6,697,852      branch-misses             #    0.29% of all branches          (41.38%)
+    35.110765408             76,898      cs                                                          
+    35.110765408             76,898      context-switches                                            
+    35.110765408         20,149,410      LLC-loads                                                     (41.37%)
+    35.110765408          5,205,994      LLC-load-misses           #   25.84% of all LL-cache accesses  (41.37%)
+    36.113758383      7,874,589,836      cycles                                                        (37.39%)
+    36.113758383     12,735,738,342      instructions              #    1.62  insn per cycle           (41.44%)
+    36.113758383      2,310,505,864      branches                                                      (41.37%)
+    36.113758383          6,519,117      branch-misses             #    0.28% of all branches          (41.37%)
+    36.113758383             82,665      cs                                                          
+    36.113758383             82,665      context-switches                                            
+    36.113758383         19,063,576      LLC-loads                                                     (41.37%)
+    36.113758383          4,372,384      LLC-load-misses           #   22.94% of all LL-cache accesses  (41.46%)
+    37.115825800      4,992,023,671      cycles                                                        (36.96%)
+    37.115825800      8,234,935,958      instructions              #    1.65  insn per cycle           (41.32%)
+    37.115825800      1,564,168,289      branches                                                      (41.32%)
+    37.115825800          4,857,060      branch-misses             #    0.31% of all branches          (41.32%)
+    37.115825800             84,102      cs                                                          
+    37.115825800             84,102      context-switches                                            
+    37.115825800         12,481,043      LLC-loads                                                     (41.57%)
+    37.115825800          2,119,793      LLC-load-misses           #   16.98% of all LL-cache accesses  (41.88%)
+    38.118741793      7,649,391,246      cycles                                                        (37.04%)
+    38.118741793     11,701,262,577      instructions              #    1.53  insn per cycle           (41.43%)
+    38.118741793      2,193,365,024      branches                                                      (41.43%)
+    38.118741793          5,605,294      branch-misses             #    0.26% of all branches          (41.68%)
+    38.118741793             77,977      cs                                                          
+    38.118741793             77,977      context-switches                                            
+    38.118741793         19,595,861      LLC-loads                                                     (41.83%)
+    38.118741793          5,400,499      LLC-load-misses           #   27.56% of all LL-cache accesses  (41.84%)
+    39.122824285      7,919,350,504      cycles                                                        (37.00%)
+    39.122824285     11,316,002,655      instructions              #    1.43  insn per cycle           (41.40%)
+    39.122824285      2,119,212,505      branches                                                      (41.72%)
+    39.122824285          6,282,826      branch-misses             #    0.30% of all branches          (41.86%)
+    39.122824285             85,894      cs                                                          
+    39.122824285             85,894      context-switches                                            
+    39.122824285         19,309,695      LLC-loads                                                     (41.87%)
+    39.122824285          5,471,681      LLC-load-misses           #   28.34% of all LL-cache accesses  (41.86%)
+    40.126060739      8,416,305,089      cycles                                                        (37.23%)
+    40.126060739     12,215,583,195      instructions              #    1.45  insn per cycle           (41.73%)
+    40.126060739      2,217,965,121      branches                                                      (41.81%)
+    40.126060739          8,031,706      branch-misses             #    0.36% of all branches          (41.81%)
+    40.126060739             79,110      cs                                                          
+    40.126060739             79,110      context-switches                                            
+    40.126060739         20,237,605      LLC-loads                                                     (41.81%)
+    40.126060739          4,860,379      LLC-load-misses           #   24.02% of all LL-cache accesses  (41.81%)
+    41.131828733      8,200,293,243      cycles                                                        (37.35%)
+    41.131828733     12,280,433,492      instructions              #    1.50  insn per cycle           (41.81%)
+    41.131828733      2,230,729,446      branches                                                      (41.81%)
+    41.131828733          6,279,566      branch-misses             #    0.28% of all branches          (41.81%)
+    41.131828733             83,894      cs                                                          
+    41.131828733             83,894      context-switches                                            
+    41.131828733         19,774,878      LLC-loads                                                     (41.81%)
+    41.131828733          4,684,999      LLC-load-misses           #   23.69% of all LL-cache accesses  (41.81%)
+    42.134662570      7,741,006,696      cycles                                                        (37.48%)
+    42.134662570     11,686,833,133      instructions              #    1.51  insn per cycle           (41.89%)
+    42.134662570      2,199,971,926      branches                                                      (41.89%)
+    42.134662570          6,124,281      branch-misses             #    0.28% of all branches          (41.89%)
+    42.134662570             83,157      cs                                                          
+    42.134662570             83,157      context-switches                                            
+    42.134662570         18,919,897      LLC-loads                                                     (41.89%)
+    42.134662570          4,593,484      LLC-load-misses           #   24.28% of all LL-cache accesses  (41.87%)
+    43.137517562      8,241,155,859      cycles                                                        (37.48%)
+    43.137517562     11,907,446,358      instructions              #    1.44  insn per cycle           (41.88%)
+    43.137517562      2,217,067,706      branches                                                      (41.88%)
+    43.137517562          6,043,021      branch-misses             #    0.27% of all branches          (41.88%)
+    43.137517562             79,546      cs                                                          
+    43.137517562             79,546      context-switches                                            
+    43.137517562         18,691,246      LLC-loads                                                     (41.78%)
+    43.137517562          4,594,414      LLC-load-misses           #   24.58% of all LL-cache accesses  (41.43%)
+    44.139824048      8,562,331,357      cycles                                                        (37.51%)
+    44.139824048     12,532,566,814      instructions              #    1.46  insn per cycle           (41.91%)
+    44.139824048      2,314,887,460      branches                                                      (41.91%)
+    44.139824048          6,658,779      branch-misses             #    0.29% of all branches          (41.66%)
+    44.139824048             78,913      cs                                                          
+    44.139824048             78,913      context-switches                                            
+    44.139824048         21,146,772      LLC-loads                                                     (41.37%)
+    44.139824048          5,629,659      LLC-load-misses           #   26.62% of all LL-cache accesses  (41.33%)
+    45.142662472     11,518,755,640      cycles                                                        (37.48%)
+    45.142662472     16,152,102,735      instructions              #    1.40  insn per cycle           (41.86%)
+    45.142662472      2,909,310,300      branches                                                      (41.53%)
+    45.142662472          7,155,428      branch-misses             #    0.25% of all branches          (41.37%)
+    45.142662472             85,780      cs                                                          
+    45.142662472             85,780      context-switches                                            
+    45.142662472         27,777,443      LLC-loads                                                     (41.37%)
+    45.142662472          8,755,182      LLC-load-misses           #   31.52% of all LL-cache accesses  (41.37%)
+    46.145470861      7,642,112,755      cycles                                                        (37.38%)
+    46.145470861     11,582,928,721      instructions              #    1.52  insn per cycle           (41.43%)
+    46.145470861      2,114,671,923      branches                                                      (41.36%)
+    46.145470861          6,039,411      branch-misses             #    0.29% of all branches          (41.36%)
+    46.145470861             70,691      cs                                                          
+    46.145470861             70,691      context-switches                                            
+    46.145470861         16,155,713      LLC-loads                                                     (41.36%)
+    46.145470861          4,149,285      LLC-load-misses           #   25.68% of all LL-cache accesses  (41.47%)
+    47.147823023      7,751,443,700      cycles                                                        (36.97%)
+    47.147823023     12,081,657,514      instructions              #    1.56  insn per cycle           (41.34%)
+    47.147823023      2,127,170,251      branches                                                      (41.34%)
+    47.147823023          6,231,267      branch-misses             #    0.29% of all branches          (41.34%)
+    47.147823023             80,031      cs                                                          
+    47.147823023             80,031      context-switches                                            
+    47.147823023         18,969,618      LLC-loads                                                     (41.58%)
+    47.147823023          4,315,908      LLC-load-misses           #   22.75% of all LL-cache accesses  (41.87%)
+    48.150659886      7,711,653,529      cycles                                                        (37.06%)
+    48.150659886     12,282,161,287      instructions              #    1.59  insn per cycle           (41.45%)
+    48.150659886      2,209,860,674      branches                                                      (41.45%)
+    48.150659886          6,255,353      branch-misses             #    0.28% of all branches          (41.67%)
+    48.150659886             81,890      cs                                                          
+    48.150659886             81,890      context-switches                                            
+    48.150659886         18,129,066      LLC-loads                                                     (41.82%)
+    48.150659886          4,289,025      LLC-load-misses           #   23.66% of all LL-cache accesses  (41.82%)
+    49.155036534      7,901,674,576      cycles                                                        (37.07%)
+    49.155036534     12,679,401,574      instructions              #    1.60  insn per cycle           (41.46%)
+    49.155036534      2,312,055,823      branches                                                      (41.64%)
+    49.155036534          6,492,327      branch-misses             #    0.28% of all branches          (41.81%)
+    49.155036534             78,742      cs                                                          
+    49.155036534             78,742      context-switches                                            
+    49.155036534         18,125,210      LLC-loads                                                     (41.81%)
+    49.155036534          4,369,755      LLC-load-misses           #   24.11% of all LL-cache accesses  (41.81%)
+    50.159669309      8,253,368,121      cycles                                                        (37.14%)
+    50.159669309     12,470,302,757      instructions              #    1.51  insn per cycle           (41.63%)
+    50.159669309      2,322,363,534      branches                                                      (41.85%)
+    50.159669309          8,043,488      branch-misses             #    0.35% of all branches          (41.86%)
+    50.159669309             79,763      cs                                                          
+    50.159669309             79,763      context-switches                                            
+    50.159669309         20,174,851      LLC-loads                                                     (41.86%)
+    50.159669309          4,901,449      LLC-load-misses           #   24.29% of all LL-cache accesses  (41.86%)
+#           time             counts unit events
+    51.162667104      9,742,815,679      cycles                                                        (37.35%)
+    51.162667104     14,765,830,458      instructions              #    1.52  insn per cycle           (41.84%)
+    51.162667104      2,700,524,500      branches                                                      (41.84%)
+    51.162667104          6,738,766      branch-misses             #    0.25% of all branches          (41.84%)
+    51.162667104             77,196      cs                                                          
+    51.162667104             77,196      context-switches                                            
+    51.162667104         22,848,139      LLC-loads                                                     (41.84%)
+    51.162667104          6,859,998      LLC-load-misses           #   30.02% of all LL-cache accesses  (41.84%)
+    52.168878094     10,000,481,268      cycles                                                        (37.30%)
+    52.168878094     14,769,643,935      instructions              #    1.48  insn per cycle           (41.68%)
+    52.168878094      2,641,065,957      branches                                                      (41.68%)
+    52.168878094          7,143,672      branch-misses             #    0.27% of all branches          (41.68%)
+    52.168878094             72,654      cs                                                          
+    52.168878094             72,654      context-switches                                            
+    52.168878094         21,958,242      LLC-loads                                                     (41.68%)
+    52.168878094          6,812,638      LLC-load-misses           #   31.03% of all LL-cache accesses  (41.68%)
+    53.175181453      7,969,738,479      cycles                                                        (37.40%)
+    53.175181453     11,798,092,849      instructions              #    1.48  insn per cycle           (41.78%)
+    53.175181453      2,176,930,875      branches                                                      (41.78%)
+    53.175181453          6,467,341      branch-misses             #    0.30% of all branches          (41.78%)
+    53.175181453             79,482      cs                                                          
+    53.175181453             79,482      context-switches                                            
+    53.175181453         20,289,708      LLC-loads                                                     (41.78%)
+    53.175181453          5,000,915      LLC-load-misses           #   24.65% of all LL-cache accesses  (41.78%)
+    54.179706919      7,520,498,605      cycles                                                        (37.48%)
+    54.179706919     11,774,859,344      instructions              #    1.57  insn per cycle           (41.88%)
+    54.179706919      2,114,950,930      branches                                                      (41.88%)
+    54.179706919          5,800,551      branch-misses             #    0.27% of all branches          (41.88%)
+    54.179706919             81,687      cs                                                          
+    54.179706919             81,687      context-switches                                            
+    54.179706919         19,099,949      LLC-loads                                                     (41.88%)
+    54.179706919          4,780,639      LLC-load-misses           #   25.03% of all LL-cache accesses  (41.62%)
+    55.182580195      7,494,267,572      cycles                                                        (37.48%)
+    55.182580195     11,369,421,348      instructions              #    1.52  insn per cycle           (41.88%)
+    55.182580195      2,108,577,115      branches                                                      (41.88%)
+    55.182580195          5,704,255      branch-misses             #    0.27% of all branches          (41.86%)
+    55.182580195             79,348      cs                                                          
+    55.182580195             79,348      context-switches                                            
+    55.182580195         19,577,840      LLC-loads                                                     (41.52%)
+    55.182580195          5,192,174      LLC-load-misses           #   26.52% of all LL-cache accesses  (41.38%)
+    56.185620500      7,844,144,371      cycles                                                        (37.47%)
+    56.185620500     11,158,627,031      instructions              #    1.42  insn per cycle           (41.86%)
+    56.185620500      2,025,438,906      branches                                                      (41.80%)
+    56.185620500          6,201,084      branch-misses             #    0.31% of all branches          (41.45%)
+    56.185620500             77,914      cs                                                          
+    56.185620500             77,914      context-switches                                            
+    56.185620500         19,196,577      LLC-loads                                                     (41.39%)
+    56.185620500          4,712,718      LLC-load-misses           #   24.55% of all LL-cache accesses  (41.39%)
+    57.189177387      8,126,333,238      cycles                                                        (37.47%)
+    57.189177387     12,177,721,245      instructions              #    1.50  insn per cycle           (41.73%)
+    57.189177387      2,200,215,411      branches                                                      (41.43%)
+    57.189177387          6,310,186      branch-misses             #    0.29% of all branches          (41.39%)
+    57.189177387             78,621      cs                                                          
+    57.189177387             78,621      context-switches                                            
+    57.189177387         20,021,663      LLC-loads                                                     (41.39%)
+    57.189177387          4,972,770      LLC-load-misses           #   24.84% of all LL-cache accesses  (41.39%)
+    58.191829471      9,808,362,639      cycles                                                        (37.25%)
+    58.191829471     14,465,805,524      instructions              #    1.47  insn per cycle           (41.38%)
+    58.191829471      2,603,941,861      branches                                                      (41.35%)
+    58.191829471          6,587,072      branch-misses             #    0.25% of all branches          (41.35%)
+    58.191829471             78,060      cs                                                          
+    58.191829471             78,060      context-switches                                            
+    58.191829471         23,793,151      LLC-loads                                                     (41.35%)
+    58.191829471          7,121,746      LLC-load-misses           #   29.93% of all LL-cache accesses  (41.60%)
+    59.194774595     10,038,960,306      cycles                                                        (36.98%)
+    59.194774595     14,789,321,187      instructions              #    1.47  insn per cycle           (41.37%)
+    59.194774595      2,649,107,821      branches                                                      (41.37%)
+    59.194774595          7,284,969      branch-misses             #    0.27% of all branches          (41.39%)
+    59.194774595             77,403      cs                                                          
+    59.194774595             77,403      context-switches                                            
+    59.194774595         22,859,805      LLC-loads                                                     (41.72%)
+    59.194774595          7,008,810      LLC-load-misses           #   30.66% of all LL-cache accesses  (41.87%)
+    60.197511782      8,404,490,350      cycles                                                        (36.96%)
+    60.197511782     12,431,434,923      instructions              #    1.48  insn per cycle           (41.36%)
+    60.197511782      2,262,549,991      branches                                                      (41.47%)
+    60.197511782          8,844,767      branch-misses             #    0.39% of all branches          (41.82%)
+    60.197511782             72,825      cs                                                          
+    60.197511782             72,825      context-switches                                            
+    60.197511782         19,752,498      LLC-loads                                                     (41.88%)
+    60.197511782          4,823,297      LLC-load-misses           #   24.42% of all LL-cache accesses  (41.88%)
+    61.199827177      7,700,783,410      cycles                                                        (37.08%)
+    61.199827177     11,772,388,882      instructions              #    1.53  insn per cycle           (41.58%)
+    61.199827177      2,112,186,168      branches                                                      (41.87%)
+    61.199827177          6,397,593      branch-misses             #    0.30% of all branches          (41.90%)
+    61.199827177             76,646      cs                                                          
+    61.199827177             76,646      context-switches                                            
+    61.199827177         18,435,103      LLC-loads                                                     (41.90%)
+    61.199827177          4,389,003      LLC-load-misses           #   23.81% of all LL-cache accesses  (41.90%)
+    62.202857445      8,459,473,044      cycles                                                        (37.35%)
+    62.202857445     12,468,508,448      instructions              #    1.47  insn per cycle           (41.83%)
+    62.202857445      2,248,380,219      branches                                                      (41.84%)
+    62.202857445          6,666,250      branch-misses             #    0.30% of all branches          (41.84%)
+    62.202857445             80,883      cs                                                          
+    62.202857445             80,883      context-switches                                            
+    62.202857445         18,958,720      LLC-loads                                                     (41.84%)
+    62.202857445          4,489,950      LLC-load-misses           #   23.68% of all LL-cache accesses  (41.84%)
+    63.206721841      8,316,057,117      cycles                                                        (37.43%)
+    63.206721841     12,557,530,699      instructions              #    1.51  insn per cycle           (41.82%)
+    63.206721841      2,264,832,737      branches                                                      (41.82%)
+    63.206721841          6,603,312      branch-misses             #    0.29% of all branches          (41.82%)
+    63.206721841             82,340      cs                                                          
+    63.206721841             82,340      context-switches                                            
+    63.206721841         18,684,459      LLC-loads                                                     (41.82%)
+    63.206721841          4,286,361      LLC-load-misses           #   22.94% of all LL-cache accesses  (41.82%)
+    64.211146569      7,595,198,627      cycles                                                        (37.48%)
+    64.211146569     12,116,014,582      instructions              #    1.60  insn per cycle           (41.87%)
+    64.211146569      2,171,083,492      branches                                                      (41.87%)
+    64.211146569          6,264,591      branch-misses             #    0.29% of all branches          (41.87%)
+    64.211146569             82,832      cs                                                          
+    64.211146569             82,832      context-switches                                            
+    64.211146569         18,739,921      LLC-loads                                                     (41.87%)
+    64.211146569          4,314,056      LLC-load-misses           #   23.02% of all LL-cache accesses  (41.56%)
+    65.214001021     11,374,438,706      cycles                                                        (37.45%)
+    65.214001021     16,816,560,875      instructions              #    1.48  insn per cycle           (41.84%)
+    65.214001021      2,930,793,967      branches                                                      (41.84%)
+    65.214001021          7,466,858      branch-misses             #    0.25% of all branches          (41.82%)
+    65.214001021             72,948      cs                                                          
+    65.214001021             72,948      context-switches                                            
+    65.214001021         27,919,682      LLC-loads                                                     (41.51%)
+    65.214001021          8,752,482      LLC-load-misses           #   31.35% of all LL-cache accesses  (41.42%)
+    66.218313914      8,992,986,074      cycles                                                        (37.46%)
+    66.218313914     13,326,954,700      instructions              #    1.48  insn per cycle           (41.86%)
+    66.218313914      2,351,737,036      branches                                                      (41.81%)
+    66.218313914          6,228,528      branch-misses             #    0.26% of all branches          (41.49%)
+    66.218313914             81,956      cs                                                          
+    66.218313914             81,956      context-switches                                            
+    66.218313914         19,356,754      LLC-loads                                                     (41.40%)
+    66.218313914          4,980,740      LLC-load-misses           #   25.73% of all LL-cache accesses  (41.40%)
+    67.221246663      8,303,256,124      cycles                                                        (37.48%)
+    67.221246663     12,354,958,139      instructions              #    1.49  insn per cycle           (41.75%)
+    67.221246663      2,214,091,460      branches                                                      (41.42%)
+    67.221246663          6,275,724      branch-misses             #    0.28% of all branches          (41.37%)
+    67.221246663             77,455      cs                                                          
+    67.221246663             77,457      context-switches                                            
+    67.221246663         18,551,408      LLC-loads                                                     (41.37%)
+    67.221246663          4,434,914      LLC-load-misses           #   23.91% of all LL-cache accesses  (41.37%)
+    68.223827854      8,092,840,713      cycles                                                        (37.25%)
+    68.223827854     12,499,732,728      instructions              #    1.54  insn per cycle           (41.38%)
+    68.223827854      2,273,280,083      branches                                                      (41.35%)
+    68.223827854          6,756,625      branch-misses             #    0.30% of all branches          (41.35%)
+    68.223827854             84,156      cs                                                          
+    68.223827854             84,154      context-switches                                            
+    68.223827854         19,676,670      LLC-loads                                                     (41.35%)
+    68.223827854          4,601,080      LLC-load-misses           #   23.38% of all LL-cache accesses  (41.60%)
+    69.226738784      8,482,927,612      cycles                                                        (37.04%)
+    69.226738784     12,451,738,135      instructions              #    1.47  insn per cycle           (41.43%)
+    69.226738784      2,280,725,838      branches                                                      (41.43%)
+    69.226738784          6,379,106      branch-misses             #    0.28% of all branches          (41.43%)
+    69.226738784             81,370      cs                                                          
+    69.226738784             81,370      context-switches                                            
+    69.226738784         19,938,882      LLC-loads                                                     (41.68%)
+    69.226738784          4,698,026      LLC-load-misses           #   23.56% of all LL-cache accesses  (41.83%)
+    70.230874475      8,983,068,054      cycles                                                        (37.12%)
+    70.230874475     13,126,585,958      instructions              #    1.46  insn per cycle           (41.51%)
+    70.230874475      2,453,119,354      branches                                                      (41.52%)
+    70.230874475          7,992,321      branch-misses             #    0.33% of all branches          (41.63%)
+    70.230874475             80,315      cs                                                          
+    70.230874475             80,315      context-switches                                            
+    70.230874475         22,288,841      LLC-loads                                                     (41.78%)
+    70.230874475          5,386,594      LLC-load-misses           #   24.17% of all LL-cache accesses  (41.78%)
+    71.237032345      9,306,388,906      cycles                                                        (37.04%)
+    71.237032345     13,429,387,530      instructions              #    1.44  insn per cycle           (41.43%)
+    71.237032345      2,375,223,993      branches                                                      (41.58%)
+    71.237032345          6,288,280      branch-misses             #    0.26% of all branches          (41.83%)
+    71.237032345             84,250      cs                                                          
+    71.237032345             84,250      context-switches                                            
+    71.237032345         22,279,954      LLC-loads                                                     (41.83%)
+    71.237032345          6,255,507      LLC-load-misses           #   28.08% of all LL-cache accesses  (41.83%)
+    72.239823886     10,444,280,481      cycles                                                        (37.12%)
+    72.239823886     15,343,853,783      instructions              #    1.47  insn per cycle           (41.61%)
+    72.239823886      2,744,717,749      branches                                                      (41.85%)
+    72.239823886          6,676,043      branch-misses             #    0.24% of all branches          (41.87%)
+    72.239823886             79,117      cs                                                          
+    72.239823886             79,117      context-switches                                            
+    72.239823886         27,231,209      LLC-loads                                                     (41.87%)
+    72.239823886          8,373,434      LLC-load-misses           #   30.75% of all LL-cache accesses  (41.87%)
+    73.242898617      7,937,486,337      cycles                                                        (37.33%)
+    73.242898617     11,794,167,333      instructions              #    1.49  insn per cycle           (41.82%)
+    73.242898617      2,119,073,448      branches                                                      (41.83%)
+    73.242898617          6,218,814      branch-misses             #    0.29% of all branches          (41.83%)
+    73.242898617             78,041      cs                                                          
+    73.242898617             78,041      context-switches                                            
+    73.242898617         20,838,975      LLC-loads                                                     (41.83%)
+    73.242898617          5,146,426      LLC-load-misses           #   24.70% of all LL-cache accesses  (41.83%)
+    74.246661931      7,735,189,934      cycles                                                        (37.48%)
+    74.246661931     11,995,956,401      instructions              #    1.55  insn per cycle           (41.88%)
+    74.246661931      2,201,716,786      branches                                                      (41.88%)
+    74.246661931          6,277,195      branch-misses             #    0.29% of all branches          (41.88%)
+    74.246661931             79,394      cs                                                          
+    74.246661931             79,394      context-switches                                            
+    74.246661931         17,977,619      LLC-loads                                                     (41.88%)
+    74.246661931          4,434,543      LLC-load-misses           #   24.67% of all LL-cache accesses  (41.87%)
+    75.249955734      8,723,425,151      cycles                                                        (37.47%)
+    75.249955734     12,691,627,727      instructions              #    1.45  insn per cycle           (41.87%)
+    75.249955734      2,303,183,791      branches                                                      (41.87%)
+    75.249955734          6,834,963      branch-misses             #    0.30% of all branches          (41.87%)
+    75.249955734             79,491      cs                                                          
+    75.249955734             79,491      context-switches                                            
+    75.249955734         19,248,174      LLC-loads                                                     (41.81%)
+    75.249955734          4,553,852      LLC-load-misses           #   23.66% of all LL-cache accesses  (41.46%)
+#           time             counts unit events
+    76.253307508      8,821,261,844      cycles                                                        (37.47%)
+    76.253307508     12,294,008,060      instructions              #    1.39  insn per cycle           (41.87%)
+    76.253307508      2,200,611,518      branches                                                      (41.87%)
+    76.253307508          6,198,262      branch-misses             #    0.28% of all branches          (41.74%)
+    76.253307508             74,445      cs                                                          
+    76.253307508             74,445      context-switches                                            
+    76.253307508         17,703,772      LLC-loads                                                     (41.43%)
+    76.253307508          4,256,114      LLC-load-misses           #   24.04% of all LL-cache accesses  (41.39%)
+    77.255823674      8,023,419,523      cycles                                                        (37.48%)
+    77.255823674     12,509,721,659      instructions              #    1.56  insn per cycle           (41.87%)
+    77.255823674      2,251,992,915      branches                                                      (41.67%)
+    77.255823674          6,412,763      branch-misses             #    0.28% of all branches          (41.40%)
+    77.255823674             77,343      cs                                                          
+    77.255823674             77,343      context-switches                                            
+    77.255823674         18,723,720      LLC-loads                                                     (41.38%)
+    77.255823674          4,385,050      LLC-load-misses           #   23.42% of all LL-cache accesses  (41.38%)
+    78.258662438     10,402,221,308      cycles                                                        (37.47%)
+    78.258662438     14,835,891,501      instructions              #    1.43  insn per cycle           (41.59%)
+    78.258662438      2,635,003,463      branches                                                      (41.39%)
+    78.258662438          6,603,694      branch-misses             #    0.25% of all branches          (41.38%)
+    78.258662438             75,624      cs                                                          
+    78.258662438             75,624      context-switches                                            
+    78.258662438         23,594,087      LLC-loads                                                     (41.38%)
+    78.258662438          6,768,496      LLC-load-misses           #   28.69% of all LL-cache accesses  (41.39%)
+    79.262566717     10,102,822,277      cycles                                                        (37.11%)
+    79.262566717     14,894,741,449      instructions              #    1.47  insn per cycle           (41.38%)
+    79.262566717      2,695,339,119      branches                                                      (41.38%)
+    79.262566717          6,836,243      branch-misses             #    0.25% of all branches          (41.38%)
+    79.262566717             82,237      cs                                                          
+    79.262566717             82,237      context-switches                                            
+    79.262566717         22,945,359      LLC-loads                                                     (41.41%)
+    79.262566717          6,969,575      LLC-load-misses           #   30.37% of all LL-cache accesses  (41.75%)
+    80.265498854      9,158,017,791      cycles                                                        (36.98%)
+    80.265498854     13,201,679,698      instructions              #    1.44  insn per cycle           (41.37%)
+    80.265498854      2,392,406,132      branches                                                      (41.38%)
+    80.265498854         11,539,481      branch-misses             #    0.48% of all branches          (41.48%)
+    80.265498854             80,776      cs                                                          
+    80.265498854             80,776      context-switches                                            
+    80.265498854         20,526,773      LLC-loads                                                     (41.82%)
+    80.265498854          5,148,658      LLC-load-misses           #   25.08% of all LL-cache accesses  (41.87%)
+    81.267823494      7,801,911,599      cycles                                                        (36.94%)
+    81.267823494     12,071,433,342      instructions              #    1.55  insn per cycle           (41.34%)
+    81.267823494      2,176,167,173      branches                                                      (41.58%)
+    81.267823494          6,469,792      branch-misses             #    0.30% of all branches          (41.87%)
+    81.267823494             78,473      cs                                                          
+    81.267823494             78,473      context-switches                                            
+    81.267823494         17,962,947      LLC-loads                                                     (41.90%)
+    81.267823494          4,132,552      LLC-load-misses           #   23.01% of all LL-cache accesses  (41.90%)
+    82.270785615      8,183,663,645      cycles                                                        (37.19%)
+    82.270785615     12,474,909,517      instructions              #    1.52  insn per cycle           (41.72%)
+    82.270785615      2,242,532,941      branches                                                      (41.87%)
+    82.270785615          6,379,667      branch-misses             #    0.28% of all branches          (41.88%)
+    82.270785615             81,127      cs                                                          
+    82.270785615             81,127      context-switches                                            
+    82.270785615         19,193,445      LLC-loads                                                     (41.88%)
+    82.270785615          4,385,958      LLC-load-misses           #   22.85% of all LL-cache accesses  (41.88%)
+    83.273652372      5,827,005,456      cycles                                                        (37.43%)
+    83.273652372      8,434,246,937      instructions              #    1.45  insn per cycle           (41.88%)
+    83.273652372      1,483,385,358      branches                                                      (41.88%)
+    83.273652372          6,481,923      branch-misses             #    0.44% of all branches          (41.88%)
+    83.273652372             52,173      cs                                                          
+    83.273652372             52,173      context-switches                                            
+    83.273652372         12,980,769      LLC-loads                                                     (41.88%)
+    83.273652372          3,175,032      LLC-load-misses           #   24.46% of all LL-cache accesses  (41.88%)
+    84.275847723      1,208,556,931      cycles                                                        (37.51%)
+    84.275847723      1,325,928,457      instructions              #    1.10  insn per cycle           (41.92%)
+    84.275847723        236,968,680      branches                                                      (41.91%)
+    84.275847723          8,319,253      branch-misses             #    3.51% of all branches          (41.91%)
+    84.275847723              4,082      cs                                                          
+    84.275847723              4,082      context-switches                                            
+    84.275847723          2,213,297      LLC-loads                                                     (41.91%)
+    84.275847723            371,435      LLC-load-misses           #   16.78% of all LL-cache accesses  (41.66%)
+    85.278741290      3,721,288,106      cycles                                                        (37.47%)
+    85.278741290      4,574,600,198      instructions              #    1.23  insn per cycle           (41.86%)
+    85.278741290        774,149,870      branches                                                      (41.86%)
+    85.278741290          6,888,590      branch-misses             #    0.89% of all branches          (41.85%)
+    85.278741290             14,305      cs                                                          
+    85.278741290             14,305      context-switches                                            
+    85.278741290         12,370,767      LLC-loads                                                     (41.55%)
+    85.278741290          5,880,707      LLC-load-misses           #   47.54% of all LL-cache accesses  (41.40%)
+    86.282152296      5,079,994,308      cycles                                                        (37.47%)
+    86.282152296      6,370,941,908      instructions              #    1.25  insn per cycle           (41.87%)
+    86.282152296      1,116,205,768      branches                                                      (41.82%)
+    86.282152296          7,471,746      branch-misses             #    0.67% of all branches          (41.47%)
+    86.282152296             36,146      cs                                                          
+    86.282152296             36,146      context-switches                                            
+    86.282152296         15,151,151      LLC-loads                                                     (41.38%)
+    86.282152296          5,573,164      LLC-load-misses           #   36.78% of all LL-cache accesses  (41.38%)
+    87.285009724      8,309,537,513      cycles                                                        (37.48%)
+    87.285009724      9,687,855,421      instructions              #    1.17  insn per cycle           (41.73%)
+    87.285009724      1,746,094,767      branches                                                      (41.41%)
+    87.285009724         10,812,164      branch-misses             #    0.62% of all branches          (41.37%)
+    87.285009724             85,288      cs                                                          
+    87.285009724             85,288      context-switches                                            
+    87.285009724         23,499,600      LLC-loads                                                     (41.37%)
+    87.285009724          6,549,702      LLC-load-misses           #   27.87% of all LL-cache accesses  (41.37%)
+    88.287829049     10,701,054,157      cycles                                                        (37.24%)
+    88.287829049     13,226,775,249      instructions              #    1.24  insn per cycle           (41.39%)
+    88.287829049      2,544,526,277      branches                                                      (41.37%)
+    88.287829049         26,560,879      branch-misses             #    1.04% of all branches          (41.37%)
+    88.287829049             79,738      cs                                                          
+    88.287829049             79,738      context-switches                                            
+    88.287829049         29,326,644      LLC-loads                                                     (41.37%)
+    88.287829049          8,017,537      LLC-load-misses           #   27.34% of all LL-cache accesses  (41.61%)
+    89.290725380      7,860,446,949      cycles                                                        (37.04%)
+    89.290725380     10,037,909,498      instructions              #    1.28  insn per cycle           (41.43%)
+    89.290725380      1,798,786,119      branches                                                      (41.43%)
+    89.290725380          8,334,944      branch-misses             #    0.46% of all branches          (41.43%)
+    89.290725380             80,464      cs                                                          
+    89.290725380             80,464      context-switches                                            
+    89.290725380         22,340,592      LLC-loads                                                     (41.68%)
+    89.290725380          6,704,097      LLC-load-misses           #   30.01% of all LL-cache accesses  (41.83%)
+    90.294861857      7,666,726,719      cycles                                                        (37.02%)
+    90.294861857     10,409,239,287      instructions              #    1.36  insn per cycle           (41.42%)
+    90.294861857      1,877,480,705      branches                                                      (41.43%)
+    90.294861857          9,385,303      branch-misses             #    0.50% of all branches          (41.69%)
+    90.294861857             85,288      cs                                                          
+    90.294861857             85,288      context-switches                                            
+    90.294861857         24,165,065      LLC-loads                                                     (41.84%)
+    90.294861857          6,639,505      LLC-load-misses           #   27.48% of all LL-cache accesses  (41.85%)
+    91.298656800      7,937,564,395      cycles                                                        (37.07%)
+    91.298656800     10,681,400,713      instructions              #    1.35  insn per cycle           (41.46%)
+    91.298656800      1,881,981,195      branches                                                      (41.68%)
+    91.298656800          9,895,062      branch-misses             #    0.53% of all branches          (41.82%)
+    91.298656800             82,575      cs                                                          
+    91.298656800             82,575      context-switches                                            
+    91.298656800         22,395,902      LLC-loads                                                     (41.82%)
+    91.298656800          6,061,962      LLC-load-misses           #   27.07% of all LL-cache accesses  (41.82%)
+    92.302949290      7,489,170,478      cycles                                                        (37.18%)
+    92.302949290     10,148,650,570      instructions              #    1.36  insn per cycle           (41.71%)
+    92.302949290      1,724,350,800      branches                                                      (41.87%)
+    92.302949290          6,862,625      branch-misses             #    0.40% of all branches          (41.87%)
+    92.302949290             80,856      cs                                                          
+    92.302949290             80,856      context-switches                                            
+    92.302949290         21,512,269      LLC-loads                                                     (41.87%)
+    92.302949290          5,870,413      LLC-load-misses           #   27.29% of all LL-cache accesses  (41.87%)
+    93.305908402      7,813,875,296      cycles                                                        (37.42%)
+    93.305908402     10,198,335,650      instructions              #    1.31  insn per cycle           (41.88%)
+    93.305908402      1,780,700,392      branches                                                      (41.88%)
+    93.305908402          6,762,538      branch-misses             #    0.38% of all branches          (41.88%)
+    93.305908402             79,038      cs                                                          
+    93.305908402             79,038      context-switches                                            
+    93.305908402         21,083,847      LLC-loads                                                     (41.88%)
+    93.305908402          5,943,687      LLC-load-misses           #   28.19% of all LL-cache accesses  (41.88%)
+    94.308851520      7,393,528,897      cycles                                                        (37.48%)
+    94.308851520     10,036,262,919      instructions              #    1.36  insn per cycle           (41.88%)
+    94.308851520      1,767,214,231      branches                                                      (41.88%)
+    94.308851520          6,401,911      branch-misses             #    0.36% of all branches          (41.88%)
+    94.308851520             76,109      cs                                                          
+    94.308851520             76,109      context-switches                                            
+    94.308851520         19,436,906      LLC-loads                                                     (41.88%)
+    94.308851520          5,363,757      LLC-load-misses           #   27.60% of all LL-cache accesses  (41.72%)
+    95.311827698      8,360,589,264      cycles                                                        (37.47%)
+    95.311827698     10,718,366,930      instructions              #    1.28  insn per cycle           (41.86%)
+    95.311827698      1,863,049,072      branches                                                      (41.86%)
+    95.311827698          9,355,116      branch-misses             #    0.50% of all branches          (41.87%)
+    95.311827698             73,535      cs                                                          
+    95.311827698             73,535      context-switches                                            
+    95.311827698         20,883,194      LLC-loads                                                     (41.65%)
+    95.311827698          5,720,959      LLC-load-misses           #   27.40% of all LL-cache accesses  (41.41%)
+    96.315029748      7,097,170,213      cycles                                                        (37.46%)
+    96.315029748      9,913,849,314      instructions              #    1.40  insn per cycle           (41.86%)
+    96.315029748      1,788,412,242      branches                                                      (41.86%)
+    96.315029748          6,462,823      branch-misses             #    0.36% of all branches          (41.59%)
+    96.315029748             73,612      cs                                                          
+    96.315029748             73,612      context-switches                                            
+    96.315029748         16,672,628      LLC-loads                                                     (41.41%)
+    96.315029748          4,490,904      LLC-load-misses           #   26.94% of all LL-cache accesses  (41.40%)
+    97.318490745      7,942,126,096      cycles                                                        (37.47%)
+    97.318490745     11,458,526,273      instructions              #    1.44  insn per cycle           (41.85%)
+    97.318490745      2,047,095,769      branches                                                      (41.51%)
+    97.318490745          6,181,565      branch-misses             #    0.30% of all branches          (41.38%)
+    97.318490745             75,691      cs                                                          
+    97.318490745             75,691      context-switches                                            
+    97.318490745         20,444,048      LLC-loads                                                     (41.38%)
+    97.318490745          6,096,858      LLC-load-misses           #   29.82% of all LL-cache accesses  (41.38%)
+    98.321575291      9,725,403,483      cycles                                                        (37.38%)
+    98.321575291     14,107,729,879      instructions              #    1.45  insn per cycle           (41.43%)
+    98.321575291      2,469,644,211      branches                                                      (41.37%)
+    98.321575291          6,958,375      branch-misses             #    0.28% of all branches          (41.37%)
+    98.321575291             75,767      cs                                                          
+    98.321575291             75,767      context-switches                                            
+    98.321575291         26,109,988      LLC-loads                                                     (41.37%)
+    98.321575291          9,471,909      LLC-load-misses           #   36.28% of all LL-cache accesses  (41.47%)
+    99.323839829      7,598,975,897      cycles                                                        (36.97%)
+    99.323839829     10,451,050,844      instructions              #    1.38  insn per cycle           (41.33%)
+    99.323839829      1,859,884,370      branches                                                      (41.33%)
+    99.323839829          6,509,047      branch-misses             #    0.35% of all branches          (41.33%)
+    99.323839829             83,520      cs                                                          
+    99.323839829             83,520      context-switches                                            
+    99.323839829         19,584,702      LLC-loads                                                     (41.57%)
+    99.323839829          5,457,853      LLC-load-misses           #   27.87% of all LL-cache accesses  (41.87%)
+   100.326772291      8,011,760,736      cycles                                                        (37.03%)
+   100.326772291     10,880,394,279      instructions              #    1.36  insn per cycle           (41.42%)
+   100.326772291      1,985,607,635      branches                                                      (41.43%)
+   100.326772291          7,785,223      branch-misses             #    0.39% of all branches          (41.68%)
+   100.326772291             82,309      cs                                                          
+   100.326772291             82,309      context-switches                                            
+   100.326772291         19,486,415      LLC-loads                                                     (41.84%)
+   100.326772291          5,555,124      LLC-load-misses           #   28.51% of all LL-cache accesses  (41.84%)
+#           time             counts unit events
+   101.330818054      7,571,682,050      cycles                                                        (37.13%)
+   101.330818054     10,491,773,080      instructions              #    1.39  insn per cycle           (41.52%)
+   101.330818054      1,828,611,489      branches                                                      (41.65%)
+   101.330818054          6,459,892      branch-misses             #    0.35% of all branches          (41.77%)
+   101.330818054             82,606      cs                                                          
+   101.330818054             82,606      context-switches                                            
+   101.330818054         19,672,628      LLC-loads                                                     (41.77%)
+   101.330818054          5,530,602      LLC-load-misses           #   28.11% of all LL-cache accesses  (41.77%)
+   102.335822188      6,923,228,579      cycles                                                        (37.11%)
+   102.335822188      9,679,947,235      instructions              #    1.40  insn per cycle           (41.60%)
+   102.335822188      1,655,240,645      branches                                                      (41.86%)
+   102.335822188          6,119,635      branch-misses             #    0.37% of all branches          (41.89%)
+   102.335822188             83,372      cs                                                          
+   102.335822188             83,372      context-switches                                            
+   102.335822188         19,388,227      LLC-loads                                                     (41.89%)
+   102.335822188          5,064,333      LLC-load-misses           #   26.12% of all LL-cache accesses  (41.89%)
+   103.338526964      7,265,984,661      cycles                                                        (37.34%)
+   103.338526964      9,896,291,036      instructions              #    1.36  insn per cycle           (41.82%)
+   103.338526964      1,740,881,666      branches                                                      (41.82%)
+   103.338526964          6,349,413      branch-misses             #    0.36% of all branches          (41.82%)
+   103.338526964             87,196      cs                                                          
+   103.338526964             87,196      context-switches                                            
+   103.338526964         19,471,372      LLC-loads                                                     (41.82%)
+   103.338526964          4,999,124      LLC-load-misses           #   25.67% of all LL-cache accesses  (41.82%)
+   104.343055811      7,444,303,250      cycles                                                        (37.46%)
+   104.343055811     10,173,872,861      instructions              #    1.37  insn per cycle           (41.86%)
+   104.343055811      1,876,543,193      branches                                                      (41.86%)
+   104.343055811          6,680,771      branch-misses             #    0.36% of all branches          (41.86%)
+   104.343055811             84,148      cs                                                          
+   104.343055811             84,148      context-switches                                            
+   104.343055811         19,230,316      LLC-loads                                                     (41.86%)
+   104.343055811          5,136,860      LLC-load-misses           #   26.71% of all LL-cache accesses  (41.86%)
+   105.346409443      7,563,262,434      cycles                                                        (37.48%)
+   105.346409443     10,326,037,865      instructions              #    1.37  insn per cycle           (41.88%)
+   105.346409443      1,812,420,417      branches                                                      (41.88%)
+   105.346409443          6,638,242      branch-misses             #    0.37% of all branches          (41.88%)
+   105.346409443             85,155      cs                                                          
+   105.346409443             85,155      context-switches                                            
+   105.346409443         19,753,743      LLC-loads                                                     (41.84%)
+   105.346409443          5,051,707      LLC-load-misses           #   25.57% of all LL-cache accesses  (41.50%)
+   106.349360905      7,874,702,049      cycles                                                        (37.48%)
+   106.349360905     10,723,643,920      instructions              #    1.36  insn per cycle           (41.88%)
+   106.349360905      1,903,415,538      branches                                                      (41.88%)
+   106.349360905          6,586,737      branch-misses             #    0.35% of all branches          (41.76%)
+   106.349360905             82,349      cs                                                          
+   106.349360905             82,349      context-switches                                            
+   106.349360905         19,836,807      LLC-loads                                                     (41.43%)
+   106.349360905          5,296,437      LLC-load-misses           #   26.70% of all LL-cache accesses  (41.37%)
+   107.351827896      6,858,831,019      cycles                                                        (37.50%)
+   107.351827896     10,185,627,971      instructions              #    1.49  insn per cycle           (41.90%)
+   107.351827896      1,836,674,916      branches                                                      (41.65%)
+   107.351827896          6,559,504      branch-misses             #    0.36% of all branches          (41.37%)
+   107.351827896             86,368      cs                                                          
+   107.351827896             86,368      context-switches                                            
+   107.351827896         19,008,053      LLC-loads                                                     (41.34%)
+   107.351827896          4,828,745      LLC-load-misses           #   25.40% of all LL-cache accesses  (41.34%)
+   108.354773576      9,370,414,194      cycles                                                        (37.35%)
+   108.354773576     13,281,629,612      instructions              #    1.42  insn per cycle           (41.70%)
+   108.354773576      2,288,642,523      branches                                                      (41.57%)
+   108.354773576          6,702,583      branch-misses             #    0.29% of all branches          (41.57%)
+   108.354773576             76,030      cs                                                          
+   108.354773576             76,030      context-switches                                            
+   108.354773576         25,282,395      LLC-loads                                                     (41.57%)
+   108.354773576          8,219,162      LLC-load-misses           #   32.51% of all LL-cache accesses  (41.57%)
+   109.361457515      9,089,526,282      cycles                                                        (37.36%)
+   109.361457515     12,805,118,356      instructions              #    1.41  insn per cycle           (41.47%)
+   109.361457515      2,303,304,575      branches                                                      (41.44%)
+   109.361457515          8,465,290      branch-misses             #    0.37% of all branches          (41.44%)
+   109.361457515             84,428      cs                                                          
+   109.361457515             84,428      context-switches                                            
+   109.361457515         22,822,332      LLC-loads                                                     (41.44%)
+   109.361457515          7,285,722      LLC-load-misses           #   31.92% of all LL-cache accesses  (41.51%)
+   110.366590719      7,885,661,662      cycles                                                        (37.14%)
+   110.366590719     10,501,581,141      instructions              #    1.33  insn per cycle           (41.46%)
+   110.366590719      1,864,485,320      branches                                                      (41.46%)
+   110.366590719          9,086,016      branch-misses             #    0.49% of all branches          (41.46%)
+   110.366590719             86,922      cs                                                          
+   110.366590719             86,922      context-switches                                            
+   110.366590719         20,849,367      LLC-loads                                                     (41.48%)
+   110.366590719          5,581,315      LLC-load-misses           #   26.77% of all LL-cache accesses  (41.74%)
+   111.369569817      7,248,521,120      cycles                                                        (36.98%)
+   111.369569817      9,933,456,598      instructions              #    1.37  insn per cycle           (41.37%)
+   111.369569817      1,786,021,025      branches                                                      (41.37%)
+   111.369569817          6,448,776      branch-misses             #    0.36% of all branches          (41.47%)
+   111.369569817             84,954      cs                                                          
+   111.369569817             84,954      context-switches                                            
+   111.369569817         19,169,153      LLC-loads                                                     (41.82%)
+   111.369569817          5,108,928      LLC-load-misses           #   26.65% of all LL-cache accesses  (41.88%)
+   112.371828957      7,395,400,198      cycles                                                        (36.93%)
+   112.371828957     10,149,043,018      instructions              #    1.37  insn per cycle           (41.33%)
+   112.371828957      1,744,501,483      branches                                                      (41.58%)
+   112.371828957          6,457,142      branch-misses             #    0.37% of all branches          (41.87%)
+   112.371828957             88,351      cs                                                          
+   112.371828957             88,351      context-switches                                            
+   112.371828957         19,459,203      LLC-loads                                                     (41.91%)
+   112.371828957          5,060,439      LLC-load-misses           #   26.01% of all LL-cache accesses  (41.91%)
+   113.374664338      7,426,064,090      cycles                                                        (37.18%)
+   113.374664338     10,195,629,128      instructions              #    1.37  insn per cycle           (41.72%)
+   113.374664338      1,814,360,714      branches                                                      (41.87%)
+   113.374664338          6,548,227      branch-misses             #    0.36% of all branches          (41.88%)
+   113.374664338             88,069      cs                                                          
+   113.374664338             88,069      context-switches                                            
+   113.374664338         20,811,652      LLC-loads                                                     (41.88%)
+   113.374664338          5,474,626      LLC-load-misses           #   26.31% of all LL-cache accesses  (41.88%)
+   114.378016502      7,201,381,770      cycles                                                        (37.39%)
+   114.378016502      9,229,527,975      instructions              #    1.28  insn per cycle           (41.84%)
+   114.378016502      1,562,267,326      branches                                                      (41.84%)
+   114.378016502          6,060,189      branch-misses             #    0.39% of all branches          (41.84%)
+   114.378016502             86,017      cs                                                          
+   114.378016502             86,017      context-switches                                            
+   114.378016502         19,310,857      LLC-loads                                                     (41.84%)
+   114.378016502          5,078,911      LLC-load-misses           #   26.30% of all LL-cache accesses  (41.84%)
+   115.382072648      7,349,998,721      cycles                                                        (37.44%)
+   115.382072648      9,890,242,373      instructions              #    1.35  insn per cycle           (41.83%)
+   115.382072648      1,747,784,315      branches                                                      (41.83%)
+   115.382072648          6,468,760      branch-misses             #    0.37% of all branches          (41.83%)
+   115.382072648             83,434      cs                                                          
+   115.382072648             83,434      context-switches                                            
+   115.382072648         19,124,972      LLC-loads                                                     (41.83%)
+   115.382072648          5,205,081      LLC-load-misses           #   27.22% of all LL-cache accesses  (41.82%)
+   116.385704441      7,692,002,959      cycles                                                        (37.48%)
+   116.385704441     10,626,763,300      instructions              #    1.38  insn per cycle           (41.87%)
+   116.385704441      1,896,326,337      branches                                                      (41.87%)
+   116.385704441          7,158,908      branch-misses             #    0.38% of all branches          (41.87%)
+   116.385704441             87,019      cs                                                          
+   116.385704441             87,019      context-switches                                            
+   116.385704441         20,204,209      LLC-loads                                                     (41.79%)
+   116.385704441          5,554,407      LLC-load-misses           #   27.49% of all LL-cache accesses  (41.44%)
+   117.387826701      7,338,065,899      cycles                                                        (37.51%)
+   117.387826701     10,399,489,178      instructions              #    1.42  insn per cycle           (41.91%)
+   117.387826701      1,836,109,557      branches                                                      (41.91%)
+   117.387826701          6,302,210      branch-misses             #    0.34% of all branches          (41.67%)
+   117.387826701             80,445      cs                                                          
+   117.387826701             80,445      context-switches                                            
+   117.387826701         18,364,492      LLC-loads                                                     (41.37%)
+   117.387826701          4,918,217      LLC-load-misses           #   26.78% of all LL-cache accesses  (41.33%)
+   118.391174408      7,748,144,939      cycles                                                        (37.47%)
+   118.391174408     10,919,952,553      instructions              #    1.41  insn per cycle           (41.86%)
+   118.391174408      1,920,897,691      branches                                                      (41.56%)
+   118.391174408          6,884,943      branch-misses             #    0.36% of all branches          (41.40%)
+   118.391174408             84,587      cs                                                          
+   118.391174408             84,587      context-switches                                            
+   118.391174408         20,835,209      LLC-loads                                                     (41.39%)
+   118.391174408          5,220,388      LLC-load-misses           #   25.06% of all LL-cache accesses  (41.39%)
+   119.394285467      9,938,706,593      cycles                                                        (37.44%)
+   119.394285467     13,240,678,764      instructions              #    1.33  insn per cycle           (41.52%)
+   119.394285467      2,312,567,435      branches                                                      (41.41%)
+   119.394285467          6,932,865      branch-misses             #    0.30% of all branches          (41.41%)
+   119.394285467             75,595      cs                                                          
+   119.394285467             75,595      context-switches                                            
+   119.394285467         25,589,612      LLC-loads                                                     (41.41%)
+   119.394285467          8,951,212      LLC-load-misses           #   34.98% of all LL-cache accesses  (41.43%)
+   120.397816794      9,096,652,876      cycles                                                        (37.09%)
+   120.397816794     12,176,762,049      instructions              #    1.34  insn per cycle           (41.41%)
+   120.397816794      2,166,455,094      branches                                                      (41.41%)
+   120.397816794          8,134,287      branch-misses             #    0.38% of all branches          (41.41%)
+   120.397816794             89,090      cs                                                          
+   120.397816794             89,090      context-switches                                            
+   120.397816794         22,624,933      LLC-loads                                                     (41.43%)
+   120.397816794          7,314,783      LLC-load-misses           #   32.33% of all LL-cache accesses  (41.77%)
+   121.401448225      7,046,579,313      cycles                                                        (37.01%)
+   121.401448225      9,362,917,007      instructions              #    1.33  insn per cycle           (41.41%)
+   121.401448225      1,642,576,182      branches                                                      (41.41%)
+   121.401448225          6,474,782      branch-misses             #    0.39% of all branches          (41.47%)
+   121.401448225             87,000      cs                                                          
+   121.401448225             87,000      context-switches                                            
+   121.401448225         21,168,866      LLC-loads                                                     (41.81%)
+   121.401448225          5,653,586      LLC-load-misses           #   26.71% of all LL-cache accesses  (41.85%)
+   122.405410671      7,589,570,652      cycles                                                        (37.01%)
+   122.405410671     10,000,729,631      instructions              #    1.32  insn per cycle           (41.40%)
+   122.405410671      1,794,962,829      branches                                                      (41.52%)
+   122.405410671          6,997,460      branch-misses             #    0.39% of all branches          (41.82%)
+   122.405410671             90,227      cs                                                          
+   122.405410671             90,227      context-switches                                            
+   122.405410671         21,951,185      LLC-loads                                                     (41.86%)
+   122.405410671          6,027,798      LLC-load-misses           #   27.46% of all LL-cache accesses  (41.86%)
+   123.407816921      7,768,977,726      cycles                                                        (37.09%)
+   123.407816921      9,828,905,215      instructions              #    1.27  insn per cycle           (41.57%)
+   123.407816921      1,746,122,331      branches                                                      (41.85%)
+   123.407816921          6,869,509      branch-misses             #    0.39% of all branches          (41.88%)
+   123.407816921             91,302      cs                                                          
+   123.407816921             91,302      context-switches                                            
+   123.407816921         21,575,961      LLC-loads                                                     (41.88%)
+   123.407816921          5,847,058      LLC-load-misses           #   27.10% of all LL-cache accesses  (41.88%)
+   124.411227774      7,318,058,372      cycles                                                        (37.36%)
+   124.411227774     10,009,829,457      instructions              #    1.37  insn per cycle           (41.87%)
+   124.411227774      1,863,432,221      branches                                                      (41.88%)
+   124.411227774          7,419,673      branch-misses             #    0.40% of all branches          (41.88%)
+   124.411227774             90,959      cs                                                          
+   124.411227774             90,959      context-switches                                            
+   124.411227774         22,731,094      LLC-loads                                                     (41.88%)
+   124.411227774          6,118,015      LLC-load-misses           #   26.91% of all LL-cache accesses  (41.88%)
+   125.414114550      7,874,935,136      cycles                                                        (37.47%)
+   125.414114550     10,618,585,043      instructions              #    1.35  insn per cycle           (41.86%)
+   125.414114550      1,905,290,433      branches                                                      (41.86%)
+   125.414114550          7,297,497      branch-misses             #    0.38% of all branches          (41.86%)
+   125.414114550             92,481      cs                                                          
+   125.414114550             92,481      context-switches                                            
+   125.414114550         21,715,845      LLC-loads                                                     (41.86%)
+   125.414114550          5,580,988      LLC-load-misses           #   25.70% of all LL-cache accesses  (41.83%)
+#           time             counts unit events
+   126.417788554      7,370,428,077      cycles                                                        (37.46%)
+   126.417788554     10,386,498,295      instructions              #    1.41  insn per cycle           (41.85%)
+   126.417788554      1,861,923,706      branches                                                      (41.85%)
+   126.417788554          7,074,908      branch-misses             #    0.38% of all branches          (41.85%)
+   126.417788554             86,195      cs                                                          
+   126.417788554             86,195      context-switches                                            
+   126.417788554         21,827,385      LLC-loads                                                     (41.79%)
+   126.417788554          5,792,385      LLC-load-misses           #   26.54% of all LL-cache accesses  (41.46%)
+   127.420946235      8,032,586,851      cycles                                                        (37.45%)
+   127.420946235     11,157,921,193      instructions              #    1.39  insn per cycle           (41.85%)
+   127.420946235      1,990,275,801      branches                                                      (41.85%)
+   127.420946235          7,668,259      branch-misses             #    0.39% of all branches          (41.76%)
+   127.420946235             81,879      cs                                                          
+   127.420946235             81,879      context-switches                                            
+   127.420946235         21,184,050      LLC-loads                                                     (41.45%)
+   127.420946235          5,965,849      LLC-load-misses           #   28.16% of all LL-cache accesses  (41.41%)
+   128.423835506      8,008,245,892      cycles                                                        (37.51%)
+   128.423835506     10,709,921,799      instructions              #    1.34  insn per cycle           (41.91%)
+   128.423835506      1,942,457,721      branches                                                      (41.66%)
+   128.423835506          6,991,623      branch-misses             #    0.36% of all branches          (41.35%)
+   128.423835506             85,920      cs                                                          
+   128.423835506             85,920      context-switches                                            
+   128.423835506         20,732,825      LLC-loads                                                     (41.33%)
+   128.423835506          5,633,074      LLC-load-misses           #   27.17% of all LL-cache accesses  (41.33%)
+   129.426655456      7,838,260,518      cycles                                                        (37.44%)
+   129.426655456     10,820,202,726      instructions              #    1.38  insn per cycle           (41.57%)
+   129.426655456      1,892,586,121      branches                                                      (41.41%)
+   129.426655456          7,561,302      branch-misses             #    0.40% of all branches          (41.41%)
+   129.426655456             79,768      cs                                                          
+   129.426655456             79,768      context-switches                                            
+   129.426655456         21,107,452      LLC-loads                                                     (41.41%)
+   129.426655456          6,174,802      LLC-load-misses           #   29.25% of all LL-cache accesses  (41.42%)
+   130.223725050      9,176,119,622      cycles                                                        (36.10%)
+   130.223725050     11,926,734,644      instructions              #    1.30  insn per cycle           (40.48%)
+   130.223725050      2,064,199,100      branches                                                      (40.98%)
+   130.223725050          6,077,717      branch-misses             #    0.29% of all branches          (41.48%)
+   130.223725050             64,465      cs                                                          
+   130.223725050             64,465      context-switches                                            
+   130.223725050         23,825,812      LLC-loads                                                     (41.98%)
+   130.223725050          8,046,255      LLC-load-misses           #   33.77% of all LL-cache accesses  (42.46%)

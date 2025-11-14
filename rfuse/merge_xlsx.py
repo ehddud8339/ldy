@@ -124,7 +124,8 @@ def merge_files(dir_path, out_path, sheet_name="Sheet1"):
     all_keys = sorted(all_keys, key=lambda x: (x[0], x[1]))
 
     # Desired row order for filesystems, then any others
-    fs_priority = ["ext4", "fuse", "rfuse", "rfuse_rr", "rfuse_thr", "rfuse_busy", "rfuse_Ecore"]
+    #fs_priority = ["ext4", "fuse", "rfuse", "rfuse_rr", "rfuse_thr", "rfuse_busy", "rfuse_Ecore"]
+    fs_priority = ["rfuse", "rfuse_busy_5", "rfuse_busy_10", "rfuse_busy_20", "rfuse_busy_40"]
     other_fs = sorted([fs for fs in per_fs.keys() if fs not in fs_priority])
     fs_row_order = [fs for fs in fs_priority if fs in per_fs] + other_fs
 
