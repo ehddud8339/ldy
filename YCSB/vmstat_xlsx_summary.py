@@ -2,7 +2,6 @@
 import os
 import glob
 import argparse
-
 from openpyxl import Workbook
 
 # 관심 있는 지표 목록
@@ -33,7 +32,6 @@ def read_vmstat_file(path):
             try:
                 data[key] = int(val)
             except ValueError:
-                # 숫자가 아니면 무시
                 continue
     return data
 
@@ -54,10 +52,17 @@ def diff_vmstat(before, after):
 def collect_rows(input_dir):
     """
     input_dir 내의 *_vmstat_before/after.log를 찾아
-    row_name(str) -> diff(dict) 매핑을 만든다.
-    row_name은 base prefix (예: rr_io_bound)
+    bound -> {sched -> diff_dict} 구조로 리턴.
+
+    파일 이름 예:
+      rr_io_bound_vmstat_before.log
+      rr_io_bound_vmstat_after.log
+
+    => bound = "io_bound", sched = "rr"
     """
+    # rows[bound][sched] = diff_dict
     rows = {}
+
     before_files = glob.glob(os.path.join(input_dir, "*_vmstat_before.log"))
 
     for before_path in sorted(before_files):
@@ -69,64 +74,90 @@ def collect_rows(input_dir):
             print(f"[SKIP] No matching after log for: {before_path}")
             continue
 
+        # base_prefix: "rr_mem_bound" 같은 형태라고 가정
+        if "_" not in base_prefix:
+            print(f"[WARN] Unexpected prefix (no underscore): {base_prefix}")
+            sched = base_prefix
+            bound = "default"
+        else:
+            sched, bound = base_prefix.split("_", 1)
+
         before = read_vmstat_file(before_path)
         after = read_vmstat_file(after_path)
         diff = diff_vmstat(before, after)
-        rows[base_prefix] = diff
+
+        if bound not in rows:
+            rows[bound] = {}
+        rows[bound][sched] = diff
 
     return rows
 
 
-def write_xlsx(rows, output_path):
+def write_xlsx(bound_rows, output_path):
     """
-    rows: {row_name: diff_dict}
-    output_path: 저장할 xlsx 파일 경로
+    bound_rows: {bound: {sched: diff_dict}}
+    각 bound마다 다른 sheet를 만들고,
+    sheet 안에서는 행: sched, 열: METRICS (+ *_bytes) 구조로 만든다.
     """
     wb = Workbook()
-    ws = wb.active
-    ws.title = "vmstat_diff"
+    first_sheet = True
 
-    # 헤더 구성: 첫 컬럼은 label (sched_bound 이름)
-    headers = ["name"]
-    headers.extend(METRICS)
+    # 각 bound에 대해 sheet 하나씩
+    for bound in sorted(bound_rows.keys()):
+        sched_map = bound_rows[bound]
 
-    # pgpgin/pgpgout는 byte 버전 컬럼도 추가
-    extra_metrics = []
-    for m in METRICS:
-        if m in ("pgpgin", "pgpgout"):
-            extra_metrics.append(m + "_bytes")
-    headers.extend(extra_metrics)
+        if not sched_map:
+            continue
 
-    # 헤더 쓰기
-    for col_idx, h in enumerate(headers, start=1):
-        ws.cell(row=1, column=col_idx, value=h)
+        if first_sheet:
+            ws = wb.active
+            ws.title = bound
+            first_sheet = False
+        else:
+            ws = wb.create_sheet(title=bound)
 
-    # 데이터 행 작성
-    row_idx = 2
-    for row_name, diff in sorted(rows.items()):
-        col_idx = 1
-        # name 컬럼
-        ws.cell(row=row_idx, column=col_idx, value=row_name)
-        col_idx += 1
+        # 헤더 구성: 첫 컬럼은 sched 이름
+        headers = ["name"]  # 여기 name에는 sched만 들어감
+        headers.extend(METRICS)
 
-        # 기본 메트릭 값들
-        metric_values = {}
-        for m in METRICS:
-            val = diff.get(m, 0)  # 없는 항목은 0
-            metric_values[m] = val
-            ws.cell(row=row_idx, column=col_idx, value=val)
-            col_idx += 1
-
-        # pgpgin/pgpgout bytes 컬럼
+        # pgpgin/pgpgout는 byte 버전 컬럼도 추가
+        extra_metrics = []
         for m in METRICS:
             if m in ("pgpgin", "pgpgout"):
-                val = metric_values.get(m, 0)
-                ws.cell(row=row_idx, column=col_idx, value=val * PAGE_SIZE)
+                extra_metrics.append(m + "_bytes")
+        headers.extend(extra_metrics)
+
+        # 헤더 쓰기
+        for col_idx, h in enumerate(headers, start=1):
+            ws.cell(row=1, column=col_idx, value=h)
+
+        # 데이터 행 작성
+        row_idx = 2
+        for sched in sorted(sched_map.keys()):
+            diff = sched_map[sched]
+            col_idx = 1
+
+            # name 컬럼 = sched
+            ws.cell(row=row_idx, column=col_idx, value=sched)
+            col_idx += 1
+
+            metric_values = {}
+            # 기본 메트릭 값들
+            for m in METRICS:
+                val = diff.get(m, 0)
+                metric_values[m] = val
+                ws.cell(row=row_idx, column=col_idx, value=val)
                 col_idx += 1
 
-        row_idx += 1
+            # pgpgin/pgpgout bytes 컬럼
+            for m in METRICS:
+                if m in ("pgpgin", "pgpgout"):
+                    val = metric_values.get(m, 0)
+                    ws.cell(row=row_idx, column=col_idx, value=val * PAGE_SIZE)
+                    col_idx += 1
 
-    # 저장
+            row_idx += 1
+
     wb.save(output_path)
     print(f"[OK] Wrote XLSX: {output_path}")
 
@@ -155,17 +186,14 @@ def main():
         print(f"[ERROR] Input directory does not exist or is not a directory: {input_dir}")
         return
 
-    rows = collect_rows(input_dir)
-    if not rows:
+    bound_rows = collect_rows(input_dir)
+    if not bound_rows:
         print(f"[ERROR] No before/after vmstat pairs found in {input_dir}")
         return
 
-    # 출력 디렉토리 생성
     os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
-
-    write_xlsx(rows, output_path)
+    write_xlsx(bound_rows, output_path)
 
 
 if __name__ == "__main__":
     main()
-

@@ -63,10 +63,16 @@ def parse_ycsb_log(path):
 
 def main():
     parser = argparse.ArgumentParser(description="YCSB 로그를 분석하여 Excel로 저장합니다.")
-    parser.add_argument("-i", "--input", default=DEFAULT_LOG_DIR,
-                        help=f"로그 디렉터리 경로 (default: {DEFAULT_LOG_DIR})")
-    parser.add_argument("-o", "--output", default=DEFAULT_OUTPUT,
-                        help=f"출력 XLSX 파일 경로 (default: {DEFAULT_OUTPUT})")
+    parser.add_argument(
+        "-i", "--input",
+        default=DEFAULT_LOG_DIR,
+        help=f"로그 디렉터리 경로 (default: {DEFAULT_LOG_DIR})"
+    )
+    parser.add_argument(
+        "-o", "--output",
+        default=DEFAULT_OUTPUT,
+        help=f"출력 XLSX 파일 경로 (default: {DEFAULT_OUTPUT})"
+    )
 
     args = parser.parse_args()
     log_dir = args.input
@@ -96,10 +102,18 @@ def main():
     front_cols = ["sched", "bound", "phase", "filename"]
     df = df[front_cols + [c for c in df.columns if c not in front_cols]]
 
-    df.to_excel(output_path, index=False)
-    print(f"[✓] 완료: {output_path} 생성")
+    # 출력 디렉토리 생성
+    os.makedirs(os.path.dirname(os.path.abspath(output_path)) or ".", exist_ok=True)
+
+    # bound 별로 다른 sheet에 저장
+    with pd.ExcelWriter(output_path) as writer:
+        for bound in sorted(df["bound"].unique()):
+            sub = df[df["bound"] == bound].copy()
+            sheet_name = bound[:31]  # 엑셀 sheet 이름 31자 제한
+            sub.to_excel(writer, sheet_name=sheet_name, index=False)
+
+    print(f"[✓] 완료: {output_path} 생성 (bound 별 개별 시트)")
 
 
 if __name__ == "__main__":
     main()
-
