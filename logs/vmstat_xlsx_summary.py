@@ -7,12 +7,12 @@ from openpyxl import Workbook
 # 관심 있는 지표 목록
 METRICS = [
     "pgfault", "pgmajfault",
-    "nr_dirty", "nr_writeback",
+    #"nr_dirty", "nr_writeback",
     "pgpgin", "pgpgout",
-    "numa_hit", "numa_miss", "numa_local", "numa_other", "numa_interleave",
+    #"numa_hit", "numa_miss", "numa_local", "numa_other", "numa_interleave",
     "nr_dirtied", "nr_written",
     "pswpin", "pswpout",
-    "allocstall_dma", "allocstall_dma32", "allocstall_normal", "allocstall_movable",
+    #"allocstall_dma", "allocstall_dma32", "allocstall_normal", "allocstall_movable",
 ]
 
 PAGE_SIZE = 1024  # /proc/vmstat의 pgpgin/pgpgout 단위(보통 1KB 블록)

@@ -9,28 +9,32 @@ DEFAULT_LOG_DIR = "ycsb_20251114_"
 DEFAULT_OUTPUT = "ycsb_summary.xlsx"
 
 
+# ================================
+# ✨ 여기서 보고 싶은 컬럼을 지정하면 됨.
+# 컬럼 이름은 원래 파싱 결과 키와 동일해야 함.
+# 존재하지 않는 컬럼은 자동 무시됨.
+# ================================
+SELECTED_COLUMNS = [
+    "OVERALL_Throughput(ops/sec)",
+    #"OVERALL_RunTime(ms)",
+    #"READ_AverageLatency(us)",
+    #"READ_99thPercentileLatency(us)",
+    #"UPDATE_AverageLatency(us)",
+]
+# ================================
+
+
 def parse_filename(path):
-    """
-    rr_cpu_bound_load.log  -> sched=rr, bound=cpu_bound, phase=load
-    thr_io_bound_run.log   -> sched=thr, bound=io_bound, phase=run
-    """
     base = os.path.basename(path)
     name, _ = os.path.splitext(base)
     parts = name.split("_")
     sched = parts[0]
-    phase = parts[-1]              # load or run
-    bound = "_".join(parts[1:-1])  # 중간 전부
+    phase = parts[-1]
+    bound = "_".join(parts[1:-1])
     return sched, bound, phase
 
 
 def parse_ycsb_log(path):
-    """
-    YCSB 결과 로그에서 [SECTION], Metric, Value 형태를 파싱해서 dict로 반환.
-    예:
-      [OVERALL], RunTime(ms), 1000
-      [READ], AverageLatency(us), 123.45
-    => key: "OVERALL_RunTime(ms)", "READ_AverageLatency(us)"
-    """
     metrics = {}
     with open(path, "r", encoding="utf-8", errors="ignore") as f:
         for line in f:
@@ -63,18 +67,11 @@ def parse_ycsb_log(path):
 
 def main():
     parser = argparse.ArgumentParser(description="YCSB 로그를 분석하여 Excel로 저장합니다.")
-    parser.add_argument(
-        "-i", "--input",
-        default=DEFAULT_LOG_DIR,
-        help=f"로그 디렉터리 경로 (default: {DEFAULT_LOG_DIR})"
-    )
-    parser.add_argument(
-        "-o", "--output",
-        default=DEFAULT_OUTPUT,
-        help=f"출력 XLSX 파일 경로 (default: {DEFAULT_OUTPUT})"
-    )
-
+    parser.add_argument("-i", "--input", default=DEFAULT_LOG_DIR, help=f"로그 디렉터리 (default: {DEFAULT_LOG_DIR})")
+    parser.add_argument("-o", "--output", default=DEFAULT_OUTPUT, help=f"출력 XLSX 파일 (default: {DEFAULT_OUTPUT})")
+    
     args = parser.parse_args()
+
     log_dir = args.input
     output_path = args.output
 
@@ -93,27 +90,39 @@ def main():
         all_rows.append(row)
 
     if not all_rows:
-        print(f"[!] 로그 파일을 찾지 못함: {log_dir}")
+        print(f"[!] 로그 없음: {log_dir}")
         return
 
     df = pd.DataFrame(all_rows)
 
-    # 열 순서
+    # 앞에 항상 들어갈 메타 정보
     front_cols = ["sched", "bound", "phase", "filename"]
-    df = df[front_cols + [c for c in df.columns if c not in front_cols]]
 
-    # 출력 디렉토리 생성
+    # SELECTED_COLUMNS 중 실제로 존재하는 컬럼만 선택
+    metric_cols = [c for c in SELECTED_COLUMNS if c in df.columns]
+
+    # metric 없으면 전체 사용 (fallback)
+    if not metric_cols:
+        print("⚠ 선택한 컬럼이 없어서 모든 metric 사용.")
+        metric_cols = [c for c in df.columns if c not in front_cols]
+
+    final_cols = front_cols + metric_cols
+    df = df[final_cols]
+
     os.makedirs(os.path.dirname(os.path.abspath(output_path)) or ".", exist_ok=True)
 
-    # bound 별로 다른 sheet에 저장
     with pd.ExcelWriter(output_path) as writer:
         for bound in sorted(df["bound"].unique()):
             sub = df[df["bound"] == bound].copy()
-            sheet_name = bound[:31]  # 엑셀 sheet 이름 31자 제한
+            sheet_name = bound[:31]
             sub.to_excel(writer, sheet_name=sheet_name, index=False)
 
-    print(f"[✓] 완료: {output_path} 생성 (bound 별 개별 시트)")
+    print(f"[✓] 완료: {output_path}")
+    print("📌 사용된 컬럼:")
+    for col in final_cols:
+        print(f"  - {col}")
 
 
 if __name__ == "__main__":
     main()
+
