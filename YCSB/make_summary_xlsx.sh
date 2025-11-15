@@ -9,4 +9,5 @@ sudo python3 ./vmstat_xlsx_summary.py --input "${LOG_DIR}/metrics" --output "${L
 
 sudo python3 ./cachestat_xlsx_summary.py --input "${LOG_DIR}/metrics" --output "${LOG_DIR}/cache_timeline.xlsx"
 
-sudo python3 ./perf_xlsx_summary.py --input "${LOG_DIR}/metrics" --output "${LOG_DIR}/cache_timeline.xlsx"
+sudo python3 ./perf_xlsx_summary.py --input "${LOG_DIR}/metrics" --output "${LOG_DIR}/perf_timeline.xlsx"
+
