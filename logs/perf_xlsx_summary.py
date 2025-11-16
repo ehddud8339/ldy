@@ -5,177 +5,159 @@ import argparse
 import pandas as pd
 
 
-def parse_sched_bound(path: str):
-    """
-    파일 이름에서 scheduler와 bound 추출
+DEFAULT_INPUT = "./"
+DEFAULT_OUTPUT = "perf_timeline.xlsx"
 
-    예:
-      rr_mem_bound_perf_stat.log -> ('rr', 'mem_bound')
-      cpu_workloada_perf_stat.log -> ('cpu', 'workloada')
+
+def parse_filename(path: str):
+    """
+    예시 파일명:
+      rr_cpu-pinned_perf_stat.log
+      thr_io-bound_perf_stat.log
+
+    → sched=rr, bound=cpu-pinned
     """
     base = os.path.basename(path)
-    name = base.replace("_perf_stat.log", "")
-    parts = name.split("_", 1)
+    name, _ = os.path.splitext(base)
+
+    # 뒤에 붙은 '_perf_stat' 제거
+    if name.endswith("_perf_stat"):
+        name = name[: -len("_perf_stat")]
+
+    parts = name.split("_", 2)
     if len(parts) == 1:
-        sched = parts[0]
-        bound = "default"
+        return parts[0], "default"
+    elif len(parts) == 2:
+        return parts[0], parts[1]
     else:
-        sched, bound = parts
-    return sched, bound
+        # sched_bound_나머지 형태면 앞 2개만 사용
+        return parts[0], parts[1]
 
 
-def parse_perf_stat_log(path: str) -> pd.DataFrame:
+def parse_perf_log(path: str):
     """
-    perf stat -I 100 로그를 파싱해서
-    time, <event1>, <event2>, ... 형태의 DataFrame으로 반환.
+    perf stat -I 로그(단일 파일)를 파싱해서
+      sec(정수 초), event, value
+    형태의 long-format DataFrame으로 반환.
 
-    예시 라인:
-      1.000866118      4,827,978,183      L1-dcache-loads                                               (35.93%)
-      1.000866118        479,148,721      L1-dcache-load-misses     #    9.92% of all L1-dcache accesses  (35.93%)
-
-    - '<not supported>' 라인은 스킵
-    - '# ...' 뒤 / '(...)' 뒤는 잘라냄
+    같은 초(예: 1.0008, 1.9999)는 sec=1로 묶어서 합산한다.
     """
-    time_to_events = {}
+    records = []
 
-    with open(path, "r") as f:
+    with open(path, "r", encoding="utf-8", errors="ignore") as f:
         for line in f:
-            line = line.strip()
+            line = line.rstrip()
             if not line:
                 continue
-            # 헤더 라인 스킵
-            if line.startswith("time") or line.startswith("#"):
+            if line.lstrip().startswith("#"):
                 continue
-            if "<not supported>" in line:
-                continue
-
-            # '# ...' 뒤는 주석이라 제거
-            if "  #" in line:
-                line = line.split("  #", 1)[0]
-            # '(xx.xx%)' 같은 꼬리 제거
-            if "(" in line:
-                line = line.split("(", 1)[0]
 
             parts = line.split()
+            # 기대 형식: time counts [unit] event ...
             if len(parts) < 3:
                 continue
 
-            # time
+            # time (초) → 정수 초 버킷
             try:
                 t = float(parts[0])
             except ValueError:
                 continue
 
+            sec = int(t)  # 같은 초는 모두 같은 버킷으로
+
             # counts (콤마 제거)
-            cnt_str = parts[1].replace(",", "")
             try:
-                count = int(cnt_str)
+                count = float(parts[1].replace(",", ""))
             except ValueError:
-                # counts 자리에 다른 값이 오는 경우 방어
                 continue
 
-            # event 이름 (세 번째 토큰)
+            # 이벤트 이름: perf -I 기본 출력에서는 3번째 토큰이 이벤트 이름인 경우가 대부분
             event = parts[2]
 
-            if t not in time_to_events:
-                time_to_events[t] = {}
-            time_to_events[t][event] = count
+            records.append({"sec": sec, "event": event, "value": count})
 
-    if not time_to_events:
-        return pd.DataFrame()
+    if not records:
+        return pd.DataFrame(columns=["sec", "event", "value"])
 
-    rows = []
-    for t in sorted(time_to_events.keys()):
-        row = {"time": t}
-        row.update(time_to_events[t])
-        rows.append(row)
-
-    df = pd.DataFrame(rows)
+    df = pd.DataFrame(records)
+    # 같은 sec, event가 중복일 경우 합산
+    df = df.groupby(["sec", "event"], as_index=False)["value"].sum()
     return df
 
 
-def build_bound_dataframes(log_dir: str):
+def build_bound_timeline(input_dir: str):
     """
-    log_dir 아래의 *perf_stat.log들을 bound 별로 분류해서
-    bound -> DataFrame(time, sched1_event1, sched1_event2, ..., sched2_event1, ...) 구조로 반환
-    """
-    logs = sorted(glob.glob(os.path.join(log_dir, "**/*perf_stat.log"), recursive=True))
+    디렉터리 내의 *_perf_stat.log들을 읽어서
 
-    if not logs:
-        print("⚠️ No perf_stat logs found in:", log_dir)
+    bound 별로:
+      time(sec), <sched1.event1>, <sched1.event2>, ..., <schedN.eventM>
+    형태의 wide DataFrame 딕셔너리 반환.
+    """
+    pattern = os.path.join(input_dir, "*perf_stat.log")
+    files = sorted(glob.glob(pattern))
+
+    if not files:
+        print(f"[WARN] No perf_stat logs found in {input_dir}")
         return {}
 
-    by_bound = {}  # bound -> list of (sched, df)
+    bound_data = {}
 
-    for path in logs:
-        sched, bound = parse_sched_bound(path)
-        df = parse_perf_stat_log(path)
-
-        if df.empty:
-            print(f"⚠️ No usable data in {path}, skipping.")
+    for path in files:
+        sched, bound = parse_filename(path)
+        df_long = parse_perf_log(path)
+        if df_long.empty:
+            print(f"[WARN] No usable data in {path}, skip.")
             continue
 
-        if bound not in by_bound:
-            by_bound[bound] = []
-        by_bound[bound].append((sched, df))
+        # wide로 변환: sec × event, 값은 value
+        df_pivot = df_long.pivot(index="sec", columns="event", values="value").sort_index()
+        # 컬럼 이름 앞에 sched 붙여서 구분 (예: rr.cycles, thr.cycles)
+        df_pivot.columns = [f"{sched}.{c}" for c in df_pivot.columns]
 
-    bound_dfs = {}
+        if bound not in bound_data:
+            bound_data[bound] = df_pivot
+        else:
+            # 기존 bound 데이터와 sec 기준 outer join
+            bound_data[bound] = bound_data[bound].join(df_pivot, how="outer")
 
-    for bound, entries in by_bound.items():
-        merged = pd.DataFrame()
+    # sec 컬럼을 앞으로 빼기 위해 reset_index
+    for bound, df in bound_data.items():
+        df_reset = df.reset_index().rename(columns={"sec": "time(sec)"})
+        bound_data[bound] = df_reset
 
-        for sched, df in entries:
-            # time 컬럼은 그대로 두고, 이벤트 이름에 sched prefix 붙이기
-            rename_map = {}
-            for col in df.columns:
-                if col == "time":
-                    continue
-                # 예: L1-dcache-loads -> rr_L1-dcache-loads
-                rename_map[col] = f"{sched}_{col}"
-            df_renamed = df.rename(columns=rename_map)
-
-            if merged.empty:
-                merged = df_renamed
-            else:
-                merged = pd.merge(merged, df_renamed, on="time", how="outer")
-
-        merged = merged.sort_values("time").reset_index(drop=True)
-        bound_dfs[bound] = merged
-
-    return bound_dfs
+    return bound_data
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Convert perf stat timeline logs to XLSX (one sheet per bound)."
+    parser = argparse.ArgumentParser(description="Convert perf stat -I logs to timeline XLSX (bucket by second)")
+    parser.add_argument(
+        "-i", "--input",
+        default=DEFAULT_INPUT,
+        help=f"Input directory containing *perf_stat.log (default: {DEFAULT_INPUT})",
     )
     parser.add_argument(
-        "--input", "-i", required=True,
-        help="Directory containing *perf_stat.log files"
+        "-o", "--output",
+        default=DEFAULT_OUTPUT,
+        help=f"Output XLSX filename (default: {DEFAULT_OUTPUT})",
     )
-    parser.add_argument(
-        "--output", "-o", required=True,
-        help="Output XLSX file path"
-    )
-
     args = parser.parse_args()
-    input_dir = os.path.abspath(args.input)
-    output_path = os.path.abspath(args.output)
 
-    bound_dfs = build_bound_dataframes(input_dir)
+    bound_dfs = build_bound_timeline(args.input)
     if not bound_dfs:
         return
 
-    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+    os.makedirs(os.path.dirname(os.path.abspath(args.output)) or ".", exist_ok=True)
 
-    with pd.ExcelWriter(output_path) as writer:
+    with pd.ExcelWriter(args.output) as writer:
         for bound, df in sorted(bound_dfs.items()):
-            sheet_name = bound[:31]  # 엑셀 시트 이름 31자 제한
+            sheet_name = bound[:31]
             df.to_excel(writer, sheet_name=sheet_name, index=False)
 
-    print(f"\n✅ Export complete: {output_path}")
-    print("📈 Each sheet = one bound, columns = time + sched_event counts.")
+    print(f"[✓] perf timeline saved → {args.output}")
+    print("   - one sheet per bound (io_bound, cpu_bound, ...)")
+    print("   - columns: time(sec), <sched>.<event> ..." )
 
 
 if __name__ == "__main__":
     main()
+

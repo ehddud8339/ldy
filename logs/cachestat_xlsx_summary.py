@@ -25,27 +25,60 @@ def parse_sched_bound(path):
 
 
 def parse_cachestat_log(path):
-    """cachestat 로그에서 HITRATIO만 추출"""
-    values = []
+    """
+    cachestat 로그에서 HITS, MISSES, HITRATIO 추출.
+
+    bcc cachestat 기본 형식 가정:
+      HITS  MISSES  DIRTIES  HITRATIO  BUFFERS_MB  CACHED_MB
+      100   10      0        90.91%    123         456
+
+    -> index:
+      0: HITS
+      1: MISSES
+      2: DIRTIES
+      3: HITRATIO(%)  ← 뒤에 % 제거
+    """
+    hits = []
+    misses = []
+    hitratios = []
+
     with open(path, "r") as f:
         for line in f:
             line = line.strip()
+            # 제목/빈줄 스킵
             if not line or "HITS" in line:
                 continue
+
             parts = line.split()
-            if len(parts) >= 4:
-                try:
-                    hit_ratio = float(parts[3].replace("%", ""))
-                    values.append(hit_ratio)
-                except ValueError:
-                    continue
-    return values
+            # 최소한 HITS, MISSES, DIRTIES, HITRATIO 까지는 있어야 함
+            if len(parts) < 4:
+                continue
+
+            try:
+                h = float(parts[0])
+                m = float(parts[1])
+                hr = float(parts[3].replace("%", ""))
+            except ValueError:
+                continue
+
+            hits.append(h)
+            misses.append(m)
+            hitratios.append(hr)
+
+    if not hits:
+        return None
+
+    return {
+        "hits": hits,
+        "misses": misses,
+        "hitratio": hitratios,
+    }
 
 
 def build_bound_dataframes(log_dir):
     """
     log_dir 아래의 *cachestat.log들을 bound 별로 분류해서
-    bound -> DataFrame(time(sec), sched1, sched2, ...) 구조로 반환
+    bound -> DataFrame(time(sec), rr_hits, rr_misses, rr_hitratio, thr_hits, ...) 구조로 반환
     """
     logs = sorted(glob.glob(os.path.join(log_dir, "**/*cachestat.log"), recursive=True))
 
@@ -53,7 +86,7 @@ def build_bound_dataframes(log_dir):
         print("⚠️ No cachestat logs found in:", log_dir)
         return {}
 
-    # bound -> list of (sched, values)
+    # bound -> list of (sched, metrics_dict)
     by_bound = {}
 
     for path in logs:
@@ -74,12 +107,21 @@ def build_bound_dataframes(log_dir):
     for bound, entries in by_bound.items():
         timeline_df = pd.DataFrame()
 
-        for sched, values in entries:
-            df = pd.DataFrame({"time(sec)": range(len(values)), sched: values})
+        for sched, data in entries:
+            n = len(data["hits"])
+            df = pd.DataFrame(
+                {
+                    "time(sec)": range(n),
+                    f"{sched}_hits": data["hits"],
+                    f"{sched}_misses": data["misses"],
+                    f"{sched}_hitratio": data["hitratio"],
+                }
+            )
 
             if timeline_df.empty:
                 timeline_df = df
             else:
+                # time(sec) 기준으로 outer join
                 timeline_df = pd.merge(timeline_df, df, on="time(sec)", how="outer")
 
         timeline_df = timeline_df.sort_values("time(sec)").reset_index(drop=True)
@@ -90,7 +132,7 @@ def build_bound_dataframes(log_dir):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Convert cachestat logs to XLSX timeline format (one sheet per bound)."
+        description="Convert cachestat logs to XLSX timeline format (HITS, MISSES, HITRATIO, one sheet per bound)."
     )
     parser.add_argument("--input", "-i", required=True, help="Directory containing cachestat logs")
     parser.add_argument("--output", "-o", required=True, help="Output XLSX file path")
@@ -110,8 +152,10 @@ def main():
             df.to_excel(writer, sheet_name=sheet_name, index=False)
 
     print(f"\n✅ Export complete: {args.output}")
-    print("📈 Each sheet is one bound (io_bound, mem_bound, ...). Plot time(sec) vs sched columns as line charts.")
+    print("📈 Each sheet is one bound (io_bound, mem_bound, ...).")
+    print("   Columns: time(sec), <sched>_hits, <sched>_misses, <sched>_hitratio")
 
 
 if __name__ == "__main__":
     main()
+
