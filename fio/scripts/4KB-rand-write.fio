@@ -6,8 +6,8 @@ direct=0
 group_reporting
 
 #filename=/tmp/test/dummyfile
-#directory=/tmp/test
-#filename_format=fio_$jobnum
+directory=/home/dongyeong-lee/tmp/ 
+filename_format=fio_$jobnum
 
 [prepare-job]
 rw=write
@@ -16,9 +16,8 @@ size=1G
 end_fsync=1
 
 [target-job]
-rw=write
-bs=128K
-size=1G
-end_fsync=1
-time_based=1
-runtime=30
+rw=randread
+bs=4K
+size=4K
+#time_based=1
+#runtime=30

@@ -64,7 +64,7 @@ $(VMLINUX_H):
 # BPF 오브젝트 빌드
 # ==========
 
-$(BPF_OBJ): $(BPFDIR)/io_tracer.bpf.c $(INCDIR)/io_tracer.h $(VMLINUX_H)
+$(BPF_OBJ): $(BPFDIR)/io_tracer.bpf.c $(INCDIR)/common.h $(VMLINUX_H)
 	@echo "[+] Compiling BPF object $@"
 	$(BPF_CLANG) $(BPF_CFLAGS) -c $< -o $@
 
@@ -80,7 +80,7 @@ $(SKEL_HDR): $(BPF_OBJ)
 # 유저 프로그램 빌드
 # ==========
 
-$(USER_BIN): $(USERDIR)/io_tracer.c $(INCDIR)/io_tracer.h $(SKEL_HDR)
+$(USER_BIN): $(USERDIR)/io_tracer.c $(INCDIR)/common.h $(SKEL_HDR)
 	@echo "[+] Building user binary $@"
 	$(CC) $(USER_CFLAGS) -o $@ $(USERDIR)/io_tracer.c $(USER_LDLIBS)
 
