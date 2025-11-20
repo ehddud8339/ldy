@@ -60,11 +60,11 @@ def parse_mpstat_log(path: Path, workload_name: str) -> pd.DataFrame:
     mpstat -P ALL 1 로그 파싱.
 
     결과 형식:
-      workload | cpu | 0 | 1 | 2 | ... (각 컬럼: t초에서의 CPU usage = 100 - %idle)
+      workload | cpu | 0 | 1 | 2 | ...
 
-    - t: CPU == 'all' 라인이 나올 때마다 1씩 증가 (1초 단위 샘플 인덱스)
-    - cpu: 정수 CPU 번호 (all 은 스킵)
-    - 값: 100 - %idle
+    - cpu: 0,1,2,... 와 'all' (전체 집계)
+    - 각 시간 컬럼 값: CPU usage (%) = 100 - %idle
+    - t: 'CPU == all' 라인이 나올 때마다 1씩 증가 (1초 단위 샘플 인덱스)
     """
     if not path.is_file():
         return pd.DataFrame()
@@ -76,7 +76,7 @@ def parse_mpstat_log(path: Path, workload_name: str) -> pd.DataFrame:
     cpu_idx = None
     idle_idx = None
     t = -1  # timeline index
-    cpu_series = {}  # cpu_num -> [usage_t0, usage_t1, ...]
+    cpu_series = {}  # key: cpu (int 또는 'all') -> [usage_t0, usage_t1, ...]
 
     for line in lines:
         # 헤더 찾기: CPU, %idle 이 포함된 줄
@@ -95,46 +95,65 @@ def parse_mpstat_log(path: Path, workload_name: str) -> pd.DataFrame:
             continue
 
         parts = line.split()
-        # time 문자열이 앞에 붙어 있는 경우를 고려해서,
-        # 뒤에서부터 헤더 길이만큼 잘라서 매핑
         if len(parts) < len(header):
+            # 앞에 time 문자열 등이 껴서 길이가 안 맞으면 뒤에서 header 길이만큼 잘라서 매핑
             continue
+
         data_tokens = parts[-len(header):]
-
         cpu_val = data_tokens[cpu_idx]
-
-        # CPU == all → 새로운 타임스텝 시작 (평균 값은 사용하지 않음)
-        if cpu_val == "all":
-            t += 1
-            continue
-
-        # 개별 CPU 번호
-        try:
-            cpu_num = int(cpu_val)
-        except ValueError:
-            continue
-
         idle_str = data_tokens[idle_idx]
+
         try:
             idle_val = float(idle_str.replace(",", "."))
         except ValueError:
             idle_val = None
 
-        if idle_val is None:
-            usage = None
-        else:
-            usage = 100.0 - idle_val  # CPU usage (%)
+        usage = None if idle_val is None else 100.0 - idle_val
 
-        if cpu_num not in cpu_series:
-            cpu_series[cpu_num] = []
-        # t 인덱스에 맞게 리스트를 채워야 함 (중간이 비는 경우 None으로 패딩)
-        series = cpu_series[cpu_num]
+        # CPU == all → 새로운 타임스텝 시작 + all 집계도 기록
+        if cpu_val == "all":
+            t += 1  # 첫 all 라인은 t=0
+            cpu_key = "all"
+        else:
+            # 개별 CPU 번호
+            try:
+                cpu_key = int(cpu_val)
+            except ValueError:
+                continue  # 이상한 문자열이면 스킵
+
+        # 시리즈 초기화
+        if cpu_key not in cpu_series:
+            cpu_series[cpu_key] = []
+
+        series = cpu_series[cpu_key]
+        # t 인덱스에 맞게 패딩
         if len(series) < t + 1:
             series.extend([None] * (t + 1 - len(series)))
         series[t] = usage
 
     if not cpu_series:
         return pd.DataFrame()
+
+    # 모든 CPU의 길이를 동일하게 맞추기
+    max_len = max(len(vals) for vals in cpu_series.values())
+    rows = []
+    for cpu_key, vals in cpu_series.items():
+        if len(vals) < max_len:
+            vals = vals + [None] * (max_len - len(vals))
+        row = {
+            "workload": workload_name,
+            "cpu": cpu_key,
+        }
+        for idx, v in enumerate(vals):
+            row[idx] = v
+        rows.append(row)
+
+    df = pd.DataFrame.from_records(rows)
+    # 컬럼 정렬: workload, cpu, 0, 1, 2, ...
+    time_cols = sorted([c for c in df.columns if isinstance(c, int)])
+    df = df[["workload", "cpu"] + time_cols]
+
+    return df
 
     # 모든 CPU의 길이를 동일하게 맞추기
     max_len = max(len(vals) for vals in cpu_series.values())
