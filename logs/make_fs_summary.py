@@ -58,11 +58,14 @@ def parse_fio_log(path: Path, workload_name: str) -> dict:
 def parse_mpstat_log(path: Path, workload_name: str) -> pd.DataFrame:
     """
     mpstat -P ALL 1 로그 파싱.
-    - time 컬럼 대신 단순 샘플 인덱스 t(초) 사용.
-    - CPU, %usr, %nice, %sys, %iowait, %irq, %soft, %steal, %guest, %gnice, %idle
-    """
-    records = []
 
+    결과 형식:
+      workload | cpu | 0 | 1 | 2 | ... (각 컬럼: t초에서의 CPU usage = 100 - %idle)
+
+    - t: CPU == 'all' 라인이 나올 때마다 1씩 증가 (1초 단위 샘플 인덱스)
+    - cpu: 정수 CPU 번호 (all 은 스킵)
+    - 값: 100 - %idle
+    """
     if not path.is_file():
         return pd.DataFrame()
 
@@ -70,73 +73,90 @@ def parse_mpstat_log(path: Path, workload_name: str) -> pd.DataFrame:
         lines = [ln.strip() for ln in f if ln.strip()]
 
     header = None
-    sample_idx = -1
+    cpu_idx = None
+    idle_idx = None
+    t = -1  # timeline index
+    cpu_series = {}  # cpu_num -> [usage_t0, usage_t1, ...]
 
     for line in lines:
-        # 헤더 찾기 (CPU %usr ... 포함)
-        if "CPU" in line and "%usr" in line:
-            header = [col for col in line.split() if col]
+        # 헤더 찾기: CPU, %idle 이 포함된 줄
+        if "CPU" in line and "%idle" in line:
+            header = line.split()
+            try:
+                cpu_idx = header.index("CPU")
+                idle_idx = header.index("%idle")
+            except ValueError:
+                header = None
+                cpu_idx = None
+                idle_idx = None
             continue
 
         if header is None:
             continue
 
         parts = line.split()
-        # mpstat 출력 포맷이 locale/time 설정에 따라 달라질 수 있으므로
-        # "CPU" 컬럼의 위치를 찾아서 그 뒤를 지표로 본다.
-        try:
-            cpu_idx = header.index("CPU")
-        except ValueError:
-            # 예외적인 헤더 형식이면 스킵
-            continue
-
-        # mpstat에 time column이 없을 수도 있으므로 CPU 칼럼 기준으로 정렬
-        # ex) CPU %usr %nice ...
-        # 혹은 12:34:56 AM  all ...
+        # time 문자열이 앞에 붙어 있는 경우를 고려해서,
+        # 뒤에서부터 헤더 길이만큼 잘라서 매핑
         if len(parts) < len(header):
-            # time 컬럼이 앞에 끼어있는 경우가 대부분
-            # CPU 토큰이 나오는 위치를 찾아 그 뒤를 매핑
-            try:
-                cpu_pos = parts.index("all") if "all" in parts else None
-            except ValueError:
-                cpu_pos = None
-
-            if cpu_pos is None:
-                # 포맷이 너무 다르면 그냥 스킵
-                continue
-
-            # parts[cpu_pos] ~ 를 header[CPU_idx:]에 붙인다
-            data_tokens = parts[cpu_pos:]
-        else:
-            data_tokens = parts[: len(header)]
-
-        if len(data_tokens) != len(header):
             continue
+        data_tokens = parts[-len(header):]
 
         cpu_val = data_tokens[cpu_idx]
-        # sample index 증가: 첫 CPU(all)를 만날 때 t를 증가시키도록 할 수도 있지만
-        # 여기서는 간단하게 모든 row에 대해 증가시키는 대신,
-        # CPU=="all"일 때만 t++로 처리
-        if cpu_val == "all":
-            sample_idx += 1
 
+        # CPU == all → 새로운 타임스텝 시작 (평균 값은 사용하지 않음)
+        if cpu_val == "all":
+            t += 1
+            continue
+
+        # 개별 CPU 번호
+        try:
+            cpu_num = int(cpu_val)
+        except ValueError:
+            continue
+
+        idle_str = data_tokens[idle_idx]
+        try:
+            idle_val = float(idle_str.replace(",", "."))
+        except ValueError:
+            idle_val = None
+
+        if idle_val is None:
+            usage = None
+        else:
+            usage = 100.0 - idle_val  # CPU usage (%)
+
+        if cpu_num not in cpu_series:
+            cpu_series[cpu_num] = []
+        # t 인덱스에 맞게 리스트를 채워야 함 (중간이 비는 경우 None으로 패딩)
+        series = cpu_series[cpu_num]
+        if len(series) < t + 1:
+            series.extend([None] * (t + 1 - len(series)))
+        series[t] = usage
+
+    if not cpu_series:
+        return pd.DataFrame()
+
+    # 모든 CPU의 길이를 동일하게 맞추기
+    max_len = max(len(vals) for vals in cpu_series.values())
+    rows = []
+    for cpu_num, vals in cpu_series.items():
+        if len(vals) < max_len:
+            vals = vals + [None] * (max_len - len(vals))
         row = {
             "workload": workload_name,
-            "t": sample_idx,
+            "cpu": cpu_num,
         }
-        for h, v in zip(header, data_tokens):
-            if h == "CPU":
-                row["CPU"] = v
-            else:
-                # 숫자로 변환 시도
-                try:
-                    row[h] = float(v.replace(",", "."))
-                except ValueError:
-                    row[h] = None
+        # 컬럼 이름: 0, 1, 2, ... (t초)
+        for idx, v in enumerate(vals):
+            row[idx] = v
+        rows.append(row)
 
-        records.append(row)
+    df = pd.DataFrame.from_records(rows)
+    # 컬럼 정렬: workload, cpu, 0, 1, 2, ...
+    time_cols = sorted([c for c in df.columns if isinstance(c, int)])
+    df = df[["workload", "cpu"] + time_cols]
 
-    return pd.DataFrame.from_records(records)
+    return df
 
 
 def parse_iostat_log(path: Path, workload_name: str) -> pd.DataFrame:
