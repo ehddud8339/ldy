@@ -1,0 +1,1 @@
+cmd_/home/ldy/src/ldy/fuse_copy_overheads/Module.symvers := sed 's/\.ko$$/\.o/' /home/ldy/src/ldy/fuse_copy_overheads/modules.order | scripts/mod/modpost -m -a  -o /home/ldy/src/ldy/fuse_copy_overheads/Module.symvers -e -i Module.symvers   -T -
