@@ -44,9 +44,9 @@ def main():
     if args.show in ("queueing", "both"):
         plt.plot(
             x, df["queueing_ns"],
-            label="queueing_ns",
+            #label="queueing_ns",
             marker="o",
-            markersize=3,
+            markersize=2,
             linestyle="None"   # ← 선 제거
         )
 
@@ -55,13 +55,24 @@ def main():
             x, df["daemon_ns"],
             label="daemon_ns",
             marker="x",
-            markersize=3,
+            markersize=2,
             linestyle="None"   # ← 선 제거
+        )
+    
+    op_filter = df[df["opcode"].isin([16, 20])]
+
+    for _, row in op_filter.iterrows():
+        plt.axvline(
+            x=row["seq"],
+            color="red",
+            linestyle="-",
+            linewidth=0.8,
+            alpha=0.6
         )
 
     plt.xlabel("seq")
     plt.ylabel("latency (ns)")
-    plt.title("FUSE Latency Comparison")
+    plt.title("FUSE Queueing Delay")
 
     # y축 최대값 지정 여부
     if args.ymax is not None:
