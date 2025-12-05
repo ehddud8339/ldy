@@ -13,36 +13,66 @@ def main():
         default="latency_vs_seq.png",
         help="output image file name (default: latency_vs_seq.png)"
     )
+    parser.add_argument(
+        "--show",
+        choices=["daemon", "queueing", "both"],
+        default="both",
+        help="Select which latency to show: daemon, queueing, or both"
+    )
+    parser.add_argument(
+        "--ymax",
+        type=float,
+        default=None,
+        help="Set maximum Y-axis value (default: auto-scale)"
+    )
+
     args = parser.parse_args()
 
-    # CSV 읽기
+    # CSV 로드
     df = pd.read_csv(args.csv_path)
 
-    # 필요한 컬럼 있는지 체크
-    for col in ["seq", "queueing_ns", "daemon_ns"]:
+    # 필드 확인
+    required = ["seq", "queueing_ns", "daemon_ns"]
+    for col in required:
         if col not in df.columns:
-            raise ValueError(f"CSV에 '{col}' 컬럼이 없습니다.")
+            raise ValueError(f"CSV missing required column: {col}")
 
     x = df["seq"]
-    q = df["queueing_ns"]
-    d = df["daemon_ns"]
 
     plt.figure(figsize=(10, 5))
-    # 각 행의 값을 선 그래프(또는 포인트)로 표현
-    plt.plot(x, q, label="queueing_ns", marker="o", linestyle="-")
-    plt.plot(x, d, label="daemon_ns", marker="x", linestyle="-")
+
+    if args.show in ("queueing", "both"):
+        plt.plot(
+            x, df["queueing_ns"],
+            label="queueing_ns",
+            marker="o",
+            markersize=3,
+            linestyle="None"   # ← 선 제거
+        )
+
+    if args.show in ("daemon", "both"):
+        plt.plot(
+            x, df["daemon_ns"],
+            label="daemon_ns",
+            marker="x",
+            markersize=3,
+            linestyle="None"   # ← 선 제거
+        )
 
     plt.xlabel("seq")
     plt.ylabel("latency (ns)")
-    plt.title("FUSE queueing vs daemon latency")
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.savefig(args.output, dpi=200)
+    plt.title("FUSE Latency Comparison")
 
-    # GUI 없는 환경이면 show()는 생략해도 됨
-    # plt.show()
+    # y축 최대값 지정 여부
+    if args.ymax is not None:
+        plt.ylim(top=args.ymax)
+
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+
+    plt.savefig(args.output, dpi=200)
+    # plt.show()  # GUI 환경이면 사용 가능
 
 if __name__ == "__main__":
     main()
-
