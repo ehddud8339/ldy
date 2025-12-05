@@ -25,7 +25,84 @@ static void handle_sigint(int sig)
 static int filter_read = 0;
 static int filter_write = 0;
 
-/* ringbuf 콜백 */
+// =========================================
+// csv helpers
+// =========================================
+#define CSV_FLUSH_BATCH 100
+
+static FILE *csv_fp = NULL;
+static const char *csv_path = "fuse_req_lat.csv";
+
+static struct fuse_req_event csv_buf[CSV_FLUSH_BATCH];
+static size_t csv_buf_cnt = 0;
+
+static int csv_open_file(const char *path)
+{
+    if (csv_fp)  /* 이미 열려 있으면 재사용 */
+        return 0;
+
+    csv_fp = fopen(path, "w");
+    if (!csv_fp) {
+        fprintf(stderr, "failed to open csv file '%s'\n", path);
+        return -1;
+    }
+
+    /* printf에서 쓰던 필드들을 그대로 헤더에 나열 */
+    fprintf(csv_fp,
+            "seq,opcode,opname,len,unique,err,"
+            "enqueue_ts_ns,dequeue_ts_ns,done_ts_ns,"
+            "queueing_ns,daemon_ns\n");
+    fflush(csv_fp);
+    return 0;
+}
+
+static void csv_flush_buffer(void)
+{
+    size_t i;
+
+    if (!csv_fp || csv_buf_cnt == 0)
+        return;
+
+    for (i = 0; i < csv_buf_cnt; i++) {
+        struct fuse_req_event *e = &csv_buf[i];
+        const char *opname = fuse_opcode_name(e->opcode);
+
+        /* 기존 printf들이 찍던 값 그대로 컬럼에 대응 */
+        fprintf(csv_fp,
+                "%" PRIu64 ",%" PRIu32 ",%s,"
+                "%" PRIu32 ",%" PRIu64 ",%" PRId32 ","
+                "%" PRIu64 ",%" PRIu64 ",%" PRIu64 ","
+                "%" PRIu64 ",%" PRIu64 "\n",
+                e->seq,
+                e->opcode,
+                opname,
+                e->len,
+                e->unique,
+                e->err,
+                e->enqueue_ts_ns,
+                e->dequeue_ts_ns,
+                e->done_ts_ns,
+                e->queue_wait_ns,
+                e->daemon_ns);
+    }
+
+    fflush(csv_fp);
+    csv_buf_cnt = 0;
+}
+
+static void csv_close_file(void)
+{
+    if (!csv_fp)
+        return;
+
+    csv_flush_buffer();
+    fclose(csv_fp);
+    csv_fp = NULL;
+}
+
+// ==========================================
+// ring buf 콜백 함수
+// ==========================================
 static int handle_event(void *ctx, void *data, size_t data_sz)
 {
     (void)ctx;
@@ -43,6 +120,15 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
     if (filter_write && e->opcode != FUSE_WRITE)
         return 0;
 
+    /* --- 여기부터 CSV 버퍼링 --- */
+    if (csv_buf_cnt < CSV_FLUSH_BATCH)
+        csv_buf[csv_buf_cnt++] = *e;
+
+    if (csv_buf_cnt >= CSV_FLUSH_BATCH)
+        csv_flush_buffer();
+
+    /* 터미널 출력도 계속 보고 싶으면 아래 주석 해제 */
+#if 1
     const char *opname = fuse_opcode_name(e->opcode);
 
     printf("req[%8" PRIu64 "]: opcode=%" PRIu32 " (%s) len=%" PRIu32
@@ -54,14 +140,9 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
            "done_ts=%" PRIu64 " ns\n",
            e->enqueue_ts_ns, e->dequeue_ts_ns, e->done_ts_ns);
 
-    printf("    queueing_ns=%" PRIu64 " ns\n",
-           e->queue_wait_ns);
-
-    printf("    daemon_ns  =%" PRIu64 " ns\n",
-           e->daemon_ns);
-
-    /* flush 해두는 게 로그 정렬에 유리 */
-    fflush(stdout);
+    printf("    queueing_ns=%" PRIu64 " ns\n", e->queue_wait_ns);
+    printf("    daemon_ns  =%" PRIu64 " ns\n", e->daemon_ns);
+#endif
 
     return 0;
 }
@@ -132,7 +213,12 @@ int main(int argc, char **argv)
     printf("fuse_req_lat tracer is running.\n");
     printf("Press Ctrl-C to exit.\n");
 
-    /* 4) poll loop */
+    /* CSV 파일 오픈 */
+    if (csv_open_file(csv_path) < 0) {
+        err = -1;
+        goto cleanup;
+    }
+
     while (!exiting) {
         err = ring_buffer__poll(rb, 100 /* ms */);
         if (err == -EINTR) {
@@ -146,8 +232,8 @@ int main(int argc, char **argv)
     }
 
 cleanup:
+    csv_close_file();
     ring_buffer__free(rb);
     fuse_req_lat_bpf__destroy(skel);
-    return err < 0 ? -err : 0;
-}
+    return err < 0 ? -err : 0;}
 

@@ -10,6 +10,7 @@ enum fuse_opcode_user {
     FUSE_FORGET  = 2,
     FUSE_GETATTR = 3,
     FUSE_SETATTR  = 4,
+    FUSE_OPEN    = 14,
     FUSE_READ    = 15,
     FUSE_WRITE   = 16,
     FUSE_STATFS  = 17,
@@ -27,6 +28,7 @@ static inline const char *fuse_opcode_name(uint32_t opcode)
     case FUSE_LOOKUP:     return "LOOKUP";
     case FUSE_GETATTR:    return "GETATTR";
     case FUSE_SETATTR:    return "SETATTR";
+    case FUSE_OPEN:       return "OPEN";
     case FUSE_READ:       return "READ";
     case FUSE_WRITE:      return "WRITE";
     case FUSE_STATFS:     return "STATFS";
