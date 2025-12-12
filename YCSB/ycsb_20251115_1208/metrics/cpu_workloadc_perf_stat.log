@@ -1,0 +1,562 @@
+#           time             counts unit events
+     1.001081305      5,158,575,744      L1-dcache-loads                                               (36.12%)
+     1.001081305        546,670,528      L1-dcache-load-misses     #   10.60% of all L1-dcache accesses  (36.13%)
+     1.001081305    <not supported>      L1-icache-loads                                             
+     1.001081305        479,260,883      L1-icache-load-misses                                         (36.16%)
+     1.001081305        107,638,672      LLC-loads                                                     (36.32%)
+     1.001081305         33,275,284      LLC-load-misses           #   30.91% of all LL-cache accesses  (36.50%)
+     1.001081305         66,335,265      LLC-stores                                                    (18.25%)
+     1.001081305         20,150,892      LLC-store-misses                                              (18.25%)
+     1.001081305      5,005,840,999      dTLB-loads                                                    (27.38%)
+     1.001081305          4,507,156      dTLB-load-misses          #    0.09% of all dTLB cache accesses  (36.50%)
+     1.001081305         79,503,214      iTLB-loads                                                    (36.46%)
+     1.001081305          3,745,140      iTLB-load-misses          #    4.71% of all iTLB cache accesses  (36.31%)
+     1.001081305            161,957      page-faults                                                 
+     1.001081305            161,362      minor-faults                                                
+     1.001081305                477      major-faults                                                
+     1.001081305              3,766      cpu-migrations                                              
+     2.012524269      4,230,142,099      L1-dcache-loads                                               (36.32%)
+     2.012524269        319,276,169      L1-dcache-load-misses     #    7.55% of all L1-dcache accesses  (36.32%)
+     2.012524269    <not supported>      L1-icache-loads                                             
+     2.012524269        289,166,509      L1-icache-load-misses                                         (36.33%)
+     2.012524269        119,938,959      LLC-loads                                                     (36.38%)
+     2.012524269         39,422,412      LLC-load-misses           #   32.87% of all LL-cache accesses  (36.39%)
+     2.012524269         42,016,503      LLC-stores                                                    (18.19%)
+     2.012524269         14,340,705      LLC-store-misses                                              (18.19%)
+     2.012524269      4,269,799,308      dTLB-loads                                                    (27.29%)
+     2.012524269            943,793      dTLB-load-misses          #    0.02% of all dTLB cache accesses  (36.38%)
+     2.012524269         80,699,804      iTLB-loads                                                    (36.37%)
+     2.012524269            485,999      iTLB-load-misses          #    0.60% of all iTLB cache accesses  (36.33%)
+     2.012524269             42,792      page-faults                                                 
+     2.012524269             42,722      minor-faults                                                
+     2.012524269                  1      major-faults                                                
+     2.012524269                143      cpu-migrations                                              
+     3.015486102      3,605,545,811      L1-dcache-loads                                               (35.87%)
+     3.015486102        238,226,902      L1-dcache-load-misses     #    6.61% of all L1-dcache accesses  (36.12%)
+     3.015486102    <not supported>      L1-icache-loads                                             
+     3.015486102        197,458,335      L1-icache-load-misses                                         (36.46%)
+     3.015486102         95,622,088      LLC-loads                                                     (36.66%)
+     3.015486102         29,709,545      LLC-load-misses           #   31.07% of all LL-cache accesses  (36.69%)
+     3.015486102         43,074,160      LLC-stores                                                    (18.35%)
+     3.015486102         13,931,476      LLC-store-misses                                              (18.33%)
+     3.015486102      3,630,052,887      dTLB-loads                                                    (27.44%)
+     3.015486102          1,329,531      dTLB-load-misses          #    0.04% of all dTLB cache accesses  (36.36%)
+     3.015486102         89,300,870      iTLB-loads                                                    (36.02%)
+     3.015486102            253,295      iTLB-load-misses          #    0.28% of all iTLB cache accesses  (35.83%)
+     3.015486102             61,898      page-faults                                                 
+     3.015486102             61,860      minor-faults                                                
+     3.015486102                  0      major-faults                                                
+     3.015486102                 76      cpu-migrations                                              
+     4.018487834      3,942,933,999      L1-dcache-loads                                               (36.54%)
+     4.018487834        214,385,911      L1-dcache-load-misses     #    5.44% of all L1-dcache accesses  (36.68%)
+     4.018487834    <not supported>      L1-icache-loads                                             
+     4.018487834        200,162,320      L1-icache-load-misses                                         (36.69%)
+     4.018487834         71,592,200      LLC-loads                                                     (36.69%)
+     4.018487834         20,780,653      LLC-load-misses           #   29.03% of all LL-cache accesses  (36.66%)
+     4.018487834         48,873,772      LLC-stores                                                    (18.24%)
+     4.018487834         15,230,595      LLC-store-misses                                              (17.96%)
+     4.018487834      3,933,730,473      dTLB-loads                                                    (26.80%)
+     4.018487834          1,533,819      dTLB-load-misses          #    0.04% of all dTLB cache accesses  (35.83%)
+     4.018487834         97,995,090      iTLB-loads                                                    (35.90%)
+     4.018487834            279,297      iTLB-load-misses          #    0.29% of all iTLB cache accesses  (36.20%)
+     4.018487834             68,829      page-faults                                                 
+     4.018487834             68,763      minor-faults                                                
+     4.018487834                  0      major-faults                                                
+     4.018487834                 85      cpu-migrations                                              
+     5.021658621      3,666,870,144      L1-dcache-loads                                               (36.68%)
+     5.021658621        261,885,295      L1-dcache-load-misses     #    7.14% of all L1-dcache accesses  (36.68%)
+     5.021658621    <not supported>      L1-icache-loads                                             
+     5.021658621        200,823,920      L1-icache-load-misses                                         (36.65%)
+     5.021658621        117,115,578      LLC-loads                                                     (36.52%)
+     5.021658621         33,054,891      LLC-load-misses           #   28.22% of all LL-cache accesses  (36.20%)
+     5.021658621         48,301,076      LLC-stores                                                    (17.71%)
+     5.021658621         15,800,814      LLC-store-misses                                              (17.94%)
+     5.021658621      3,630,710,179      dTLB-loads                                                    (27.12%)
+     5.021658621            264,294      dTLB-load-misses          #    0.01% of all dTLB cache accesses  (36.29%)
+     5.021658621         90,822,457      iTLB-loads                                                    (36.60%)
+     5.021658621            306,890      iTLB-load-misses          #    0.34% of all iTLB cache accesses  (36.68%)
+     5.021658621             15,540      page-faults                                                 
+     5.021658621             15,501      minor-faults                                                
+     5.021658621                  5      major-faults                                                
+     5.021658621                144      cpu-migrations                                              
+     6.024882493      3,737,446,008      L1-dcache-loads                                               (36.63%)
+     6.024882493        247,112,240      L1-dcache-load-misses     #    6.61% of all L1-dcache accesses  (36.46%)
+     6.024882493    <not supported>      L1-icache-loads                                             
+     6.024882493        187,626,341      L1-icache-load-misses                                         (36.14%)
+     6.024882493        105,207,855      LLC-loads                                                     (35.87%)
+     6.024882493         29,843,505      LLC-load-misses           #   28.37% of all LL-cache accesses  (35.86%)
+     6.024882493         47,535,528      LLC-stores                                                    (18.28%)
+     6.024882493         15,870,226      LLC-store-misses                                              (18.34%)
+     6.024882493      3,717,578,496      dTLB-loads                                                    (27.51%)
+     6.024882493            221,212      dTLB-load-misses          #    0.01% of all dTLB cache accesses  (36.68%)
+     6.024882493         91,742,814      iTLB-loads                                                    (36.68%)
+     6.024882493            297,999      iTLB-load-misses          #    0.32% of all iTLB cache accesses  (36.67%)
+     6.024882493             11,502      page-faults                                                 
+     6.024882493             11,429      minor-faults                                                
+     6.024882493                  2      major-faults                                                
+     6.024882493                120      cpu-migrations                                              
+     7.027485232      3,357,768,163      L1-dcache-loads                                               (36.03%)
+     7.027485232        248,900,502      L1-dcache-load-misses     #    7.41% of all L1-dcache accesses  (35.81%)
+     7.027485232    <not supported>      L1-icache-loads                                             
+     7.027485232        165,392,884      L1-icache-load-misses                                         (35.84%)
+     7.027485232        116,912,076      LLC-loads                                                     (36.09%)
+     7.027485232         34,925,320      LLC-load-misses           #   29.87% of all LL-cache accesses  (36.44%)
+     7.027485232         44,368,574      LLC-stores                                                    (18.35%)
+     7.027485232         15,032,693      LLC-store-misses                                              (18.35%)
+     7.027485232      3,371,992,886      dTLB-loads                                                    (27.53%)
+     7.027485232             72,167      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (36.69%)
+     7.027485232         86,965,086      iTLB-loads                                                    (36.63%)
+     7.027485232            332,901      iTLB-load-misses          #    0.38% of all iTLB cache accesses  (36.38%)
+     7.027485232              1,148      page-faults                                                 
+     7.027485232              1,113      minor-faults                                                
+     7.027485232                  0      major-faults                                                
+     7.027485232                 80      cpu-migrations                                              
+     8.030490848      3,433,087,490      L1-dcache-loads                                               (35.90%)
+     8.030490848        248,761,833      L1-dcache-load-misses     #    7.25% of all L1-dcache accesses  (36.20%)
+     8.030490848    <not supported>      L1-icache-loads                                             
+     8.030490848        161,487,582      L1-icache-load-misses                                         (36.54%)
+     8.030490848        115,193,753      LLC-loads                                                     (36.68%)
+     8.030490848         33,593,347      LLC-load-misses           #   29.16% of all LL-cache accesses  (36.69%)
+     8.030490848         43,676,319      LLC-stores                                                    (18.34%)
+     8.030490848         14,021,813      LLC-store-misses                                              (18.32%)
+     8.030490848      3,413,036,850      dTLB-loads                                                    (27.41%)
+     8.030490848            107,247      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (36.28%)
+     8.030490848         86,504,980      iTLB-loads                                                    (35.94%)
+     8.030490848          1,910,689      iTLB-load-misses          #    2.21% of all iTLB cache accesses  (35.83%)
+     8.030490848              2,500      page-faults                                                 
+     8.030490848              2,426      minor-faults                                                
+     8.030490848                  0      major-faults                                                
+     8.030490848                126      cpu-migrations                                              
+     9.033738464      3,433,952,816      L1-dcache-loads                                               (36.60%)
+     9.033738464        213,487,633      L1-dcache-load-misses     #    6.22% of all L1-dcache accesses  (36.68%)
+     9.033738464    <not supported>      L1-icache-loads                                             
+     9.033738464        160,453,706      L1-icache-load-misses                                         (36.68%)
+     9.033738464         82,248,480      LLC-loads                                                     (36.68%)
+     9.033738464         25,647,206      LLC-load-misses           #   31.18% of all LL-cache accesses  (36.65%)
+     9.033738464         43,195,042      LLC-stores                                                    (18.18%)
+     9.033738464         14,175,317      LLC-store-misses                                              (17.90%)
+     9.033738464      3,471,469,139      dTLB-loads                                                    (26.75%)
+     9.033738464            111,768      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (35.84%)
+     9.033738464         86,861,710      iTLB-loads                                                    (35.97%)
+     9.033738464          2,853,650      iTLB-load-misses          #    3.29% of all iTLB cache accesses  (36.29%)
+     9.033738464                195      page-faults                                                 
+     9.033738464                161      minor-faults                                                
+     9.033738464                  0      major-faults                                                
+     9.033738464                 79      cpu-migrations                                              
+    10.036862683      3,799,788,785      L1-dcache-loads                                               (36.68%)
+    10.036862683        253,083,357      L1-dcache-load-misses     #    6.66% of all L1-dcache accesses  (36.68%)
+    10.036862683    <not supported>      L1-icache-loads                                             
+    10.036862683        180,593,534      L1-icache-load-misses                                         (36.63%)
+    10.036862683        106,309,704      LLC-loads                                                     (36.46%)
+    10.036862683         30,240,588      LLC-load-misses           #   28.45% of all LL-cache accesses  (36.13%)
+    10.036862683         47,114,013      LLC-stores                                                    (17.74%)
+    10.036862683         15,319,629      LLC-store-misses                                              (18.01%)
+    10.036862683      3,835,946,314      dTLB-loads                                                    (27.19%)
+    10.036862683            124,283      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (36.36%)
+    10.036862683         96,409,485      iTLB-loads                                                    (36.63%)
+    10.036862683          2,003,018      iTLB-load-misses          #    2.08% of all iTLB cache accesses  (36.68%)
+    10.036862683                514      page-faults                                                 
+    10.036862683                436      minor-faults                                                
+    10.036862683                  4      major-faults                                                
+    10.036862683                102      cpu-migrations                                              
+    11.039486433      3,768,506,348      L1-dcache-loads                                               (36.63%)
+    11.039486433        223,957,093      L1-dcache-load-misses     #    5.94% of all L1-dcache accesses  (36.38%)
+    11.039486433    <not supported>      L1-icache-loads                                             
+    11.039486433        170,468,284      L1-icache-load-misses                                         (36.03%)
+    11.039486433         85,366,818      LLC-loads                                                     (35.82%)
+    11.039486433         25,067,552      LLC-load-misses           #   29.36% of all LL-cache accesses  (35.85%)
+    11.039486433         45,254,828      LLC-stores                                                    (18.32%)
+    11.039486433         14,514,671      LLC-store-misses                                              (18.35%)
+    11.039486433      3,770,876,492      dTLB-loads                                                    (27.53%)
+    11.039486433            607,677      dTLB-load-misses          #    0.02% of all dTLB cache accesses  (36.71%)
+    11.039486433         95,383,236      iTLB-loads                                                    (36.71%)
+    11.039486433          2,886,903      iTLB-load-misses          #    3.03% of all iTLB cache accesses  (36.69%)
+    11.039486433             27,801      page-faults                                                 
+    11.039486433             27,765      minor-faults                                                
+    11.039486433                  2      major-faults                                                
+    11.039486433                 95      cpu-migrations                                              
+    12.042484399      3,869,653,774      L1-dcache-loads                                               (35.94%)
+    12.042484399        231,248,006      L1-dcache-load-misses     #    5.98% of all L1-dcache accesses  (35.82%)
+    12.042484399    <not supported>      L1-icache-loads                                             
+    12.042484399        164,647,448      L1-icache-load-misses                                         (35.90%)
+    12.042484399         92,727,955      LLC-loads                                                     (36.21%)
+    12.042484399         24,874,459      LLC-load-misses           #   26.83% of all LL-cache accesses  (36.54%)
+    12.042484399         43,734,187      LLC-stores                                                    (18.35%)
+    12.042484399         13,933,561      LLC-store-misses                                              (18.35%)
+    12.042484399      3,865,458,700      dTLB-loads                                                    (27.52%)
+    12.042484399             58,352      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (36.67%)
+    12.042484399         97,979,529      iTLB-loads                                                    (36.58%)
+    12.042484399          2,508,383      iTLB-load-misses          #    2.56% of all iTLB cache accesses  (36.28%)
+    12.042484399                741      page-faults                                                 
+    12.042484399                673      minor-faults                                                
+    12.042484399                  0      major-faults                                                
+    12.042484399                107      cpu-migrations                                              
+    13.045647434      3,889,869,696      L1-dcache-loads                                               (35.97%)
+    13.045647434        231,033,052      L1-dcache-load-misses     #    5.94% of all L1-dcache accesses  (36.29%)
+    13.045647434    <not supported>      L1-icache-loads                                             
+    13.045647434        167,817,376      L1-icache-load-misses                                         (36.61%)
+    13.045647434         91,622,452      LLC-loads                                                     (36.68%)
+    13.045647434         24,419,032      LLC-load-misses           #   26.65% of all LL-cache accesses  (36.68%)
+    13.045647434         43,874,124      LLC-stores                                                    (18.34%)
+    13.045647434         13,943,707      LLC-store-misses                                              (18.31%)
+    13.045647434      3,902,751,803      dTLB-loads                                                    (27.34%)
+    13.045647434             58,539      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (36.19%)
+    13.045647434         98,693,811      iTLB-loads                                                    (35.88%)
+    13.045647434          2,479,412      iTLB-load-misses          #    2.51% of all iTLB cache accesses  (35.84%)
+    13.045647434                214      page-faults                                                 
+    13.045647434                143      minor-faults                                                
+    13.045647434                  0      major-faults                                                
+    13.045647434                 81      cpu-migrations                                              
+    14.048728258      3,886,522,061      L1-dcache-loads                                               (36.63%)
+    14.048728258        239,369,562      L1-dcache-load-misses     #    6.16% of all L1-dcache accesses  (36.69%)
+    14.048728258    <not supported>      L1-icache-loads                                             
+    14.048728258        191,066,955      L1-icache-load-misses                                         (36.69%)
+    14.048728258         92,971,262      LLC-loads                                                     (36.68%)
+    14.048728258         24,881,410      LLC-load-misses           #   26.76% of all LL-cache accesses  (36.63%)
+    14.048728258         44,260,941      LLC-stores                                                    (18.11%)
+    14.048728258         14,243,881      LLC-store-misses                                              (17.83%)
+    14.048728258      3,891,305,959      dTLB-loads                                                    (26.74%)
+    14.048728258          1,501,661      dTLB-load-misses          #    0.04% of all dTLB cache accesses  (35.85%)
+    14.048728258         97,541,744      iTLB-loads                                                    (36.04%)
+    14.048728258          2,657,333      iTLB-load-misses          #    2.72% of all iTLB cache accesses  (36.37%)
+    14.048728258             65,676      page-faults                                                 
+    14.048728258             65,641      minor-faults                                                
+    14.048728258                  0      major-faults                                                
+    14.048728258                 67      cpu-migrations                                              
+    15.051490202      3,957,052,630      L1-dcache-loads                                               (36.70%)
+    15.051490202        246,138,222      L1-dcache-load-misses     #    6.22% of all L1-dcache accesses  (36.68%)
+    15.051490202    <not supported>      L1-icache-loads                                             
+    15.051490202        205,754,358      L1-icache-load-misses                                         (36.62%)
+    15.051490202         92,989,089      LLC-loads                                                     (36.37%)
+    15.051490202         24,994,615      LLC-load-misses           #   26.88% of all LL-cache accesses  (36.03%)
+    15.051490202         44,348,897      LLC-stores                                                    (17.79%)
+    15.051490202         14,320,740      LLC-store-misses                                              (18.10%)
+    15.051490202      3,963,181,500      dTLB-loads                                                    (27.28%)
+    15.051490202          1,491,689      dTLB-load-misses          #    0.04% of all dTLB cache accesses  (36.45%)
+    15.051490202         96,079,240      iTLB-loads                                                    (36.66%)
+    15.051490202          2,774,493      iTLB-load-misses          #    2.89% of all iTLB cache accesses  (36.70%)
+    15.051490202             67,215      page-faults                                                 
+    15.051490202             67,140      minor-faults                                                
+    15.051490202                  3      major-faults                                                
+    15.051490202                159      cpu-migrations                                              
+    16.062489509      3,867,070,730      L1-dcache-loads                                               (36.40%)
+    16.062489509        234,563,527      L1-dcache-load-misses     #    6.07% of all L1-dcache accesses  (36.39%)
+    16.062489509    <not supported>      L1-icache-loads                                             
+    16.062489509        168,524,438      L1-icache-load-misses                                         (36.37%)
+    16.062489509         93,679,318      LLC-loads                                                     (36.30%)
+    16.062489509         25,190,693      LLC-load-misses           #   26.89% of all LL-cache accesses  (36.30%)
+    16.062489509         44,285,440      LLC-stores                                                    (18.19%)
+    16.062489509         14,027,828      LLC-store-misses                                              (18.20%)
+    16.062489509      3,879,635,991      dTLB-loads                                                    (27.30%)
+    16.062489509            174,842      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (36.40%)
+    16.062489509         97,127,671      iTLB-loads                                                    (36.40%)
+    16.062489509          3,263,556      iTLB-load-misses          #    3.36% of all iTLB cache accesses  (36.40%)
+    16.062489509              2,760      page-faults                                                 
+    16.062489509              2,723      minor-faults                                                
+    16.062489509                  4      major-faults                                                
+    16.062489509                 90      cpu-migrations                                              
+    17.065642510      3,820,925,486      L1-dcache-loads                                               (36.52%)
+    17.065642510        229,264,069      L1-dcache-load-misses     #    6.00% of all L1-dcache accesses  (36.20%)
+    17.065642510    <not supported>      L1-icache-loads                                             
+    17.065642510        162,999,013      L1-icache-load-misses                                         (35.88%)
+    17.065642510         93,291,497      LLC-loads                                                     (35.84%)
+    17.065642510         25,124,079      LLC-load-misses           #   26.93% of all LL-cache accesses  (35.97%)
+    17.065642510         43,967,075      LLC-stores                                                    (18.34%)
+    17.065642510         13,937,186      LLC-store-misses                                              (18.34%)
+    17.065642510      3,838,003,215      dTLB-loads                                                    (27.51%)
+    17.065642510             37,097      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (36.68%)
+    17.065642510         97,496,217      iTLB-loads                                                    (36.68%)
+    17.065642510          2,514,216      iTLB-load-misses          #    2.58% of all iTLB cache accesses  (36.65%)
+    17.065642510                147      page-faults                                                 
+    17.065642510                 77      minor-faults                                                
+    17.065642510                  0      major-faults                                                
+    17.065642510                 96      cpu-migrations                                              
+    18.068819475      3,849,819,620      L1-dcache-loads                                               (35.86%)
+    18.068819475        232,365,537      L1-dcache-load-misses     #    6.04% of all L1-dcache accesses  (35.86%)
+    18.068819475    <not supported>      L1-icache-loads                                             
+    18.068819475        169,584,666      L1-icache-load-misses                                         (36.04%)
+    18.068819475         94,388,289      LLC-loads                                                     (36.36%)
+    18.068819475         25,403,895      LLC-load-misses           #   26.91% of all LL-cache accesses  (36.63%)
+    18.068819475         43,911,034      LLC-stores                                                    (18.34%)
+    18.068819475         13,941,753      LLC-store-misses                                              (18.34%)
+    18.068819475      3,844,237,466      dTLB-loads                                                    (27.50%)
+    18.068819475             35,350      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (36.63%)
+    18.068819475         97,730,882      iTLB-loads                                                    (36.45%)
+    18.068819475          2,675,566      iTLB-load-misses          #    2.74% of all iTLB cache accesses  (36.12%)
+    18.068819475                 96      page-faults                                                 
+    18.068819475                 22      minor-faults                                                
+    18.068819475                  0      major-faults                                                
+    18.068819475                 87      cpu-migrations                                              
+    19.071485329      3,862,725,282      L1-dcache-loads                                               (36.10%)
+    19.071485329        233,233,352      L1-dcache-load-misses     #    6.04% of all L1-dcache accesses  (36.45%)
+    19.071485329    <not supported>      L1-icache-loads                                             
+    19.071485329        166,471,021      L1-icache-load-misses                                         (36.67%)
+    19.071485329         94,320,003      LLC-loads                                                     (36.70%)
+    19.071485329         25,319,033      LLC-load-misses           #   26.84% of all LL-cache accesses  (36.70%)
+    19.071485329         43,747,034      LLC-stores                                                    (18.33%)
+    19.071485329         13,926,696      LLC-store-misses                                              (18.27%)
+    19.071485329      3,861,803,727      dTLB-loads                                                    (27.20%)
+    19.071485329             57,488      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (36.02%)
+    19.071485329         97,536,134      iTLB-loads                                                    (35.82%)
+    19.071485329          2,613,321      iTLB-load-misses          #    2.68% of all iTLB cache accesses  (35.85%)
+    19.071485329                 76      page-faults                                                 
+    19.071485329                 41      minor-faults                                                
+    19.071485329                  0      major-faults                                                
+    19.071485329                 76      cpu-migrations                                              
+    20.074486617      3,827,678,751      L1-dcache-loads                                               (36.68%)
+    20.074486617        231,668,772      L1-dcache-load-misses     #    6.05% of all L1-dcache accesses  (36.69%)
+    20.074486617    <not supported>      L1-icache-loads                                             
+    20.074486617        164,450,865      L1-icache-load-misses                                         (36.69%)
+    20.074486617         95,163,537      LLC-loads                                                     (36.66%)
+    20.074486617         25,545,886      LLC-load-misses           #   26.84% of all LL-cache accesses  (36.58%)
+    20.074486617         43,812,798      LLC-stores                                                    (17.96%)
+    20.074486617         13,893,812      LLC-store-misses                                              (17.70%)
+    20.074486617      3,810,753,628      dTLB-loads                                                    (26.74%)
+    20.074486617            111,395      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (35.90%)
+    20.074486617         97,029,638      iTLB-loads                                                    (36.21%)
+    20.074486617          2,629,679      iTLB-load-misses          #    2.71% of all iTLB cache accesses  (36.54%)
+    20.074486617                100      page-faults                                                 
+    20.074486617                 27      minor-faults                                                
+    20.074486617                  0      major-faults                                                
+    20.074486617                 68      cpu-migrations                                              
+    21.085596830      3,876,365,101      L1-dcache-loads                                               (36.40%)
+    21.085596830        237,117,399      L1-dcache-load-misses     #    6.12% of all L1-dcache accesses  (36.40%)
+    21.085596830    <not supported>      L1-icache-loads                                             
+    21.085596830        171,397,535      L1-icache-load-misses                                         (36.39%)
+    21.085596830         96,577,865      LLC-loads                                                     (36.38%)
+    21.085596830         25,855,004      LLC-load-misses           #   26.77% of all LL-cache accesses  (36.33%)
+    21.085596830         44,349,276      LLC-stores                                                    (18.12%)
+    21.085596830         14,068,992      LLC-store-misses                                              (18.17%)
+    21.085596830      3,867,624,940      dTLB-loads                                                    (27.27%)
+    21.085596830             64,877      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (36.37%)
+    21.085596830         97,875,020      iTLB-loads                                                    (36.40%)
+    21.085596830          2,579,447      iTLB-load-misses          #    2.64% of all iTLB cache accesses  (36.40%)
+    21.085596830                462      page-faults                                                 
+    21.085596830                423      minor-faults                                                
+    21.085596830                  4      major-faults                                                
+    21.085596830                 91      cpu-migrations                                              
+    22.088725154      3,832,436,707      L1-dcache-loads                                               (36.68%)
+    22.088725154        233,642,448      L1-dcache-load-misses     #    6.10% of all L1-dcache accesses  (36.63%)
+    22.088725154    <not supported>      L1-icache-loads                                             
+    22.088725154        171,970,691      L1-icache-load-misses                                         (36.45%)
+    22.088725154         95,705,697      LLC-loads                                                     (36.12%)
+    22.088725154         25,818,382      LLC-load-misses           #   26.98% of all LL-cache accesses  (35.86%)
+    22.088725154         43,972,013      LLC-stores                                                    (18.03%)
+    22.088725154         13,960,003      LLC-store-misses                                              (18.29%)
+    22.088725154      3,836,333,286      dTLB-loads                                                    (27.46%)
+    22.088725154             36,358      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (36.63%)
+    22.088725154         97,472,825      iTLB-loads                                                    (36.69%)
+    22.088725154          2,523,408      iTLB-load-misses          #    2.59% of all iTLB cache accesses  (36.69%)
+    22.088725154                161      page-faults                                                 
+    22.088725154                 90      minor-faults                                                
+    22.088725154                  0      major-faults                                                
+    22.088725154                 81      cpu-migrations                                              
+    23.091500718      3,832,332,815      L1-dcache-loads                                               (36.37%)
+    23.091500718        232,118,983      L1-dcache-load-misses     #    6.06% of all L1-dcache accesses  (36.02%)
+    23.091500718    <not supported>      L1-icache-loads                                             
+    23.091500718        168,652,400      L1-icache-load-misses                                         (35.83%)
+    23.091500718         95,027,759      LLC-loads                                                     (35.86%)
+    23.091500718         25,347,663      LLC-load-misses           #   26.67% of all LL-cache accesses  (36.11%)
+    23.091500718         43,723,238      LLC-stores                                                    (18.35%)
+    23.091500718         13,901,156      LLC-store-misses                                              (18.35%)
+    23.091500718      3,823,549,166      dTLB-loads                                                    (27.52%)
+    23.091500718             68,782      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (36.70%)
+    23.091500718         97,628,355      iTLB-loads                                                    (36.68%)
+    23.091500718          2,507,868      iTLB-load-misses          #    2.57% of all iTLB cache accesses  (36.62%)
+    23.091500718                107      page-faults                                                 
+    23.091500718                 36      minor-faults                                                
+    23.091500718                  0      major-faults                                                
+    23.091500718                 69      cpu-migrations                                              
+    24.094495756      3,856,063,196      L1-dcache-loads                                               (35.82%)
+    24.094495756        233,051,870      L1-dcache-load-misses     #    6.04% of all L1-dcache accesses  (35.90%)
+    24.094495756    <not supported>      L1-icache-loads                                             
+    24.094495756        167,815,869      L1-icache-load-misses                                         (36.21%)
+    24.094495756         94,795,418      LLC-loads                                                     (36.54%)
+    24.094495756         25,439,553      LLC-load-misses           #   26.84% of all LL-cache accesses  (36.68%)
+    24.094495756         43,966,274      LLC-stores                                                    (18.34%)
+    24.094495756         13,950,588      LLC-store-misses                                              (18.35%)
+    24.094495756      3,856,513,962      dTLB-loads                                                    (27.49%)
+    24.094495756             82,309      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (36.58%)
+    24.094495756         96,966,817      iTLB-loads                                                    (36.28%)
+    24.094495756          2,639,618      iTLB-load-misses          #    2.72% of all iTLB cache accesses  (35.94%)
+    24.094495756                 37      page-faults                                                 
+    24.094495756                  0      minor-faults                                                
+    24.094495756                  0      major-faults                                                
+    24.094495756                 84      cpu-migrations                                              
+    25.097615399      3,948,623,157      L1-dcache-loads                                               (36.29%)
+    25.097615399        240,868,584      L1-dcache-load-misses     #    6.10% of all L1-dcache accesses  (36.61%)
+    25.097615399    <not supported>      L1-icache-loads                                             
+    25.097615399        183,144,360      L1-icache-load-misses                                         (36.68%)
+    25.097615399         95,243,136      LLC-loads                                                     (36.68%)
+    25.097615399         25,568,596      LLC-load-misses           #   26.85% of all LL-cache accesses  (36.68%)
+    25.097615399         44,088,061      LLC-stores                                                    (18.31%)
+    25.097615399         14,071,489      LLC-store-misses                                              (18.18%)
+    25.097615399      3,922,698,133      dTLB-loads                                                    (27.03%)
+    25.097615399            145,848      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (35.88%)
+    25.097615399         95,756,179      iTLB-loads                                                    (35.84%)
+    25.097615399          2,755,800      iTLB-load-misses          #    2.88% of all iTLB cache accesses  (35.97%)
+    25.097615399              7,620      page-faults                                                 
+    25.097615399              7,546      minor-faults                                                
+    25.097615399                  0      major-faults                                                
+    25.097615399                101      cpu-migrations                                              
+#           time             counts unit events
+    26.100876888      3,884,860,739      L1-dcache-loads                                               (36.68%)
+    26.100876888        235,958,452      L1-dcache-load-misses     #    6.07% of all L1-dcache accesses  (36.68%)
+    26.100876888    <not supported>      L1-icache-loads                                             
+    26.100876888        168,613,726      L1-icache-load-misses                                         (36.67%)
+    26.100876888         94,862,008      LLC-loads                                                     (36.63%)
+    26.100876888         25,524,975      LLC-load-misses           #   26.91% of all LL-cache accesses  (36.46%)
+    26.100876888         43,782,926      LLC-stores                                                    (17.84%)
+    26.100876888         13,948,783      LLC-store-misses                                              (17.75%)
+    26.100876888      3,876,055,606      dTLB-loads                                                    (26.86%)
+    26.100876888             50,393      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (36.03%)
+    26.100876888         97,831,382      iTLB-loads                                                    (36.36%)
+    26.100876888          2,518,866      iTLB-load-misses          #    2.57% of all iTLB cache accesses  (36.63%)
+    26.100876888                 82      page-faults                                                 
+    26.100876888                 10      minor-faults                                                
+    26.100876888                  5      major-faults                                                
+    26.100876888                 77      cpu-migrations                                              
+    27.103491564      3,848,693,406      L1-dcache-loads                                               (36.69%)
+    27.103491564        232,752,656      L1-dcache-load-misses     #    6.05% of all L1-dcache accesses  (36.62%)
+    27.103491564    <not supported>      L1-icache-loads                                             
+    27.103491564        167,328,645      L1-icache-load-misses                                         (36.38%)
+    27.103491564         94,069,078      LLC-loads                                                     (36.03%)
+    27.103491564         25,268,140      LLC-load-misses           #   26.86% of all LL-cache accesses  (35.82%)
+    27.103491564         44,024,990      LLC-stores                                                    (18.09%)
+    27.103491564         13,920,690      LLC-store-misses                                              (18.31%)
+    27.103491564      3,864,268,808      dTLB-loads                                                    (27.49%)
+    27.103491564             43,540      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (36.67%)
+    27.103491564         98,345,968      iTLB-loads                                                    (36.70%)
+    27.103491564          2,616,239      iTLB-load-misses          #    2.66% of all iTLB cache accesses  (36.70%)
+    27.103491564                 37      page-faults                                                 
+    27.103491564                  2      minor-faults                                                
+    27.103491564                  0      major-faults                                                
+    27.103491564                 88      cpu-migrations                                              
+    28.106492864      3,842,169,500      L1-dcache-loads                                               (36.28%)
+    28.106492864        232,240,250      L1-dcache-load-misses     #    6.04% of all L1-dcache accesses  (35.94%)
+    28.106492864    <not supported>      L1-icache-loads                                             
+    28.106492864        166,503,051      L1-icache-load-misses                                         (35.82%)
+    28.106492864         95,014,975      LLC-loads                                                     (35.90%)
+    28.106492864         25,437,412      LLC-load-misses           #   26.77% of all LL-cache accesses  (36.20%)
+    28.106492864         43,830,955      LLC-stores                                                    (18.35%)
+    28.106492864         13,892,780      LLC-store-misses                                              (18.35%)
+    28.106492864      3,844,640,185      dTLB-loads                                                    (27.52%)
+    28.106492864             42,591      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (36.69%)
+    28.106492864         98,173,534      iTLB-loads                                                    (36.67%)
+    28.106492864          2,576,146      iTLB-load-misses          #    2.62% of all iTLB cache accesses  (36.58%)
+    28.106492864                 75      page-faults                                                 
+    28.106492864                  4      minor-faults                                                
+    28.106492864                  0      major-faults                                                
+    28.106492864                 69      cpu-migrations                                              
+    29.109612006      3,867,736,122      L1-dcache-loads                                               (35.84%)
+    29.109612006        233,868,797      L1-dcache-load-misses     #    6.05% of all L1-dcache accesses  (35.97%)
+    29.109612006    <not supported>      L1-icache-loads                                             
+    29.109612006        172,794,032      L1-icache-load-misses                                         (36.29%)
+    29.109612006         94,132,961      LLC-loads                                                     (36.61%)
+    29.109612006         25,179,719      LLC-load-misses           #   26.75% of all LL-cache accesses  (36.69%)
+    29.109612006         43,881,441      LLC-stores                                                    (18.34%)
+    29.109612006         13,953,569      LLC-store-misses                                              (18.34%)
+    29.109612006      3,881,462,538      dTLB-loads                                                    (27.48%)
+    29.109612006             55,019      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (36.51%)
+    29.109612006         98,281,694      iTLB-loads                                                    (36.19%)
+    29.109612006          2,589,174      iTLB-load-misses          #    2.63% of all iTLB cache accesses  (35.88%)
+    29.109612006                 42      page-faults                                                 
+    29.109612006                  5      minor-faults                                                
+    29.109612006                  0      major-faults                                                
+    29.109612006                 78      cpu-migrations                                              
+    30.112765540      3,886,134,723      L1-dcache-loads                                               (36.37%)
+    30.112765540        236,136,018      L1-dcache-load-misses     #    6.08% of all L1-dcache accesses  (36.63%)
+    30.112765540    <not supported>      L1-icache-loads                                             
+    30.112765540        185,361,040      L1-icache-load-misses                                         (36.68%)
+    30.112765540         93,798,241      LLC-loads                                                     (36.68%)
+    30.112765540         25,095,808      LLC-load-misses           #   26.76% of all LL-cache accesses  (36.68%)
+    30.112765540         44,058,170      LLC-stores                                                    (18.29%)
+    30.112765540         14,009,689      LLC-store-misses                                              (18.12%)
+    30.112765540      3,859,994,313      dTLB-loads                                                    (26.96%)
+    30.112765540            622,513      dTLB-load-misses          #    0.02% of all dTLB cache accesses  (35.87%)
+    30.112765540         97,849,455      iTLB-loads                                                    (35.86%)
+    30.112765540          2,600,808      iTLB-load-misses          #    2.66% of all iTLB cache accesses  (36.04%)
+    30.112765540             26,241      page-faults                                                 
+    30.112765540             26,168      minor-faults                                                
+    30.112765540                  0      major-faults                                                
+    30.112765540                 81      cpu-migrations                                              
+    31.115500396      4,591,842,857      L1-dcache-loads                                               (36.70%)
+    31.115500396        375,496,611      L1-dcache-load-misses     #    8.18% of all L1-dcache accesses  (36.70%)
+    31.115500396    <not supported>      L1-icache-loads                                             
+    31.115500396        436,915,863      L1-icache-load-misses                                         (36.68%)
+    31.115500396         98,044,151      LLC-loads                                                     (36.62%)
+    31.115500396         28,925,647      LLC-load-misses           #   29.50% of all LL-cache accesses  (36.37%)
+    31.115500396         52,776,645      LLC-stores                                                    (17.75%)
+    31.115500396         16,612,376      LLC-store-misses                                              (17.79%)
+    31.115500396      4,608,183,728      dTLB-loads                                                    (26.93%)
+    31.115500396            411,133      dTLB-load-misses          #    0.01% of all dTLB cache accesses  (36.10%)
+    31.115500396        184,336,484      iTLB-loads                                                    (36.45%)
+    31.115500396         29,006,128      iTLB-load-misses          #   15.74% of all iTLB cache accesses  (36.67%)
+    31.115500396              3,415      page-faults                                                 
+    31.115500396              3,345      minor-faults                                                
+    31.115500396                  4      major-faults                                                
+    31.115500396                123      cpu-migrations                                              
+    32.118490417      4,581,380,723      L1-dcache-loads                                               (36.66%)
+    32.118490417        393,150,755      L1-dcache-load-misses     #    8.58% of all L1-dcache accesses  (36.58%)
+    32.118490417    <not supported>      L1-icache-loads                                             
+    32.118490417        554,898,729      L1-icache-load-misses                                         (36.27%)
+    32.118490417         92,327,903      LLC-loads                                                     (35.94%)
+    32.118490417         28,101,504      LLC-load-misses           #   30.44% of all LL-cache accesses  (35.82%)
+    32.118490417         53,725,869      LLC-stores                                                    (18.20%)
+    32.118490417         16,515,124      LLC-store-misses                                              (18.34%)
+    32.118490417      4,586,392,812      dTLB-loads                                                    (27.51%)
+    32.118490417            361,132      dTLB-load-misses          #    0.01% of all dTLB cache accesses  (36.68%)
+    32.118490417        164,853,734      iTLB-loads                                                    (36.69%)
+    32.118490417         44,129,816      iTLB-load-misses          #   26.77% of all iTLB cache accesses  (36.69%)
+    32.118490417                439      page-faults                                                 
+    32.118490417                414      minor-faults                                                
+    32.118490417                  0      major-faults                                                
+    32.118490417                150      cpu-migrations                                              
+    33.121690060      4,385,649,299      L1-dcache-loads                                               (36.19%)
+    33.121690060        345,972,563      L1-dcache-load-misses     #    7.89% of all L1-dcache accesses  (35.88%)
+    33.121690060    <not supported>      L1-icache-loads                                             
+    33.121690060        513,336,596      L1-icache-load-misses                                         (35.84%)
+    33.121690060         79,209,633      LLC-loads                                                     (35.98%)
+    33.121690060         23,944,443      LLC-load-misses           #   30.23% of all LL-cache accesses  (36.30%)
+    33.121690060         49,647,538      LLC-stores                                                    (18.34%)
+    33.121690060         14,393,415      LLC-store-misses                                              (18.34%)
+    33.121690060      4,317,353,460      dTLB-loads                                                    (27.51%)
+    33.121690060            297,920      dTLB-load-misses          #    0.01% of all dTLB cache accesses  (36.68%)
+    33.121690060        124,315,013      iTLB-loads                                                    (36.65%)
+    33.121690060         41,350,108      iTLB-load-misses          #   33.26% of all iTLB cache accesses  (36.51%)
+    33.121690060                119      page-faults                                                 
+    33.121690060                 85      minor-faults                                                
+    33.121690060                  0      major-faults                                                
+    33.121690060                 66      cpu-migrations                                              
+    34.124823791      4,075,809,016      L1-dcache-loads                                               (35.86%)
+    34.124823791        324,398,317      L1-dcache-load-misses     #    7.96% of all L1-dcache accesses  (36.05%)
+    34.124823791    <not supported>      L1-icache-loads                                             
+    34.124823791        520,152,330      L1-icache-load-misses                                         (36.38%)
+    34.124823791         82,365,083      LLC-loads                                                     (36.63%)
+    34.124823791         25,307,681      LLC-load-misses           #   30.73% of all LL-cache accesses  (36.69%)
+    34.124823791         50,456,438      LLC-stores                                                    (18.34%)
+    34.124823791         15,974,723      LLC-store-misses                                              (18.33%)
+    34.124823791      4,077,525,564      dTLB-loads                                                    (27.46%)
+    34.124823791          1,673,749      dTLB-load-misses          #    0.04% of all dTLB cache accesses  (36.44%)
+    34.124823791         81,449,034      iTLB-loads                                                    (36.11%)
+    34.124823791         41,288,544      iTLB-load-misses          #   50.69% of all iTLB cache accesses  (35.86%)
+    34.124823791             65,756      page-faults                                                 
+    34.124823791             65,738      minor-faults                                                
+    34.124823791                  0      major-faults                                                
+    34.124823791                 72      cpu-migrations                                              
+    35.127493121      3,947,788,420      L1-dcache-loads                                               (36.46%)
+    35.127493121        303,982,827      L1-dcache-load-misses     #    7.70% of all L1-dcache accesses  (36.67%)
+    35.127493121    <not supported>      L1-icache-loads                                             
+    35.127493121        514,381,807      L1-icache-load-misses                                         (36.70%)
+    35.127493121         78,541,264      LLC-loads                                                     (36.70%)
+    35.127493121         24,894,681      LLC-load-misses           #   31.70% of all LL-cache accesses  (36.68%)
+    35.127493121         48,535,025      LLC-stores                                                    (18.27%)
+    35.127493121         15,651,726      LLC-store-misses                                              (18.03%)
+    35.127493121      3,954,871,980      dTLB-loads                                                    (26.86%)
+    35.127493121          1,633,042      dTLB-load-misses          #    0.04% of all dTLB cache accesses  (35.83%)
+    35.127493121         55,895,401      iTLB-loads                                                    (35.86%)
+    35.127493121         39,254,969      iTLB-load-misses          #   70.23% of all iTLB cache accesses  (36.12%)
+    35.127493121             66,945      page-faults                                                 
+    35.127493121             66,927      minor-faults                                                
+    35.127493121                  0      major-faults                                                
+    35.127493121                161      cpu-migrations                                              

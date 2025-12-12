@@ -1,0 +1,84 @@
+/usr/bin/java  -classpath /home/ldy/src/YCSB/conf:/home/ldy/src/YCSB/core/target/core-0.17.0.jar:/home/ldy/src/YCSB/rocksdb/target/rocksdb-binding-0.17.0.jar:/home/ldy/src/YCSB/rocksdb/target/dependency/HdrHistogram-2.1.4.jar:/home/ldy/src/YCSB/rocksdb/target/dependency/htrace-core4-4.1.0-incubating.jar:/home/ldy/src/YCSB/rocksdb/target/dependency/jcip-annotations-1.0.jar:/home/ldy/src/YCSB/rocksdb/target/dependency/rocksdbjni-5.11.3.jar:/home/ldy/src/YCSB/rocksdb/target/dependency/slf4j-api-1.7.25.jar:/home/ldy/src/YCSB/rocksdb/target/dependency/slf4j-simple-1.7.25.jar site.ycsb.Client -t -db site.ycsb.db.rocksdb.RocksDBClient -P ../../../YCSB/workloads/workloadf -threads 40 -p operationcount=5000000 -p rocksdb.dir=/mnt/test
+Command line: -t -db site.ycsb.db.rocksdb.RocksDBClient -P ../../../YCSB/workloads/workloadf -threads 40 -p operationcount=5000000 -p rocksdb.dir=/mnt/test
+YCSB Client 0.17.0
+
+Loading workload...
+Starting test.
+[Thread-34] INFO site.ycsb.db.rocksdb.RocksDBClient - RocksDB data dir: /mnt/test
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+[OVERALL], RunTime(ms), 54065
+[OVERALL], Throughput(ops/sec), 92481.27254231018
+[TOTAL_GCS_G1_Young_Generation], Count, 59
+[TOTAL_GC_TIME_G1_Young_Generation], Time(ms), 135
+[TOTAL_GC_TIME_%_G1_Young_Generation], Time(%), 0.2496994358642375
+[TOTAL_GCS_G1_Old_Generation], Count, 0
+[TOTAL_GC_TIME_G1_Old_Generation], Time(ms), 0
+[TOTAL_GC_TIME_%_G1_Old_Generation], Time(%), 0.0
+[TOTAL_GCs], Count, 59
+[TOTAL_GC_TIME], Time(ms), 135
+[TOTAL_GC_TIME_%], Time(%), 0.2496994358642375
+[READ], Operations, 5000000
+[READ], AverageLatency(us), 146.2115214
+[READ], MinLatency(us), 1
+[READ], MaxLatency(us), 46559
+[READ], 95thPercentileLatency(us), 382
+[READ], 99thPercentileLatency(us), 668
+[READ], Return=OK, 5000000
+[READ-MODIFY-WRITE], Operations, 2498260
+[READ-MODIFY-WRITE], AverageLatency(us), 671.0191000936652
+[READ-MODIFY-WRITE], MinLatency(us), 18
+[READ-MODIFY-WRITE], MaxLatency(us), 496895
+[READ-MODIFY-WRITE], 95thPercentileLatency(us), 1498
+[READ-MODIFY-WRITE], 99thPercentileLatency(us), 3927
+[CLEANUP], Operations, 40
+[CLEANUP], AverageLatency(us), 2163.925
+[CLEANUP], MinLatency(us), 2
+[CLEANUP], MaxLatency(us), 86335
+[CLEANUP], 95thPercentileLatency(us), 17
+[CLEANUP], 99thPercentileLatency(us), 86335
+[UPDATE], Operations, 2498260
+[UPDATE], AverageLatency(us), 518.980990369297
+[UPDATE], MinLatency(us), 14
+[UPDATE], MaxLatency(us), 496895
+[UPDATE], 95thPercentileLatency(us), 1237
+[UPDATE], 99thPercentileLatency(us), 3629
+[UPDATE], Return=OK, 2498260

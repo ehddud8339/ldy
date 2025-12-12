@@ -1,0 +1,13 @@
+IMPORTANT: Virtual address space randomization is enabled on this machine!
+It is highly recommended to disable randomization to provide stable Filebench runs.
+Echo 0 to /proc/sys/kernel/randomize_va_space file to disable the randomization.
+Filebench Version 1.4.9.1
+468074: 0.000: Allocated 170MB of shared memory
+468074: 0.001: Creating/pre-allocating files and filesets
+468074: 0.133: Fileset bigfileset: 200000 files, 0 leafdirs, avg dir width = 20, avg dir depth = 4.1, 25028.705MB
+468074: 0.136: Removed any existing fileset bigfileset in 1 seconds
+468074: 0.136: making tree for filset /mnt/test/bigfileset
+468074: 1.614: Creating fileset bigfileset...
+468074: 79.854: Preallocated 160137 of 200000 of fileset bigfileset in 79 seconds
+468074: 79.854: waiting for fileset pre-allocation to finish
+468074: 79.854: Running 'sync'

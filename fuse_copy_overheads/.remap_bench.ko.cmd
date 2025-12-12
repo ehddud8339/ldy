@@ -1,0 +1,1 @@
+cmd_/home/ldy/src/ldy/fuse_copy_overheads/remap_bench.ko := ld -r  -m elf_x86_64  --build-id=sha1  -T scripts/module.lds -o /home/ldy/src/ldy/fuse_copy_overheads/remap_bench.ko /home/ldy/src/ldy/fuse_copy_overheads/remap_bench.o /home/ldy/src/ldy/fuse_copy_overheads/remap_bench.mod.o;  true

@@ -1,0 +1,14 @@
+IMPORTANT: Virtual address space randomization is enabled on this machine!
+It is highly recommended to disable randomization to provide stable Filebench runs.
+Echo 0 to /proc/sys/kernel/randomize_va_space file to disable the randomization.
+Filebench Version 1.4.9.1
+393513: 0.000: Allocated 170MB of shared memory
+393513: 0.002: Creating/pre-allocating files and filesets
+393513: 0.002: Fileset logfiles: 1 files, 0 leafdirs, avg dir width = 20, avg dir depth = 0.0, 0.002MB
+393513: 0.005: Removed any existing fileset logfiles in 1 seconds
+393513: 0.005: making tree for filset /mnt/test/logfiles
+393513: 0.006: Creating fileset logfiles...
+393513: 0.006: Preallocated 1 of 1 of fileset logfiles in 1 seconds
+393513: 0.682: Out of shared memory (1)! on line 50
+393513: 0.682: fileset_populate_file: Can't malloc filesetentry on line 50
+393513: 0.682: Failed to create filesets on line 50
