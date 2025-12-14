@@ -16,6 +16,7 @@ def convert_csv_to_xlsx(csv_path, xlsx_path):
         for riq_id, group in riq_groups:
             # READ / WRITE만 필터링
             group = group[group["opcode_name"].isin(["READ", "WRITE"])]
+            # group = group[group["opcode_name"].isin(["GETATTR", "GETXATTR", "OPEN", "FLUSH", "RELEASE"])]
             if group.empty:
                 continue
 
