@@ -20,17 +20,28 @@ CC        ?= gcc
 BPFTool   ?= bpftool
 
 BPF_CFLAGS = -g -O2 -Wall \
-	     -target bpf -D__TARGET_ARCH_x86 \
-	     -I./include -I./bpf
+             -target bpf -D__TARGET_ARCH_x86 \
+             -I./include -I./bpf
 
 USER_CFLAGS = -g -O2 -Wall \
-	      -I./include
+              -I./include
 
 # libbpf가 shared library로 설치되어 있다고 가정
 USER_LDFLAGS = -lbpf -lelf -lz -Wl,-rpath=/usr/lib64
 
-BPF_OBJ  = bpf/rfuse_trace.bpf.o
-SKEL_HDR = include/rfuse_trace.skel.h
+# =====================================================================
+# 빌드 산출물
+# =====================================================================
+
+# req tracer
+BPF_OBJ_REQ  = bpf/rfuse_trace.bpf.o
+SKEL_HDR_REQ = include/rfuse_trace.skel.h
+
+# loop tracer
+BPF_OBJ_LOOP  = bpf/rfuse_loop_trace.bpf.o
+SKEL_HDR_LOOP = include/rfuse_loop_trace.skel.h
+
+# user
 USER_OBJ = user/rfuse_trace_user.o
 USER_BIN = rfuse_trace
 
@@ -44,18 +55,25 @@ all: $(USER_BIN)
 
 # ---------- BPF 오브젝트 ----------
 
-$(BPF_OBJ): bpf/rfuse_trace.bpf.c include/rfuse_common.h include/vmlinux.h
+$(BPF_OBJ_REQ): bpf/rfuse_trace.bpf.c include/rfuse_common.h include/vmlinux.h
+	$(BPF_CLANG) $(BPF_CFLAGS) -c $< -o $@
+	$(BPF_STRIP) -g $@
+
+$(BPF_OBJ_LOOP): bpf/rfuse_loop_trace.bpf.c include/rfuse_common.h include/vmlinux.h
 	$(BPF_CLANG) $(BPF_CFLAGS) -c $< -o $@
 	$(BPF_STRIP) -g $@
 
 # ---------- Skeleton 헤더 생성 ----------
 
-$(SKEL_HDR): $(BPF_OBJ)
+$(SKEL_HDR_REQ): $(BPF_OBJ_REQ)
+	$(BPFTool) gen skeleton $< > $@
+
+$(SKEL_HDR_LOOP): $(BPF_OBJ_LOOP)
 	$(BPFTool) gen skeleton $< > $@
 
 # ---------- 유저 공간 바이너리 ----------
 
-$(USER_OBJ): user/rfuse_trace_user.c include/rfuse_common.h $(SKEL_HDR)
+$(USER_OBJ): user/rfuse_trace_user.c include/rfuse_common.h $(SKEL_HDR_REQ) $(SKEL_HDR_LOOP)
 	$(CC) $(USER_CFLAGS) -c $< -o $@
 
 $(USER_BIN): $(USER_OBJ)
@@ -64,5 +82,4 @@ $(USER_BIN): $(USER_OBJ)
 # ---------- 청소 ----------
 
 clean:
-	rm -f $(BPF_OBJ) $(USER_OBJ) $(USER_BIN) $(SKEL_HDR)
-
+	rm -f $(BPF_OBJ_REQ) $(BPF_OBJ_LOOP) $(USER_OBJ) $(USER_BIN) $(SKEL_HDR_REQ) $(SKEL_HDR_LOOP)

@@ -178,7 +178,7 @@ int main(int argc, char **argv)
     /* CSV header 출력 */
     fprintf(outf,
             "ts_ns,riq_id,req_index,unique,opcode,opcode_name,pid,comm,"
-            "alloc_block_us,queue_us,daemon_us,response_us,copy_from_us,copy_to_us\n");
+            "alloc_us,queue_us,daemon_us,response_us,copy_from_us,copy_to_us\n");
     fflush(outf);
 
     /* 간단한 옵션 파서 */
@@ -231,13 +231,21 @@ int main(int argc, char **argv)
     struct bpf_link *k_link_queue = NULL;
     struct bpf_link *k_link_end   = NULL;
     struct bpf_link *k_link_req   = NULL;
-
+    struct bpf_link *k_link_try_req =NULL;
     /* 추가 kprobe/rfuse_get_req */
     k_link_req = bpf_program__attach(skel->progs.kp_rfuse_get_req);
     err = libbpf_get_error(k_link_req);
     if (err) {
         k_link_req = NULL;
         fprintf(stderr, "failed to attach kprobe rfuse_get_req: %s\n",
+                strerror(-err));
+        goto cleanup;
+    }
+    k_link_try_req = bpf_program__attach(skel->progs.kp_try_rfuse_get_req);
+    err = libbpf_get_error(k_link_try_req);
+    if (err) {
+        k_link_try_req = NULL;
+        fprintf(stderr, "failed to attach kprobe try_rfuse_get_req: %s\n",
                 strerror(-err));
         goto cleanup;
     }
@@ -328,7 +336,7 @@ int main(int argc, char **argv)
     }
 
     printf("ts_ns,riq_id,req_index,unique,opcode,pid,comm,"
-           "queue_ns,daemon_ns,response_ns,copy_from_ns,copy_to_ns\n");
+           "alloc_us,queue_ns,daemon_ns,response_ns,copy_from_ns,copy_to_ns\n");
 
     while (!exiting) {
         err = ring_buffer__poll(rb, 100 /* ms */);
@@ -343,6 +351,9 @@ int main(int argc, char **argv)
 cleanup:
     if (k_link_req)
         bpf_link__destroy(k_link_req);
+    if (k_link_try_req)
+        bpf_link__destroy(k_link_try_req);
+ 
     if (link_read)
         bpf_link__destroy(link_read);
     if (link_send)

@@ -1,0 +1,31 @@
+[global]
+ioengine=io_uring
+direct=1
+iodepth=256
+rw=randread
+bs=4k
+
+# NUMA / CPU 변화 없이 pure I/O 실험만
+thread=1
+group_reporting=1
+
+# io_uring tuning
+hipri=1             # SQPOLL (optional)
+sqthread_poll=1     # enable polling
+sqthread_poll_cpu=0
+# optional (데이터 패스 효율 최대로 끌어올림)
+
+# file
+filename=/mnt/test/testfile
+size=4G
+# prepare beforehand: fio --name=create ... --rw=write ...
+
+# runtime
+runtime=120
+time_based=1
+
+
+[job1]
+name=randread_nvme
+
+

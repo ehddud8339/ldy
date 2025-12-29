@@ -28,6 +28,12 @@ struct {
     __uint(max_entries, 1 << 24); // 16MB
 } rfuse_events SEC(".maps");
 
+// 루프 이벤트 ringbuf
+struct {
+    __uint(type, BPF_MAP_TYPE_RINGBUF);
+    __uint(max_entries, 1 << 24);
+} rfuse_loop_events SEC(".maps");
+
 // [추가] PID별 Alloc 시작 시간 저장 (Alloc & Block 측정용)
 struct {
     __uint(type, BPF_MAP_TYPE_HASH);
@@ -70,9 +76,9 @@ get_or_init_state(const struct rfuse_req_key *key)
 SEC("kprobe/rfuse_get_req")
 int kp_rfuse_get_req(struct pt_regs *ctx)
 {
-    __u32 pid = bpf_get_current_pid_tgid() >> 32;
+    __u32 tid = (__u32)bpf_get_current_pid_tgid();
     __u64 ts = bpf_ktime_get_ns();
-    bpf_map_update_elem(&pid_alloc_map, &pid, &ts, BPF_ANY);
+    bpf_map_update_elem(&pid_alloc_map, &tid, &ts, BPF_ANY);
     return 0;
 }
 
@@ -93,7 +99,7 @@ int kp_rfuse_submit_request(struct pt_regs *ctx)
     struct rfuse_req_key key = {};
     struct rfuse_req_state *st;
     __u64 *ts;
-    __u32 pid = bpf_get_current_pid_tgid() >> 32;
+    __u32 tid = (__u32)bpf_get_current_pid_tgid();
 
     key.riq_id = riq_id;
     key.unique = unique;
@@ -107,12 +113,12 @@ int kp_rfuse_submit_request(struct pt_regs *ctx)
 
     st->opcode = opcode;
     st->unique = unique;
-    ts = bpf_map_lookup_elem(&pid_alloc_map, &pid);
+    ts = bpf_map_lookup_elem(&pid_alloc_map, &tid);
     if (ts) {
         if (st->ts_queued_ns > *ts) {
             st->alloc_delay_ns = st->ts_queued_ns - *ts;
         }
-        bpf_map_delete_elem(&pid_alloc_map, &pid);
+        bpf_map_delete_elem(&pid_alloc_map, &tid);
     } else {
         st->alloc_delay_ns = 0;
     }
@@ -139,6 +145,8 @@ int up_rfuse_read_request(struct pt_regs *ctx)
     __u32 opcode = (__u32)PT_REGS_PARM1(ctx);
     __u64 unique = (__u64)PT_REGS_PARM2(ctx);
     int   riq_id = (int)PT_REGS_PARM3(ctx);
+    __u32 tid    = (__u32)bpf_get_current_pid_tgid();
+    __u64 w_tid  = (__u64)PT_REGS_PARM4(ctx);
     // __u64 ts  = (__u64)PT_REGS_PARM4(ctx); // 필요하면 사용
 
     struct rfuse_req_key key = {};
@@ -156,6 +164,7 @@ int up_rfuse_read_request(struct pt_regs *ctx)
     // opcode/unique 재확인
     st->opcode = opcode;
     st->unique = unique;
+    st->pid    = tid;
 
     return 0;
 }
@@ -287,8 +296,8 @@ int kp_rfuse_request_end(struct pt_regs *ctx)
     __u64 unique = 0;
     __u64 now = bpf_ktime_get_ns();
     __u64 queue_delay = 0, daemon_delay = 0, resp_delay = 0;
-    __u64 pid_tgid = bpf_get_current_pid_tgid();
-    __u32 pid = pid_tgid >> 32;
+    //__u64 pid_tgid = bpf_get_current_pid_tgid();
+    //__u32 pid = pid_tgid >> 32;
 
     if (!r_req)
         return 0;
@@ -315,13 +324,14 @@ int kp_rfuse_request_end(struct pt_regs *ctx)
     ev = bpf_ringbuf_reserve(&rfuse_events, sizeof(*ev), 0);
     if (!ev)
         goto out;
-
-    ev->ts_ns  = now;
+    
+    ev->ts_ns  = st->ts_queued_ns;
     ev->riq_id = key.riq_id;
     ev->req_index = 0;      // 이제 의미 없음, 그냥 0
     ev->unique = st->unique;
     ev->opcode = st->opcode;
-    ev->pid    = pid;
+    ev->pid    = st->pid;
+    //ev->pid    = pid;
     bpf_get_current_comm(ev->comm, sizeof(ev->comm));
     ev->alloc_delay_ns      = st->alloc_delay_ns;
     ev->queue_delay_ns      = queue_delay;

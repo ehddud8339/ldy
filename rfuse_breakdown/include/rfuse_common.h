@@ -177,6 +177,7 @@ struct rfuse_req_key {
 struct rfuse_req_state {
     uint64_t unique;
     uint32_t opcode;
+    uint32_t pid;
     uint32_t flags;
     uint64_t ts_queued_ns;
     uint64_t ts_dequeued_ns;
@@ -203,6 +204,16 @@ struct rfuse_req_event {
     uint64_t copy_from_latency_ns;
     uint64_t copy_to_latency_ns;
     uint64_t alloc_delay_ns; /* [추가] */
+};
+
+struct rfuse_loop_event {
+    __u64 ts_ns;
+    __s32 riq_id;
+    __u32 tid;
+    __u64 gap_ns;
+    __u64 lock_wait_ns;
+    __u64 hold_ns;
+    __u64 ioctl_postunlock_ns;
 };
 
 #endif /* __RFUSE_COMMON_H */

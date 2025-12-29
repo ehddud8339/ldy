@@ -1,0 +1,563 @@
+// user/rfuse_trace_user.c
+
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <errno.h>
+#include <unistd.h>
+#include <stdint.h>
+#include <string.h>
+#include <inttypes.h>
+
+#include <bpf/libbpf.h>
+
+#include "rfuse_common.h"
+#include "rfuse_trace.skel.h"
+#include "rfuse_loop_trace.skel.h"
+
+static volatile sig_atomic_t exiting = 0;
+static FILE *outf;
+static uint64_t event_count;
+
+/* join tolerance: loop.ts_ns가 req의 [daemon_done, end+EPS] 안에 들어오면 붙임 */
+#define EPS_NS (2000ull * 1000ull) /* 2000 us */
+
+static void handle_sigint(int sig)
+{
+    (void)sig;
+    exiting = 1;
+    if (outf)
+        fflush(outf);
+}
+
+static int parse_u64_hex(const char *s, unsigned long long *out)
+{
+    char *end = NULL;
+    errno = 0;
+    unsigned long long v = strtoull(s, &end, 16);
+    if (errno != 0 || end == s || *end != '\0')
+        return -1;
+    *out = v;
+    return 0;
+}
+
+/*
+ * func_name 우선으로 uprobe/uretprobe attach 시도,
+ * 실패하면 addr_override(offset)로 재시도.
+ */
+static struct bpf_link *
+attach_uprobe_with_fallback(struct bpf_program *prog,
+                            const char *binary_path,
+                            const char *func_name,
+                            bool is_retprobe,
+                            unsigned long long addr_override)
+{
+    struct bpf_link *link;
+    int err;
+
+    if (func_name && func_name[0]) {
+        LIBBPF_OPTS(bpf_uprobe_opts, opts,
+            .retprobe  = is_retprobe,
+            .func_name = func_name,
+        );
+
+        link = bpf_program__attach_uprobe_opts(prog,
+                                               -1,          /* pid = all */
+                                               binary_path,
+                                               0,           /* func_offset (func_name 사용) */
+                                               &opts);
+        err = libbpf_get_error(link);
+        if (!err)
+            return link;
+
+        fprintf(stderr,
+                "auto u%sprobe attach failed for %s (func %s): %s\n",
+                is_retprobe ? "ret" : "",
+                binary_path,
+                func_name,
+                strerror(-err));
+    }
+
+    if (addr_override) {
+        link = bpf_program__attach_uprobe(prog,
+                                          is_retprobe,
+                                          -1,
+                                          binary_path,
+                                          (size_t)addr_override);
+        err = libbpf_get_error(link);
+        if (!err)
+            return link;
+
+        fprintf(stderr,
+                "addr override u%sprobe attach failed for %s (0x%llx): %s\n",
+                is_retprobe ? "ret" : "",
+                binary_path,
+                (unsigned long long)addr_override,
+                strerror(-err));
+    }
+
+    return NULL;
+}
+
+/* =========================
+ * join cache: key=(riq_id, tid) -> last loop event
+ * ========================= */
+struct join_key {
+    int32_t  riq_id;
+    uint32_t tid;
+};
+
+struct join_val {
+    uint8_t  valid;
+    uint64_t ts_ns;                 /* loop event timestamp (bpf_ktime_get_ns in loop bpf) */
+    uint64_t gap_ns;
+    uint64_t lock_wait_ns;
+    uint64_t hold_ns;
+    uint64_t ioctl_postunlock_ns;
+};
+
+struct join_ent {
+    uint8_t used;
+    struct join_key k;
+    struct join_val v;
+};
+
+#define JOIN_TBL_SZ (1u << 18) /* 262144 entries */
+static struct join_ent *join_tbl;
+
+static inline uint64_t hash64(uint64_t x)
+{
+    /* splitmix64 */
+    x += 0x9e3779b97f4a7c15ull;
+    x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9ull;
+    x = (x ^ (x >> 27)) * 0x94d049bb133111ebull;
+    x = x ^ (x >> 31);
+    return x;
+}
+
+static inline uint32_t join_hash(const struct join_key *k)
+{
+    uint64_t x = ((uint64_t)(uint32_t)k->riq_id << 32) ^ (uint64_t)k->tid;
+    return (uint32_t)hash64(x);
+}
+
+static struct join_ent *join_get_or_create(const struct join_key *k)
+{
+    uint32_t h = join_hash(k);
+    uint32_t idx = h & (JOIN_TBL_SZ - 1);
+
+    for (uint32_t i = 0; i < 64; i++) {
+        struct join_ent *e = &join_tbl[(idx + i) & (JOIN_TBL_SZ - 1)];
+        if (!e->used) {
+            e->used = 1;
+            e->k = *k;
+            e->v.valid = 0;
+            return e;
+        }
+        if (e->k.riq_id == k->riq_id && e->k.tid == k->tid)
+            return e;
+    }
+    return NULL;
+}
+
+static struct join_ent *join_lookup(const struct join_key *k)
+{
+    uint32_t h = join_hash(k);
+    uint32_t idx = h & (JOIN_TBL_SZ - 1);
+
+    for (uint32_t i = 0; i < 64; i++) {
+        struct join_ent *e = &join_tbl[(idx + i) & (JOIN_TBL_SZ - 1)];
+        if (!e->used)
+            return NULL;
+        if (e->k.riq_id == k->riq_id && e->k.tid == k->tid)
+            return e;
+    }
+    return NULL;
+}
+
+static inline unsigned long long ns_to_us_u64(uint64_t ns)
+{
+    return (unsigned long long)(ns / 1000ull);
+}
+
+/* =========================
+ * loop ringbuf callback: cache latest loop per (riq_id, tid)
+ * ========================= */
+static int handle_loop_event(void *ctx, void *data, size_t len)
+{
+    (void)ctx;
+    if (len < sizeof(struct rfuse_loop_event))
+        return 0;
+
+    const struct rfuse_loop_event *e = data;
+
+    struct join_key k = {
+        .riq_id = e->riq_id,
+        .tid    = e->tid,
+    };
+
+    struct join_ent *ent = join_get_or_create(&k);
+    if (!ent)
+        return 0;
+
+    ent->v.valid = 1;
+    ent->v.ts_ns = e->ts_ns;
+    ent->v.gap_ns = e->gap_ns;
+    ent->v.lock_wait_ns = e->lock_wait_ns;
+    ent->v.hold_ns = e->hold_ns;
+    ent->v.ioctl_postunlock_ns = e->ioctl_postunlock_ns;
+
+    return 0;
+}
+
+/* =========================
+ * req ringbuf callback: join and emit CSV row
+ * ========================= */
+static int handle_req_event(void *ctx, void *data, size_t len)
+{
+    (void)ctx;
+    if (len < sizeof(struct rfuse_req_event))
+        return 0;
+
+    const struct rfuse_req_event *e = data;
+    const char *opname = rfuse_opcode_to_str(e->opcode);
+
+    if (!outf)
+        return 0;
+
+    /* req ns → us */
+    unsigned long long ts_us        = e->ts_ns / 1000ull;
+    unsigned long long alloc_us     = e->alloc_delay_ns / 1000ull;
+    unsigned long long q_us         = e->queue_delay_ns / 1000ull;
+    unsigned long long d_us         = e->daemon_delay_ns / 1000ull;
+    unsigned long long r_us         = e->response_delay_ns / 1000ull;
+    unsigned long long copy_from_us = e->copy_from_latency_ns / 1000ull;
+    unsigned long long copy_to_us   = e->copy_to_latency_ns / 1000ull;
+
+    /* NOTE: 현재 e->pid에는 tid가 들어감(네 BPF에서 st->pid=tid) */
+    uint32_t tid = e->pid;
+
+    /* reconstruct request timeline (ktime domain) */
+    uint64_t t_queued      = e->ts_ns;
+    uint64_t t_dequeued    = t_queued + e->queue_delay_ns;
+    uint64_t t_daemon_done = t_dequeued + e->daemon_delay_ns;
+    uint64_t t_end         = t_daemon_done + e->response_delay_ns;
+
+    /* join with last loop event per (riq_id, tid) */
+    struct join_key k = {
+        .riq_id = e->riq_id,
+        .tid    = tid,
+    };
+
+    struct join_ent *ent = join_lookup(&k);
+
+    uint64_t loop_ts_ns = 0;
+    unsigned long long loop_gap_us = 0;
+    unsigned long long loop_lock_wait_us = 0;
+    unsigned long long loop_hold_us = 0;
+    unsigned long long loop_ioctl_postunlock_us = 0;
+    int join_ok = 0;
+
+    if (ent && ent->v.valid) {
+        uint64_t lt = ent->v.ts_ns;
+
+        /* 조건: lt가 daemon_done 이후 ~ end(+eps) 이내 */
+        if (lt + EPS_NS >= t_daemon_done && lt <= t_end + EPS_NS) {
+            join_ok = 1;
+            loop_ts_ns = lt;
+            loop_gap_us = ns_to_us_u64(ent->v.gap_ns);
+            loop_lock_wait_us = ns_to_us_u64(ent->v.lock_wait_ns);
+            loop_hold_us = ns_to_us_u64(ent->v.hold_ns);
+            loop_ioctl_postunlock_us = ns_to_us_u64(ent->v.ioctl_postunlock_ns);
+
+            /* consume: 같은 loop event가 여러 req에 붙는 걸 방지 */
+            ent->v.valid = 0;
+        }
+    }
+
+    fprintf(outf,
+            /* req columns */
+            "%llu,%d,%u,%llu,%u,%s,%u,%s,%llu,%llu,%llu,%llu,%llu,%llu,"
+            /* loop columns */
+            "%" PRIu64 ",%llu,%llu,%llu,%llu,%d\n",
+            ts_us,
+            e->riq_id,
+            e->req_index,
+            (unsigned long long)e->unique,
+            e->opcode,
+            opname,
+            tid,
+            e->comm,
+            alloc_us,
+            q_us,
+            d_us,
+            r_us,
+            copy_from_us,
+            copy_to_us,
+            loop_ts_ns,
+            loop_gap_us,
+            loop_lock_wait_us,
+            loop_hold_us,
+            loop_ioctl_postunlock_us,
+            join_ok);
+
+    event_count++;
+    if (event_count % 100 == 0)
+        fflush(outf);
+
+    return 0;
+}
+
+int main(int argc, char **argv)
+{
+    const char *daemon_path;
+    const char *out_path;
+
+    struct rfuse_trace_bpf *skel_req = NULL;
+    struct rfuse_loop_trace_bpf *skel_loop = NULL;
+
+    struct ring_buffer *rb_req = NULL;
+    struct ring_buffer *rb_loop = NULL;
+
+    /* req uprobe links */
+    struct bpf_link *link_read = NULL;
+    struct bpf_link *link_send = NULL;
+    struct bpf_link *link_copy_from = NULL;
+    struct bpf_link *link_copy_to = NULL;
+
+    /* loop uprobe link */
+    struct bpf_link *link_latency = NULL;
+
+    /* kprobe links (req tracer) */
+    struct bpf_link *k_link_queue = NULL;
+    struct bpf_link *k_link_end   = NULL;
+    struct bpf_link *k_link_req   = NULL;
+    struct bpf_link *k_link_try_req = NULL;
+
+    int err = 0;
+
+    /* addr overrides (optional) */
+    unsigned long long addr_read = 0;
+    unsigned long long addr_send = 0;
+    unsigned long long addr_copy_from = 0;
+    unsigned long long addr_copy_to = 0;
+    unsigned long long addr_latency = 0;
+
+    if (argc < 3) {
+        fprintf(stderr,
+                "Usage: %s /path/to/rfuse_daemon.so /path/to/output.csv "
+                "[--addr-read=0x.. --addr-send=0x.. "
+                "--addr-copy-from=0x.. --addr-copy-to=0x.. "
+                "--addr-latency=0x..]\n",
+                argv[0]);
+        return 1;
+    }
+
+    daemon_path = argv[1];
+    out_path    = argv[2];
+
+    join_tbl = calloc(JOIN_TBL_SZ, sizeof(*join_tbl));
+    if (!join_tbl) {
+        fprintf(stderr, "failed to alloc join table\n");
+        return 1;
+    }
+
+    outf = fopen(out_path, "w");
+    if (!outf) {
+        perror("fopen output csv");
+        free(join_tbl);
+        return 1;
+    }
+
+    /* CSV header */
+    fprintf(outf,
+            "ts_us,riq_id,req_index,unique,opcode,opcode_name,tid,comm,"
+            "alloc_us,queue_us,daemon_us,response_us,copy_from_us,copy_to_us,"
+            "loop_ts_ns,loop_gap_us,loop_lock_wait_us,loop_hold_us,loop_ioctl_postunlock_us,join_ok\n");
+    fflush(outf);
+
+    /* 옵션 파서 */
+    for (int i = 3; i < argc; i++) {
+        const char *arg = argv[i];
+        const char *p;
+
+        if (strncmp(arg, "--addr-read=", 12) == 0) {
+            p = arg + 12;
+            if (parse_u64_hex(p, &addr_read)) { fprintf(stderr, "invalid --addr-read: %s\n", p); err = 1; goto cleanup; }
+        } else if (strncmp(arg, "--addr-send=", 12) == 0) {
+            p = arg + 12;
+            if (parse_u64_hex(p, &addr_send)) { fprintf(stderr, "invalid --addr-send: %s\n", p); err = 1; goto cleanup; }
+        } else if (strncmp(arg, "--addr-copy-from=", 17) == 0) {
+            p = arg + 17;
+            if (parse_u64_hex(p, &addr_copy_from)) { fprintf(stderr, "invalid --addr-copy-from: %s\n", p); err = 1; goto cleanup; }
+        } else if (strncmp(arg, "--addr-copy-to=", 15) == 0) {
+            p = arg + 15;
+            if (parse_u64_hex(p, &addr_copy_to)) { fprintf(stderr, "invalid --addr-copy-to: %s\n", p); err = 1; goto cleanup; }
+        } else if (strncmp(arg, "--addr-latency=", 15) == 0) {
+            p = arg + 15;
+            if (parse_u64_hex(p, &addr_latency)) { fprintf(stderr, "invalid --addr-latency: %s\n", p); err = 1; goto cleanup; }
+        } else {
+            fprintf(stderr, "unknown option: %s\n", arg);
+            err = 1;
+            goto cleanup;
+        }
+    }
+
+    libbpf_set_strict_mode(LIBBPF_STRICT_ALL);
+    signal(SIGINT, handle_sigint);
+    signal(SIGTERM, handle_sigint);
+
+    /* =========================
+     * open+load skeletons
+     * ========================= */
+    skel_req = rfuse_trace_bpf__open_and_load();
+    if (!skel_req) {
+        fprintf(stderr, "failed to open/load req BPF skeleton\n");
+        err = 1;
+        goto cleanup;
+    }
+
+    skel_loop = rfuse_loop_trace_bpf__open_and_load();
+    if (!skel_loop) {
+        fprintf(stderr, "failed to open/load loop BPF skeleton\n");
+        err = 1;
+        goto cleanup;
+    }
+
+    /* =========================
+     * attach kprobes (req tracer)
+     * ========================= */
+    k_link_req = bpf_program__attach(skel_req->progs.kp_rfuse_get_req);
+    err = libbpf_get_error(k_link_req);
+    if (err) {
+        k_link_req = NULL;
+        fprintf(stderr, "failed to attach kprobe rfuse_get_req: %s\n", strerror(-err));
+        err = 1;
+        goto cleanup;
+    }
+
+    k_link_try_req = bpf_program__attach(skel_req->progs.kp_try_rfuse_get_req);
+    err = libbpf_get_error(k_link_try_req);
+    if (err) {
+        k_link_try_req = NULL;
+        fprintf(stderr, "failed to attach kprobe try_rfuse_get_req: %s\n", strerror(-err));
+        err = 1;
+        goto cleanup;
+    }
+
+    k_link_queue = bpf_program__attach(skel_req->progs.kp_rfuse_submit_request);
+    err = libbpf_get_error(k_link_queue);
+    if (err) {
+        k_link_queue = NULL;
+        fprintf(stderr, "failed to attach kprobe rfuse_submit_request: %s\n", strerror(-err));
+        err = 1;
+        goto cleanup;
+    }
+
+    k_link_end = bpf_program__attach(skel_req->progs.kp_rfuse_request_end);
+    err = libbpf_get_error(k_link_end);
+    if (err) {
+        k_link_end = NULL;
+        fprintf(stderr, "failed to attach kprobe rfuse_request_end: %s\n", strerror(-err));
+        err = 1;
+        goto cleanup;
+    }
+
+    /* =========================
+     * attach uprobes (req tracer)
+     * ========================= */
+    link_read = attach_uprobe_with_fallback(
+        skel_req->progs.up_rfuse_read_request,
+        daemon_path, "rfuse_read_request",
+        false, addr_read);
+    if (!link_read) { fprintf(stderr, "failed to attach uprobe rfuse_read_request\n"); err = 1; goto cleanup; }
+
+    link_send = attach_uprobe_with_fallback(
+        skel_req->progs.up_rfuse_send_result,
+        daemon_path, "rfuse_send_result",
+        false, addr_send);
+    if (!link_send) { fprintf(stderr, "failed to attach uprobe rfuse_send_result\n"); err = 1; goto cleanup; }
+
+    link_copy_from = attach_uprobe_with_fallback(
+        skel_req->progs.up_rfuse_copy_from_payload_begin_end,
+        daemon_path, "rfuse_copy_from_payload_begin_end",
+        false, addr_copy_from);
+    if (!link_copy_from) { fprintf(stderr, "failed to attach uprobe rfuse_copy_from_payload_begin_end\n"); err = 1; goto cleanup; }
+
+    link_copy_to = attach_uprobe_with_fallback(
+        skel_req->progs.up_rfuse_copy_to_payload_begin_end,
+        daemon_path, "rfuse_copy_to_payload_begin_end",
+        false, addr_copy_to);
+    if (!link_copy_to) { fprintf(stderr, "failed to attach uprobe rfuse_copy_to_payload_begin_end\n"); err = 1; goto cleanup; }
+
+    /* =========================
+     * attach uprobe (loop tracer)
+     * ========================= */
+    link_latency = attach_uprobe_with_fallback(
+        skel_loop->progs.up_rfuse_latency_probe,
+        daemon_path, "rfuse_latency_probe",
+        false, addr_latency);
+    if (!link_latency) {
+        fprintf(stderr, "failed to attach uprobe rfuse_latency_probe\n");
+        err = 1;
+        goto cleanup;
+    }
+
+    /* =========================
+     * ring buffers
+     * ========================= */
+    rb_req = ring_buffer__new(bpf_map__fd(skel_req->maps.rfuse_events),
+                              handle_req_event, NULL, NULL);
+    if (!rb_req) {
+        fprintf(stderr, "failed to create req ring buffer\n");
+        err = 1;
+        goto cleanup;
+    }
+
+    rb_loop = ring_buffer__new(bpf_map__fd(skel_loop->maps.rfuse_loop_events),
+                               handle_loop_event, NULL, NULL);
+    if (!rb_loop) {
+        fprintf(stderr, "failed to create loop ring buffer\n");
+        err = 1;
+        goto cleanup;
+    }
+
+    fprintf(stderr, "[OK] tracing + join... out=%s EPS=%lluus\n",
+            out_path, (unsigned long long)(EPS_NS / 1000ull));
+
+    while (!exiting) {
+        /* loop 먼저 poll해서 cache를 최신화한 뒤 req가 와도 조인이 잘 되게 */
+        int r1 = ring_buffer__poll(rb_loop, 50);
+        if (r1 == -EINTR) break;
+        if (r1 < 0) { fprintf(stderr, "rb_loop poll failed: %d\n", r1); break; }
+
+        int r2 = ring_buffer__poll(rb_req, 50);
+        if (r2 == -EINTR) break;
+        if (r2 < 0) { fprintf(stderr, "rb_req poll failed: %d\n", r2); break; }
+    }
+
+cleanup:
+    if (k_link_req) bpf_link__destroy(k_link_req);
+    if (k_link_try_req) bpf_link__destroy(k_link_try_req);
+    if (k_link_queue) bpf_link__destroy(k_link_queue);
+    if (k_link_end) bpf_link__destroy(k_link_end);
+
+    if (link_read) bpf_link__destroy(link_read);
+    if (link_send) bpf_link__destroy(link_send);
+    if (link_copy_from) bpf_link__destroy(link_copy_from);
+    if (link_copy_to) bpf_link__destroy(link_copy_to);
+    if (link_latency) bpf_link__destroy(link_latency);
+
+    if (rb_req) ring_buffer__free(rb_req);
+    if (rb_loop) ring_buffer__free(rb_loop);
+
+    if (skel_req) rfuse_trace_bpf__destroy(skel_req);
+    if (skel_loop) rfuse_loop_trace_bpf__destroy(skel_loop);
+
+    if (outf) fclose(outf);
+    free(join_tbl);
+
+    return err != 0;
+}
+

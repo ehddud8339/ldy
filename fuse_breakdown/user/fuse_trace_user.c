@@ -193,7 +193,8 @@ static int handle_event(void *ctx, void *data, size_t len)
          * 형식: Unique,Op,Alloc(us),Queuing(us),Daemon(us),Response(us)
          */
         if (csv_fp) {
-            fprintf(csv_fp, "%llu,%s,%llu,%llu,%llu,%llu\n",
+            fprintf(csv_fp, "%llu,%llu,%s,%llu,%llu,%llu,%llu\n",
+                    (unsigned long long)p->queue_ts,
                     (unsigned long long)e->unique,
                     opname,
                     (unsigned long long)alloc_us, /* [추가] */
@@ -244,7 +245,7 @@ int main(int argc, char **argv)
         perror("fopen csv_path");
     } else {
         /* [수정] 헤더에 alloc_us 추가 */
-        fprintf(csv_fp, "unique,op,alloc_us,queuing_us,daemon_us,response_us\n");
+        fprintf(csv_fp, "ts,unique,op,alloc_us,queuing_us,daemon_us,response_us\n");
         fflush(csv_fp);
     }
 

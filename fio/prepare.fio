@@ -1,0 +1,12 @@
+[global]
+directory=/mnt/test
+#filename_format=readfile.$jobnum
+ioengine=psync
+iodepth=1
+direct=0
+norandommap
+group_reporting=1
+
+[prepare-job]
+rw=write
+end_fsync=1

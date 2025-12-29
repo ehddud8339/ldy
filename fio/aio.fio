@@ -1,0 +1,16 @@
+[global]
+filename=/mnt/test/testfile
+numjobs=1
+ioengine=libaio
+iodepth=32
+direct=1
+norandommap
+group_reporting=1
+
+[target-job]
+bs=4K
+rw=randread
+size=1G
+invalidate=1
+time_based=1
+runtime=30
