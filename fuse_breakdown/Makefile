@@ -61,3 +61,4 @@ $(USER_BIN): $(USER_DIR)/fuse_trace_user.c $(SKEL_HDR) $(INCLUDE_DIR)/fuse_trace
 clean:
 	rm -f $(BPF_OBJ) $(SKEL_HDR) $(USER_BIN)
 
+

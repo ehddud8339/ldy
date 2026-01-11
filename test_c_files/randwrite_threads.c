@@ -11,10 +11,16 @@
 #include <time.h>
 #include <stdint.h>
 #include <stdatomic.h>
+#include <limits.h>
 
-#define TEST_FILE_SIZE (50ULL * 1024 * 1024)
+/* =========================
+ * globals
+ * ========================= */
 static atomic_bool g_stop = ATOMIC_VAR_INIT(0);
 
+/* =========================
+ * utils
+ * ========================= */
 static void raise_fd_limit(void)
 {
     struct rlimit lim;
@@ -70,7 +76,7 @@ static void start_gate_broadcast(start_gate_t *g)
 }
 
 /* =========================
- * ready gate (all threads open+buf ready)
+ * ready gate (all threads open+buffer ready)
  * ========================= */
 typedef struct {
     pthread_mutex_t mtx;
@@ -124,12 +130,44 @@ static inline uint32_t xorshift32(uint32_t *s)
 }
 
 /* =========================
+ * size parser (e.g., 40M, 4K, 1G)
+ * ========================= */
+static int parse_size_bytes(const char *s, unsigned long long *out)
+{
+    if (!s || !*s) return -1;
+
+    char *end = NULL;
+    errno = 0;
+    unsigned long long v = strtoull(s, &end, 10);
+    if (errno != 0) return -1;
+    if (end == s) return -1;
+
+    unsigned long long mul = 1;
+    if (*end != '\0') {
+        if (end[1] != '\0') return -1; // one suffix char only
+        switch (*end) {
+            case 'K': case 'k': mul = 1024ULL; break;
+            case 'M': case 'm': mul = 1024ULL * 1024ULL; break;
+            case 'G': case 'g': mul = 1024ULL * 1024ULL * 1024ULL; break;
+            default: return -1;
+        }
+    }
+
+    if (v > ULLONG_MAX / mul) return -1;
+    *out = v * mul;
+    return 0;
+}
+
+/* =========================
  * thread args
  * ========================= */
 typedef struct {
     int             tid;
     size_t          block_size;
-    off_t           file_size;
+
+    // 0이면 fstat()로 실제 파일 크기 사용
+    // 0이 아니면 "랜덤 범위 제한" 용도로 사용 (실제 파일 크기보다 작아야 함)
+    off_t           limit_size;
 
     start_gate_t   *start_gate;
     ready_gate_t   *ready_gate;
@@ -145,7 +183,10 @@ typedef struct {
 static void usage(const char *prog)
 {
     fprintf(stderr,
-        "Usage: %s <num_threads> <ops_per_thread> [--direct] [--dsync] [--fdatasync=N]\n",
+        "Usage: %s <num_threads> <ops_per_thread>\n"
+        "       [--direct] [--dsync] [--fdatasync=N]\n"
+        "       [--filesize=40M]    (limit random range; file must be >= this)\n"
+        "       [--path_prefix=/mnt/test/testfile_]\n",
         prog);
 }
 
@@ -153,13 +194,60 @@ static void *writer_thread(void *arg)
 {
     thread_arg_t *t = (thread_arg_t *)arg;
 
-    char path[256];
-    snprintf(path, sizeof(path), "/mnt/test/testfile_%d", t->tid);
+    char path[512];
+    // 기본: /mnt/test/testfile_<tid>
+    // main에서 prefix를 바꿀 수 있게 하려면 전역/인자에 prefix를 넣으면 됨.
+    // 여기서는 간단히 고정 prefix를 쓰되, 아래 main에서 override 가능하게 구현함.
+    // (main에서 t->tid를 제외한 path를 이미 세팅해도 됨)
+    // -> 이 구현에서는 main에서 path_prefix 전역을 사용.
+    extern char g_path_prefix[384];
+    snprintf(path, sizeof(path), "%s%d", g_path_prefix, t->tid);
 
-    int fd = open(path, t->open_flags, 0644);
+    // CREATE/TRUNC 없음: 반드시 기존 파일이 있어야 함
+    int fd = open(path, t->open_flags);
     if (fd < 0) {
         t->err_count++;
-        // 메인이 무한 대기하지 않도록 ready는 올림
+        fprintf(stderr, "[Log] error: open %s failed: %s\n", path, strerror(errno));
+        ready_gate_signal_ready(t->ready_gate);
+        return NULL;
+    }
+
+    struct stat st;
+    if (fstat(fd, &st) != 0) {
+        t->err_count++;
+        fprintf(stderr, "[Log] error: fstat %s failed: %s\n", path, strerror(errno));
+        close(fd);
+        ready_gate_signal_ready(t->ready_gate);
+        return NULL;
+    }
+
+    off_t file_size = st.st_size;
+    if (file_size <= 0) {
+        t->err_count++;
+        fprintf(stderr, "[Log] error: file %s size is %lld\n", path, (long long)file_size);
+        close(fd);
+        ready_gate_signal_ready(t->ready_gate);
+        return NULL;
+    }
+
+    // 랜덤 범위 제한 옵션이 있으면 그 범위까지만 사용
+    if (t->limit_size > 0) {
+        if (file_size < t->limit_size) {
+            t->err_count++;
+            fprintf(stderr, "[Log] error: file %s size(%lld) < limit(%lld)\n",
+                    path, (long long)file_size, (long long)t->limit_size);
+            close(fd);
+            ready_gate_signal_ready(t->ready_gate);
+            return NULL;
+        }
+        file_size = t->limit_size;
+    }
+
+    if ((file_size % (off_t)t->block_size) != 0) {
+        t->err_count++;
+        fprintf(stderr, "[Log] error: file %s size(%lld) not multiple of block(%zu)\n",
+                path, (long long)file_size, t->block_size);
+        close(fd);
         ready_gate_signal_ready(t->ready_gate);
         return NULL;
     }
@@ -174,13 +262,10 @@ static void *writer_thread(void *arg)
 
     memset(buf, (unsigned char)(0xA5 ^ (t->tid & 0xFF)), t->block_size);
 
-    // open + buf 준비 완료
     ready_gate_signal_ready(t->ready_gate);
-
-    // start broadcast 대기 (동시 시작 보장)
     start_gate_wait(t->start_gate);
 
-    off_t max_blocks = t->file_size / (off_t)t->block_size;
+    off_t max_blocks = file_size / (off_t)t->block_size;
     if (max_blocks <= 0 || t->target_ops == 0) {
         free(buf);
         close(fd);
@@ -214,6 +299,9 @@ static void *writer_thread(void *arg)
     return NULL;
 }
 
+/* path prefix (default) */
+char g_path_prefix[384] = "/mnt/test/testfile_";
+
 int main(int argc, char **argv)
 {
     if (argc < 3) {
@@ -232,10 +320,13 @@ int main(int argc, char **argv)
 
     uint64_t ops_per_thread = (uint64_t)ops_ll;
     size_t block_size = 4096;
-    off_t file_size = (off_t)TEST_FILE_SIZE;
 
-    int open_flags = O_WRONLY | O_CREAT | O_TRUNC;
+    // CREATE/TRUNC 제거: 일반 OPEN
+    int open_flags = O_WRONLY;
     int fdatasync_every = 0;
+
+    // 0이면 실제 파일 크기 사용. 0이 아니면 랜덤 범위 제한.
+    off_t limit_size = 0;
 
     for (int i = 3; i < argc; i++) {
         if (strcmp(argv[i], "--direct") == 0) {
@@ -249,6 +340,24 @@ int main(int argc, char **argv)
         } else if (strncmp(argv[i], "--fdatasync=", 12) == 0) {
             fdatasync_every = atoi(argv[i] + 12);
             if (fdatasync_every < 0) fdatasync_every = 0;
+        } else if (strncmp(argv[i], "--filesize=", 11) == 0) {
+            unsigned long long v = 0;
+            if (parse_size_bytes(argv[i] + 11, &v) != 0 || v == 0) {
+                fprintf(stderr, "[Log] error: invalid --filesize value: %s\n", argv[i] + 11);
+                return 1;
+            }
+            limit_size = (off_t)v;
+        } else if (strncmp(argv[i], "--path_prefix=", 14) == 0) {
+            const char *p = argv[i] + 14;
+            if (!*p) {
+                fprintf(stderr, "[Log] error: empty --path_prefix\n");
+                return 1;
+            }
+            if (strlen(p) >= sizeof(g_path_prefix)) {
+                fprintf(stderr, "[Log] error: --path_prefix too long\n");
+                return 1;
+            }
+            strcpy(g_path_prefix, p);
         } else {
             fprintf(stderr, "[Log] warn: unknown option: %s\n", argv[i]);
             usage(argv[0]);
@@ -256,10 +365,17 @@ int main(int argc, char **argv)
         }
     }
 
-    printf("[Config] threads=%d ops_per_thread=%llu block=%zu file_size=%llu\n",
-           num_threads, (unsigned long long)ops_per_thread, block_size,
-           (unsigned long long)TEST_FILE_SIZE);
+    printf("[Config] threads=%d ops_per_thread=%llu block=%zu\n",
+           num_threads, (unsigned long long)ops_per_thread, block_size);
     printf("[Config] open_flags=0x%x fdatasync_every=%d\n", open_flags, fdatasync_every);
+    printf("[Config] path_prefix=%s (file per thread: %s<tid>)\n", g_path_prefix, g_path_prefix);
+    if (limit_size > 0) {
+        printf("[Config] limit_size=%lld (random range limited)\n", (long long)limit_size);
+        if ((limit_size % (off_t)block_size) != 0) {
+            fprintf(stderr, "[Log] error: --filesize must be multiple of block_size\n");
+            return 1;
+        }
+    }
 
     pthread_t *threads = calloc((size_t)num_threads, sizeof(pthread_t));
     thread_arg_t *args = calloc((size_t)num_threads, sizeof(thread_arg_t));
@@ -279,11 +395,10 @@ int main(int argc, char **argv)
 
     printf("[Log] Create threads (%d)\n", num_threads);
 
-    int created = 0;
     for (int i = 0; i < num_threads; i++) {
         args[i].tid = i;
         args[i].block_size = block_size;
-        args[i].file_size = file_size;
+        args[i].limit_size = limit_size;
         args[i].start_gate = &start_gate;
         args[i].ready_gate = &ready_gate;
         args[i].target_ops = ops_per_thread;
@@ -295,17 +410,15 @@ int main(int argc, char **argv)
         int rc = pthread_create(&threads[i], NULL, writer_thread, &args[i]);
         if (rc != 0) {
             fprintf(stderr, "[Log] error: pthread_create(%d) failed: %s\n", i, strerror(rc));
-            created = i;
             atomic_store_explicit(&g_stop, 1, memory_order_relaxed);
             start_gate_broadcast(&start_gate);
-            for (int j = 0; j < created; j++) pthread_join(threads[j], NULL);
+            for (int j = 0; j < i; j++) pthread_join(threads[j], NULL);
             ready_gate_destroy(&ready_gate);
             start_gate_destroy(&start_gate);
             free(threads);
             free(args);
             return 1;
         }
-        created = i + 1;
     }
 
     printf("[Log] Wait all threads open+buffer ready\n");
@@ -313,7 +426,7 @@ int main(int argc, char **argv)
     printf("[Log] All threads ready (open+buf done)\n");
 
     printf("[Log] Start I/O (broadcast start)\n");
-    struct timespec start_ts, stop_ts, done_ts;
+    struct timespec start_ts, done_ts;
     clock_gettime(CLOCK_MONOTONIC, &start_ts);
     start_gate_broadcast(&start_gate);
 
@@ -325,9 +438,6 @@ int main(int argc, char **argv)
         total_err += args[i].err_count;
     }
     clock_gettime(CLOCK_MONOTONIC, &done_ts);
-
-    // ops 기반에서는 stop_ts 의미가 약하니 done_ts만 사용
-    stop_ts = done_ts;
 
     double elapsed = ts_diff_sec(&start_ts, &done_ts);
     double iops = (elapsed > 0.0) ? ((double)total_ops / elapsed) : 0.0;

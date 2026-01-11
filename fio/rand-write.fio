@@ -1,6 +1,6 @@
 [global]
 directory=/mnt/test
-filename_format=fio_$jobnum
+filename_format=testfile_$jobnum
 #filename=/mnt/test/dummyfile
 #numjobs=32
 #numjobs=1
@@ -11,15 +11,15 @@ norandommap
 group_reporting=1
 
 [prepare-job]
-bs=128K
+bs=1M
 rw=write
-#size=4G
-end_fsync=0
+size=1G
+end_fsync=1
 
 [target-job]
 #bs=4K
 rw=randwrite
 #size=4G
-end_fsync=1
+end_fsync=0
 #time_based=1
 #runtime=60

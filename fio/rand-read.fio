@@ -1,7 +1,7 @@
 [global]
 directory=/mnt/test
-filename_format=fio_$jobnum
-#filename=/mnt/test/dummyfile
+filename_format=testfile_$jobnum
+#filename=/mnt/test/shared_readfile
 #numjobs=32
 #numjobs=1
 ioengine=psync
@@ -13,7 +13,7 @@ group_reporting=1
 [prepare-job]
 bs=1M
 rw=write
-size=4G
+size=1G
 end_fsync=1
 
 [target-job]

@@ -13,7 +13,9 @@
 #include <stdatomic.h>
 #include <limits.h>
 
-#define DEFAULT_FILE_GB 1
+/* =========================
+ * globals
+ * ========================= */
 static atomic_bool g_stop = ATOMIC_VAR_INIT(0);
 
 /* =========================
@@ -31,7 +33,7 @@ static void raise_fd_limit(void)
 
 static double ts_diff_sec(const struct timespec *a, const struct timespec *b)
 {
-    double sec  = (double)(b->tv_sec  - a->tv_sec);
+    double sec = (double)(b->tv_sec - a->tv_sec);
     double nsec = (double)(b->tv_nsec - a->tv_nsec) / 1e9;
     return sec + nsec;
 }
@@ -74,7 +76,7 @@ static void start_gate_broadcast(start_gate_t *g)
 }
 
 /* =========================
- * ready gate (all threads open+buf ready)
+ * ready gate (all threads open+buffer ready)
  * ========================= */
 typedef struct {
     pthread_mutex_t mtx;
@@ -128,26 +130,44 @@ static inline uint32_t xorshift32(uint32_t *s)
 }
 
 /* =========================
- * dd-precreated file check
+ * size parser (e.g., 40M, 4K, 1G, 100G)
  * ========================= */
-static int check_precreated_file(const char *path, off_t min_size)
+static int parse_size_bytes(const char *s, unsigned long long *out)
 {
-    struct stat st;
-    if (stat(path, &st) != 0) {
-        fprintf(stderr, "[Log] error: stat(%s) failed: %s\n", path, strerror(errno));
-        return -1;
+    if (!s || !*s) return -1;
+
+    char *end = NULL;
+    errno = 0;
+    unsigned long long v = strtoull(s, &end, 10);
+    if (errno != 0) return -1;
+    if (end == s) return -1;
+
+    unsigned long long mul = 1;
+    if (*end != '\0') {
+        if (end[1] != '\0') return -1; // one suffix char only
+        switch (*end) {
+            case 'K': case 'k': mul = 1024ULL; break;
+            case 'M': case 'm': mul = 1024ULL * 1024ULL; break;
+            case 'G': case 'g': mul = 1024ULL * 1024ULL * 1024ULL; break;
+            default: return -1;
+        }
     }
-    if (!S_ISREG(st.st_mode)) {
-        fprintf(stderr, "[Log] error: %s is not a regular file\n", path);
-        return -1;
-    }
-    if ((off_t)st.st_size < min_size) {
-        fprintf(stderr, "[Log] error: %s size too small: have=%lld need>=%lld\n",
-                path, (long long)st.st_size, (long long)min_size);
-        return -1;
-    }
+
+    if (v > ULLONG_MAX / mul) return -1;
+    *out = v * mul;
     return 0;
 }
+
+/* =========================
+ * mode
+ * ========================= */
+typedef enum {
+    MODE_PER_THREAD = 0,
+    MODE_SHARED     = 1,
+} file_mode_t;
+
+static char g_prefix[384] = "/mnt/test/testfile_"; // per-thread default
+static char g_shared_path[384] = "/mnt/test/shared_100g"; // shared default
 
 /* =========================
  * thread args
@@ -155,59 +175,93 @@ static int check_precreated_file(const char *path, off_t min_size)
 typedef struct {
     int             tid;
     size_t          block_size;
-    off_t           file_size;
 
-    /* either shared single file, or per-thread prefix */
-    const char     *shared_path;     /* used when file_prefix == N */
-    const char     *file_prefix;     /* if not N: use "<prefix>.<tid>" */
+    file_mode_t     mode;
+    off_t           limit_size;     // 0이면 실제 파일 크기 사용
+    const char     *shared_path;    // mode==SHARED일 때 사용
+    const char     *prefix;         // mode==PER_THREAD일 때 사용
 
     start_gate_t   *start_gate;
     ready_gate_t   *ready_gate;
 
     uint64_t        target_ops;
-    uint64_t        ops_count;    /* full reads only */
+    uint64_t        ops_count;
     uint64_t        err_count;
+
+    int             open_flags;
 } thread_arg_t;
 
 static void usage(const char *prog)
 {
     fprintf(stderr,
-        "Usage: %s <num_threads> <ops_per_thread> [--filesize_gb=N] [--file=PATH] [--file_prefix=PREFIX]\n"
-        "  NOTE: file(s) must be pre-created by dd (or equivalent) and size must be >= filesize_gb\n"
-        "  If --file_prefix is set, each thread uses: PREFIX.<tid>  (e.g., /mnt/test/readfile.0)\n",
+        "Usage: %s <num_threads> <ops_per_thread>\n"
+        "  [--mode=shared|perthread]\n"
+        "  [--shared=/path/to/100g_file]        (mode=shared)\n"
+        "  [--prefix=/mnt/test/testfile_]       (mode=perthread; file is <prefix><tid>)\n"
+        "  [--limit=100G|1G|40M|...]            (limit random range; file must be >= limit)\n"
+        "  [--bs=4K|...]                         (default 4K)\n"
+        "  [--direct]                            (O_DIRECT)\n",
         prog);
 }
 
-static int build_thread_path(char *dst, size_t dst_len, const char *prefix, int tid)
+static int open_existing_and_get_size(const char *path, int open_flags, off_t *out_size, int *out_fd)
 {
-    if (!dst || dst_len == 0 || !prefix) return -1;
-    int n = snprintf(dst, dst_len, "%s.%d", prefix, tid);
-    if (n < 0 || (size_t)n >= dst_len) return -1;
+    int fd = open(path, open_flags);
+    if (fd < 0) return -1;
+
+    struct stat st;
+    if (fstat(fd, &st) != 0) {
+        close(fd);
+        return -1;
+    }
+    if (st.st_size <= 0) {
+        close(fd);
+        errno = EINVAL;
+        return -1;
+    }
+
+    *out_fd = fd;
+    *out_size = (off_t)st.st_size;
     return 0;
 }
 
-/* =========================
- * reader thread
- * ========================= */
 static void *reader_thread(void *arg)
 {
     thread_arg_t *t = (thread_arg_t *)arg;
 
-    char pathbuf[PATH_MAX];
-    const char *path_to_open = t->shared_path;
+    char path[512];
+    if (t->mode == MODE_SHARED) {
+        snprintf(path, sizeof(path), "%s", t->shared_path);
+    } else {
+        snprintf(path, sizeof(path), "%s%d", t->prefix, t->tid);
+    }
 
-    if (t->file_prefix) {
-        if (build_thread_path(pathbuf, sizeof(pathbuf), t->file_prefix, t->tid) != 0) {
+    off_t file_size = 0;
+    int fd = -1;
+    if (open_existing_and_get_size(path, t->open_flags, &file_size, &fd) != 0) {
+        t->err_count++;
+        fprintf(stderr, "[Log] error: open/fstat failed: %s (%s)\n", path, strerror(errno));
+        ready_gate_signal_ready(t->ready_gate);
+        return NULL;
+    }
+
+    if (t->limit_size > 0) {
+        if (file_size < t->limit_size) {
             t->err_count++;
+            fprintf(stderr, "[Log] error: file %s size(%lld) < limit(%lld)\n",
+                    path, (long long)file_size, (long long)t->limit_size);
+            close(fd);
             ready_gate_signal_ready(t->ready_gate);
             return NULL;
         }
-        path_to_open = pathbuf;
+        file_size = t->limit_size;
     }
 
-    int fd = open(path_to_open, O_RDONLY);
-    if (fd < 0) {
+    if ((file_size % (off_t)t->block_size) != 0) {
         t->err_count++;
+        fprintf(stderr, "[Log] error: file %s size(%lld) not multiple of block(%zu)\n",
+                path, (long long)file_size, t->block_size);
+        close(fd);
         ready_gate_signal_ready(t->ready_gate);
         return NULL;
     }
@@ -215,34 +269,27 @@ static void *reader_thread(void *arg)
     void *buf = NULL;
     if (posix_memalign(&buf, t->block_size, t->block_size) != 0) {
         t->err_count++;
+        fprintf(stderr, "[Log] error: posix_memalign failed\n");
         close(fd);
         ready_gate_signal_ready(t->ready_gate);
         return NULL;
     }
+    memset(buf, 0, t->block_size);
 
-    /* open + buf ready */
     ready_gate_signal_ready(t->ready_gate);
-
-    /* synchronized start */
     start_gate_wait(t->start_gate);
 
-    off_t max_blocks = t->file_size / (off_t)t->block_size;
-    if (max_blocks <= 0 || t->target_ops == 0) {
-        free(buf);
-        close(fd);
-        return NULL;
-    }
-
+    off_t max_blocks = file_size / (off_t)t->block_size;
     uint32_t seed = (uint32_t)(time(NULL) ^ (t->tid * 0x9E3779B9u));
 
     uint64_t ops = 0, err = 0;
     while (!atomic_load_explicit(&g_stop, memory_order_relaxed) && ops < t->target_ops) {
         off_t offset = (off_t)(xorshift32(&seed) % (uint32_t)max_blocks) * (off_t)t->block_size;
 
-        ssize_t ret = pread(fd, buf, t->block_size, offset);
-        if (ret == (ssize_t)t->block_size) {
+        ssize_t n = pread(fd, buf, t->block_size, offset);
+        if (n == (ssize_t)t->block_size) {
             ops++;
-        } else if (ret < 0 && errno == EINTR) {
+        } else if (n < 0 && errno == EINTR) {
             continue;
         } else {
             err++;
@@ -272,20 +319,58 @@ int main(int argc, char **argv)
         usage(argv[0]);
         return 1;
     }
+
     uint64_t ops_per_thread = (uint64_t)ops_ll;
 
-    unsigned long long file_gb = DEFAULT_FILE_GB;
-    const char *shared_path = "/mnt/test/shared_readfile";
-    const char *file_prefix = NULL;
+    file_mode_t mode = MODE_PER_THREAD;
+    size_t block_size = 4096;
+    off_t limit_size = 0;
+
+    int open_flags = O_RDONLY;
 
     for (int i = 3; i < argc; i++) {
-        if (strncmp(argv[i], "--filesize_gb=", 13) == 0) {
-            file_gb = strtoull(argv[i] + 13, NULL, 10);
-            if (file_gb == 0) file_gb = DEFAULT_FILE_GB;
-        } else if (strncmp(argv[i], "--file=", 7) == 0) {
-            shared_path = argv[i] + 7;
-        } else if (strncmp(argv[i], "--file_prefix=", 14) == 0) {
-            file_prefix = argv[i] + 14;
+        if (strncmp(argv[i], "--mode=", 7) == 0) {
+            const char *m = argv[i] + 7;
+            if (strcmp(m, "shared") == 0) mode = MODE_SHARED;
+            else if (strcmp(m, "perthread") == 0) mode = MODE_PER_THREAD;
+            else {
+                fprintf(stderr, "[Log] error: invalid --mode=%s\n", m);
+                return 1;
+            }
+        } else if (strncmp(argv[i], "--shared=", 9) == 0) {
+            const char *p = argv[i] + 9;
+            if (!*p || strlen(p) >= sizeof(g_shared_path)) {
+                fprintf(stderr, "[Log] error: invalid --shared path\n");
+                return 1;
+            }
+            strcpy(g_shared_path, p);
+        } else if (strncmp(argv[i], "--prefix=", 9) == 0) {
+            const char *p = argv[i] + 9;
+            if (!*p || strlen(p) >= sizeof(g_prefix)) {
+                fprintf(stderr, "[Log] error: invalid --prefix\n");
+                return 1;
+            }
+            strcpy(g_prefix, p);
+        } else if (strncmp(argv[i], "--limit=", 8) == 0) {
+            unsigned long long v = 0;
+            if (parse_size_bytes(argv[i] + 8, &v) != 0 || v == 0) {
+                fprintf(stderr, "[Log] error: invalid --limit value: %s\n", argv[i] + 8);
+                return 1;
+            }
+            limit_size = (off_t)v;
+        } else if (strncmp(argv[i], "--bs=", 5) == 0) {
+            unsigned long long v = 0;
+            if (parse_size_bytes(argv[i] + 5, &v) != 0 || v == 0) {
+                fprintf(stderr, "[Log] error: invalid --bs value: %s\n", argv[i] + 5);
+                return 1;
+            }
+            block_size = (size_t)v;
+        } else if (strcmp(argv[i], "--direct") == 0) {
+#ifdef O_DIRECT
+            open_flags |= O_DIRECT;
+#else
+            fprintf(stderr, "[Log] warn: O_DIRECT not supported.\n");
+#endif
         } else {
             fprintf(stderr, "[Log] warn: unknown option: %s\n", argv[i]);
             usage(argv[0]);
@@ -293,41 +378,22 @@ int main(int argc, char **argv)
         }
     }
 
-    size_t block_size = 4096;
-    off_t file_size = (off_t)(file_gb * 1024 * 1024 * 1024);
+    if (block_size == 0 || (block_size & (block_size - 1)) != 0) {
+        fprintf(stderr, "[Log] error: block size should be power-of-two (got %zu)\n", block_size);
+        return 1;
+    }
+    if (limit_size > 0 && (limit_size % (off_t)block_size) != 0) {
+        fprintf(stderr, "[Log] error: --limit must be multiple of bs\n");
+        return 1;
+    }
 
-    printf("[Config] threads=%d ops_per_thread=%llu block=%zu file_size=%llu\n",
+    printf("[Config] threads=%d ops/thread=%llu bs=%zu mode=%s\n",
            num_threads, (unsigned long long)ops_per_thread, block_size,
-           (unsigned long long)(file_gb * 1024 * 1024 * 1024));
-
-    if (file_prefix) {
-        printf("[Config] file_mode    : per-thread files\n");
-        printf("[Config] file_prefix  : %s (each uses %s.<tid>)\n", file_prefix, file_prefix);
-    } else {
-        printf("[Config] file_mode    : shared single file\n");
-        printf("[Config] shared_file  : %s\n", shared_path);
-    }
-    printf("[Config] filesize_gb   : %llu\n", (unsigned long long)file_gb);
-
-    /* precheck files */
-    if (file_prefix) {
-        for (int i = 0; i < num_threads; i++) {
-            char p[PATH_MAX];
-            if (build_thread_path(p, sizeof(p), file_prefix, i) != 0) {
-                fprintf(stderr, "[Log] error: path too long for tid=%d\n", i);
-                return 1;
-            }
-            if (check_precreated_file(p, file_size) != 0) {
-                fprintf(stderr, "[Log] error: pre-created file check failed: %s\n", p);
-                return 1;
-            }
-        }
-    } else {
-        if (check_precreated_file(shared_path, file_size) != 0) {
-            fprintf(stderr, "[Log] error: pre-created file check failed\n");
-            return 1;
-        }
-    }
+           (mode == MODE_SHARED) ? "shared" : "perthread");
+    printf("[Config] open_flags=0x%x\n", open_flags);
+    if (mode == MODE_SHARED) printf("[Config] shared=%s\n", g_shared_path);
+    else printf("[Config] prefix=%s (file: %s<tid>)\n", g_prefix, g_prefix);
+    if (limit_size > 0) printf("[Config] limit=%lld\n", (long long)limit_size);
 
     pthread_t *threads = calloc((size_t)num_threads, sizeof(pthread_t));
     thread_arg_t *args = calloc((size_t)num_threads, sizeof(thread_arg_t));
@@ -342,58 +408,55 @@ int main(int argc, char **argv)
     ready_gate_t ready_gate;
     start_gate_init(&start_gate);
     ready_gate_init(&ready_gate, num_threads);
-    atomic_store_explicit(&g_stop, 0, memory_order_relaxed);
 
     printf("[Log] Create threads (%d)\n", num_threads);
 
-    int created = 0;
     for (int i = 0; i < num_threads; i++) {
         args[i].tid = i;
         args[i].block_size = block_size;
-        args[i].file_size = file_size;
-        args[i].shared_path = shared_path;
-        args[i].file_prefix = file_prefix;
+        args[i].mode = mode;
+        args[i].limit_size = limit_size;
+        args[i].shared_path = g_shared_path;
+        args[i].prefix = g_prefix;
         args[i].start_gate = &start_gate;
         args[i].ready_gate = &ready_gate;
         args[i].target_ops = ops_per_thread;
         args[i].ops_count = 0;
         args[i].err_count = 0;
+        args[i].open_flags = open_flags;
 
         int rc = pthread_create(&threads[i], NULL, reader_thread, &args[i]);
         if (rc != 0) {
             fprintf(stderr, "[Log] error: pthread_create(%d) failed: %s\n", i, strerror(rc));
-            created = i;
             atomic_store_explicit(&g_stop, 1, memory_order_relaxed);
             start_gate_broadcast(&start_gate);
-            for (int j = 0; j < created; j++) pthread_join(threads[j], NULL);
+            for (int j = 0; j < i; j++) pthread_join(threads[j], NULL);
             ready_gate_destroy(&ready_gate);
             start_gate_destroy(&start_gate);
             free(threads);
             free(args);
             return 1;
         }
-        created = i + 1;
     }
 
     printf("[Log] Wait all threads open+buffer ready\n");
     ready_gate_wait_all(&ready_gate);
-    printf("[Log] All threads ready (open+buf done)\n");
+    printf("[Log] All threads ready\n");
 
-    printf("[Log] Start I/O (broadcast start)\n");
-    struct timespec start_ts, done_ts;
-    clock_gettime(CLOCK_MONOTONIC, &start_ts);
+    printf("[Log] Start I/O\n");
+    struct timespec ts0, ts1;
+    clock_gettime(CLOCK_MONOTONIC, &ts0);
     start_gate_broadcast(&start_gate);
 
-    printf("[Log] Wait threads complete (join)\n");
     uint64_t total_ops = 0, total_err = 0;
     for (int i = 0; i < num_threads; i++) {
         pthread_join(threads[i], NULL);
         total_ops += args[i].ops_count;
         total_err += args[i].err_count;
     }
-    clock_gettime(CLOCK_MONOTONIC, &done_ts);
+    clock_gettime(CLOCK_MONOTONIC, &ts1);
 
-    double elapsed = ts_diff_sec(&start_ts, &done_ts);
+    double elapsed = ts_diff_sec(&ts0, &ts1);
     double iops = (elapsed > 0.0) ? ((double)total_ops / elapsed) : 0.0;
     double mbps = (elapsed > 0.0)
         ? ((double)(total_ops * block_size) / (1024.0 * 1024.0) / elapsed)
