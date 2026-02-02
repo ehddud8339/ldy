@@ -35,7 +35,7 @@ COMMON_PKGS=(
 KERNEL_SYS_PKGS=(
   "linux-headers-$(uname -r)"
   linux-tools-common linux-tools-generic "linux-tools-$(uname -r)"
-  clang llvm libelf-dev zlib1g-dev libcap-dev bpftool dwarves libbpf-dev
+  clang llvm libelf-dev zlib1g-dev libcap-dev dwarves libbpf-dev
   nvme-cli sysstat iotop
 )
 
